@@ -1,0 +1,38 @@
+<script type='text/javascript'>
+    RED.nodes.registerType('nd-device-shadow', {
+        category: 'device',
+        color: '#cccccc',
+        defaults: {
+            name: { value: '' }
+        },
+        inputs: 1,
+        outputs: 6,
+        label: function () {
+            return this.name || 'device-shadow';
+        }
+    });
+</script>
+<script type='text/x-red' data-template-name='nd-device-shadow'>
+    <div class='form-row'>
+        <label for='node-input-name'><i class='fa fa-tag'></i> Name</label>
+        <input type='text' id='node-input-name' placeholder='Name'>
+    </div>
+
+</script>
+<script type='text/x-red' data-help-name='nd-device-shadow'>
+
+<dl class="message-properties">
+    <dt>Set msg.env</dt>
+    <dd>
+        Value (ENV Name) replaces.
+<pre>
+<code>msg.env = {
+    "lang": "LANG",
+    "shell": "SHELL",
+    "path": "PATH"
+}</code>
+</pre>
+    </dd>
+</dl>
+
+</script>

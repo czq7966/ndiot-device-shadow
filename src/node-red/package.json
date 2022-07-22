@@ -1,0 +1,29 @@
+{
+    "name": "node-red-nd-device-shadow",
+    "version": "0.0.1",
+    "description": "Device shadow manager",
+    "node-red": {
+      "nodes": {
+        "nd-device-shadow": "nd-device-shadow.js"
+      }
+    },
+
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/czq7966/node-red-nd-device-shadow.git"
+    },
+    "keywords": [
+      "node-red",
+      "node",
+      "device",
+      "shadow",
+      "manager"
+    ],
+    "author": "CZQ",
+    "license": "MIT",
+    "bugs": {
+      "url": "https://github.com/czq7966/node-red-nd-device-shadow/issues"
+    },
+    "homepage": "https://github.com/czq7966/node-red-nd-device-shadow#readme"
+  }
+  

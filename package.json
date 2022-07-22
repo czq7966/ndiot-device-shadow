@@ -1,0 +1,31 @@
+{
+  "name": "ndiot-device-shadow",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf ./dist/shadows",
+    "watch": "npm run clean && webpack --watch --progress",
+    "test:clean": "rimraf ./dist/test",
+    "test:watch": "npm run test:clean && cross-env NODE_MODULE=test webpack --watch --progress --env cjs2",
+    "test": "node ./dist/test/index.js",
+    "nr:clean": "rimraf ./dist/node-red",
+    "nr:watch": "npm run nr:clean && cross-env NODE_MODULE=node-red webpack --watch --progress --env cjs2",
+    "device:amd:clean": "rimraf ./dist/device/amd",
+    "device:amd:watch": "npm run device:amd:clean && cross-env NODE_MODULE=device-amd  webpack --watch --progress --env cjs"
+  },
+  "author": "CZQ",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^18.0.5",
+    "@types/node-red": "^1.2.1",
+    "copy-webpack-plugin": "^11.0.0",
+    "cross-env": "^7.0.3",
+    "rimraf": "^3.0.2",
+    "ts-loader": "^9.3.1",
+    "typescript": "^4.7.4",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-node-externals": "^3.0.0"
+  }
+}
