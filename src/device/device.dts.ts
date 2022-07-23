@@ -5,38 +5,29 @@ export interface IBase {
 }
 
 export interface IDeviceClass {
-    new(id: string, pid: string, model: string, shadow: IDeviceShadow) : Object
+    new(id: string, pid: string, plugin: string, shadow: IDeviceShadow) : Object
 }
 
-export interface IDeviceModel {
+export interface IDevicePlugin {
     name: string
     url: string
-    Device?: IDeviceClass
+    Plugin?: IDeviceClass
 }
 
-export interface IDeviceModelsEvent {
-    name: string
-    url: string
-    Device?: IDeviceClass
-}
 
-export interface IDeviceModels extends IBase  {    
+export interface IDevicePlugins extends IBase  {    
     manager: IDeviceShadowManager;
-    models: {[name: string]: IDeviceModel}
-    urlClasses: {[url: string]: IDeviceClass}
-    defaultClass: IDeviceClass    
-    regModel(name: string, url: string): IDeviceModel;
-    getModel(name: string): IDeviceModel;
-    loadModel(name: string, defaultClass?: IDeviceClass): Promise<IDeviceModel>;
-    reloadModel(name: string): Promise<IDeviceModel>;    
-    regUrlClass(url: string, urlClass: IDeviceClass): IDeviceClass;
-    getUrlClass(url: string): IDeviceClass;
-    loadUrlClass(url: string): Promise<IDeviceClass>;    
-    reloadUrlClass(url: string): Promise<IDeviceClass>;        
-}
-
-export interface IDeviceAmdModels {
-    [name: string]: string
+    plugins: {[name: string]: IDevicePlugin}
+    urlPlugins: {[url: string]: IDeviceClass}
+    defaultPlugin: IDeviceClass    
+    regPlugin(name: string, url: string): IDevicePlugin;
+    getPlugin(name: string): IDevicePlugin;
+    loadPlugin(name: string, defaultPlugin?: IDeviceClass): Promise<IDevicePlugin>;
+    reloadPlugin(name: string): Promise<IDevicePlugin>;    
+    regUrlPlugin(url: string, urlPlugin: IDeviceClass): IDeviceClass;
+    getUrlPlugin(url: string): IDeviceClass;
+    loadUrlPlugin(url: string): Promise<IDeviceClass>;    
+    reloadUrlPlugin(url: string): Promise<IDeviceClass>;        
 }
 
 export interface IDeviceShadowEvent extends IBase  {
@@ -71,12 +62,12 @@ export interface IDeviceShadowManagerBusEvent extends IBase {
     north: IDeviceShadowEvent    
     config: IDeviceShadowEvent
     notify: IDeviceShadowEvent
-    models: IDeviceShadowEvent
+    plugins: IDeviceShadowEvent
     shadows: IDeviceShadowEvent
 }
 
 export interface IDeviceShadowManager extends IBase  {
-    models: IDeviceModels
+    plugins: IDevicePlugins
     shadows: IDeviceShadows
     events: IDeviceShadowManagerBusEvent
 }

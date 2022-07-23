@@ -52,8 +52,8 @@ export class NRShadowManager implements INRShadowManager{
                     this.on_config_input(msg, send, done);
                 else if (msg.action == "notify_input")
                     this.on_notify_input(msg, send, done);
-            } else if (msg.type == "models") {
-                    this.on_models_input(msg, send, done);
+            } else if (msg.type == "plugins") {
+                    this.on_plugins_input(msg, send, done);
             } else if (msg.type == "shadows") {
                     this.on_shadows_input(msg, send, done);                                
             }
@@ -67,7 +67,7 @@ export class NRShadowManager implements INRShadowManager{
         this.manager.events.north.output.on(this.on_north_output);
         this.manager.events.config.output.on(this.on_config_output);
         this.manager.events.notify.output.on(this.on_notify_output);
-        this.manager.events.models.output.on(this.on_models_output);
+        this.manager.events.plugins.output.on(this.on_plugins_output);
         this.manager.events.shadows.output.on(this.on_shadows_output);
               
     }
@@ -76,7 +76,7 @@ export class NRShadowManager implements INRShadowManager{
         this.manager.events.north.output.off(this.on_north_output);
         this.manager.events.config.output.off(this.on_config_output);
         this.manager.events.notify.output.off(this.on_notify_output);
-        this.manager.events.models.output.off(this.on_models_output);
+        this.manager.events.plugins.output.off(this.on_plugins_output);
         this.manager.events.shadows.output.off(this.on_shadows_output);
         this.manager.destroy();        
     }
@@ -105,10 +105,10 @@ export class NRShadowManager implements INRShadowManager{
             this.manager.events.notify.input.emit(msg);
     }       
 
-    on_models_input = (msg: INRInputMsg,
+    on_plugins_input = (msg: INRInputMsg,
         send: (msg: INRInputMsg | Array<INRInputMsg | INRInputMsg[] | null>) => void,
         done: (err?: Error) => void,) => {
-            this.manager.events.models.input.emit(msg);
+            this.manager.events.plugins.input.emit(msg);
     }   
 
     on_shadows_input = (msg: INRInputMsg,
@@ -133,7 +133,7 @@ export class NRShadowManager implements INRShadowManager{
         this.node.send([null, null, null, msg, null, null]);
     }       
 
-    on_models_output = (msg: INROutputMsg) => {
+    on_plugins_output = (msg: INROutputMsg) => {
         this.node.send([null, null, null, null, msg, null]);
     }
         
@@ -173,10 +173,10 @@ export class NRShadowManager implements INRShadowManager{
 //             this.manager.events.notify.input.emit(msg);
 //     }       
 
-//     function on_models_input(msg: INRInputMsg,
+//     function on_plugins_input(msg: INRInputMsg,
 //         send: (msg: INRInputMsg | Array<INRInputMsg | INRInputMsg[] | null>) => void,
 //         done: (err?: Error) => void,) {
-//             this.manager.events.models.input.emit(msg);
+//             this.manager.events.plugins.input.emit(msg);
 //     }   
 
 //     function on_shadows_input(msg: INRInputMsg,
@@ -201,7 +201,7 @@ export class NRShadowManager implements INRShadowManager{
 //         this.node.send([null, null, null, msg, null, null]);
 //     }       
 
-//     function on_models_output(msg: INROutputMsg) {
+//     function on_plugins_output(msg: INROutputMsg) {
 //         this.node.send([null, null, null, null, msg, null]);
 //     }
         
@@ -221,8 +221,8 @@ export class NRShadowManager implements INRShadowManager{
 //                     on_config_input(msg, send, done);
 //                 else if (msg.action == "notify_input")
 //                     on_notify_input(msg, send, done);
-//             } else if (msg.type == "models") {
-//                 on_models_input(msg, send, done);
+//             } else if (msg.type == "plugins") {
+//                 on_plugins_input(msg, send, done);
 //             } else if (msg.type == "shadows") {
 //                 on_shadows_input(msg, send, done);                                
 //             }
@@ -236,7 +236,7 @@ export class NRShadowManager implements INRShadowManager{
 //         this.manager.events.north.output.on(on_north_output);
 //         this.manager.events.config.output.on(on_config_output);
 //         this.manager.events.notify.output.on(on_notify_output);
-//         this.manager.events.models.output.on(on_models_output);
+//         this.manager.events.plugins.output.on(on_plugins_output);
 //         this.manager.events.shadows.output.on(on_shadows_output);
 //     }
 

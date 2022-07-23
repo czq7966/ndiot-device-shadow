@@ -12,17 +12,17 @@ export class DeviceShadows implements IDeviceShadows {
         this.delAllShadows();        
     }
 
-    newShadow(modelName: string, id: string, pid?: string): Promise<IDeviceShadow> {
+    newShadow(model: string, id: string, pid?: string): Promise<IDeviceShadow> {
         let shadow = this.shadows[id];
         if (shadow) 
             return Promise.resolve(shadow)
         else {
             return new Promise((resolve, reject) => {
-                this.manager.models.loadModel(modelName)
-                .then(model => {
-                    if (model && model.Device) {
+                this.manager.plugins.loadPlugin(model)
+                .then(plugin => {
+                    if (plugin && plugin.Plugin) {
                         shadow = new DeviceShadow(this.manager);
-                        let device = new model.Device(id, pid, modelName, shadow) as IDeviceBase;
+                        let device = new plugin.Plugin(id, pid, model, shadow) as IDeviceBase;
                         shadow.device = device;
                         this.shadows[id] = shadow;
                         resolve(shadow);

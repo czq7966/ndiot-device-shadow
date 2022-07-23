@@ -1,6 +1,6 @@
 import { Device } from './amd/device';
-import { IDeviceBaseProp, IDeviceBusEventData, IDeviceModels, IDeviceShadowEvent, IDeviceShadowManager, IDeviceShadowManagerBusEvent, IDeviceShadows } from "./device.dts";
-import { DeviceModels } from './models';
+import { IDeviceBaseProp, IDeviceBusEventData, IDevicePlugins, IDeviceShadowEvent, IDeviceShadowManager, IDeviceShadowManagerBusEvent, IDeviceShadows } from "./device.dts";
+import { DevicePlugins } from './plugins';
 import { DeviceShadowEvent } from './shadow';
 import { DeviceShadows } from './shadows';
 
@@ -9,34 +9,34 @@ export class DeviceShadowManagerBusEvent implements IDeviceShadowManagerBusEvent
     north: IDeviceShadowEvent = new DeviceShadowEvent();
     config: IDeviceShadowEvent = new DeviceShadowEvent();
     notify: IDeviceShadowEvent = new DeviceShadowEvent();
-    models: IDeviceShadowEvent = new DeviceShadowEvent();
+    plugins: IDeviceShadowEvent = new DeviceShadowEvent();
     shadows: IDeviceShadowEvent = new DeviceShadowEvent();
     destroy = () => {
         this.south.destroy();
         this.north.destroy();
         this.config.destroy();
         this.notify.destroy()
-        this.models.destroy()
+        this.plugins.destroy()
         this.shadows.destroy()
     }    
 }
 
 export class DeviceManager implements IDeviceShadowManager {
-    models: IDeviceModels;
+    plugins: IDevicePlugins;
     shadows: IDeviceShadows;
     events: IDeviceShadowManagerBusEvent;
 
     constructor() {
-        this.models = new DeviceModels(this);
+        this.plugins = new DevicePlugins(this);
         this.shadows = new DeviceShadows(this);
         this.events = new DeviceShadowManagerBusEvent();
-        this.models.defaultClass = Device;
+        this.plugins.defaultPlugin = Device;
 
         this.events.south.input.on(this.on_south_input);
         this.events.north.input.on(this.on_north_input);
         this.events.config.input.on(this.on_config_input);
         this.events.notify.input.on(this.on_notify_input);
-        this.events.models.input.on(this.on_models_input);
+        this.events.plugins.input.on(this.on_plugins_input);
         this.events.shadows.input.on(this.on_shadows_input);
 
     }
@@ -46,12 +46,12 @@ export class DeviceManager implements IDeviceShadowManager {
         this.events.north.input.off(this.on_north_input);
         this.events.config.input.off(this.on_config_input);
         this.events.notify.input.off(this.on_notify_input);
-        this.events.models.input.off(this.on_models_input);
+        this.events.plugins.input.off(this.on_plugins_input);
         this.events.shadows.input.off(this.on_shadows_input);
 
         this.events.destroy();
         this.shadows.destroy();
-        this.models.destroy();
+        this.plugins.destroy();
     }
 
     on_south_input = (msg: IDeviceBusEventData) => {
@@ -73,7 +73,7 @@ export class DeviceManager implements IDeviceShadowManager {
        
     }       
 
-    on_models_input = (msg: IDeviceBusEventData) => {
+    on_plugins_input = (msg: IDeviceBusEventData) => {
 
     }   
 

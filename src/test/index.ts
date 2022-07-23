@@ -3,14 +3,13 @@ import { DeviceManager } from "../device/manager";
 
 let manager = new DeviceManager();
 
-manager.models.regModel("device-base", "E:/data/ndiot-device-shadow/dist/device/amd/device/index.js");
-// manager.models.regModel("ACGree", "E:/data/ndiot-device-shadow/dist/device/amd/ac-gree/index.js");
-manager.models.regModel("ACGree", "device-base");
+manager.plugins.regPlugin("device-base", "E:/data/ndiot-device-shadow/dist/device/amd/device/index.js");
+// manager.plugins.regPlugin("ACGree", "E:/data/ndiot-device-shadow/dist/device/amd/ac-gree/index.js");
 
-let models = ["device-base"]
+let plugins = ["device-base"]
 
 
-models.forEach(name => {
+plugins.forEach(name => {
     manager.shadows.newShadow(name, name, null)
     .then(shadow => {
         // console.log(shadow)        
