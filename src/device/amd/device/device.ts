@@ -4,28 +4,41 @@ import { IDeviceBase, IDeviceBusEventData, IDeviceShadow } from "../../device.dt
 export interface IDevice extends IDeviceBase {}
 
 export class Device extends DeviceBase implements IDeviceBase {
-    constructor(id: string, pid: string, model: string, shadow: IDeviceShadow) {
-        super(id, pid, model, shadow);
-        this.init();
+
+    //初始化
+    init() {
+        console.log("Device init");
     }
-    onBusEventSouthInput = (msg: IDeviceBusEventData) => {
-        console.log("Device  onBusEventSouthInput 111");
-        //南面输入->北面输出
-        // console.log(this)
-        this.shadow.events.north.output.emit(msg);
+     
+    //反初始化
+    uninit() {
+         console.log("Device uninit");
+     }
+
+    //南向输入
+    on_south_input(msg: IDeviceBusEventData) {
+        console.log("Device  on_south_input ");
+
+        //父设备 todo...
+        //父设备输出给子设备，msg.id = child.id
+        //msg.id = child.id
+        //this.events.parent.output.emit(msg); 
+
+        //正常 todo...
+        super.on_south_input(msg);
     }
 
-    init = () => {
-        console.log(this)
-        this.shadow.events.south.input.on(this.onBusEventSouthInput);
-        // this.shadow.events.south.input.off(this.onBusEventSouthInput);
-        console.log("Device init")
-    }
-
-
-    onBusEventNorInput(msg: IDeviceBusEventData) {
-        console.log("Device  onBusEventNorInput");
-        //北面输入->南面输出
-        this.shadow.events.south.output.emit(msg);
+    //北向输入
+    on_north_input(msg: IDeviceBusEventData) {
+        console.log("Device  on_north_input");
+        //todo ...
+        super.on_north_input(msg);
     }    
+
+    //子设备输入
+    on_child_input(msg: IDeviceBusEventData) {
+        console.log("Device  on_child_input");
+        //todo...
+        super.on_child_input(msg);       
+    }  
 }

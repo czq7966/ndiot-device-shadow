@@ -1,30 +1,33 @@
-import { IDeviceBase, IDeviceShadow, IDeviceShadowEvents, IDeviceShadowManager, IDeviceShadows } from "./device.dts";
+import { Base, IDeviceBase, IDeviceBaseProp, IDeviceShadow, IDeviceShadowEvents, IDeviceShadowManager, IDeviceShadows } from "./device.dts";
 import { DeviceShadow } from "./shadow";
 
-export class DeviceShadows implements IDeviceShadows {
+export class DeviceShadows extends Base implements IDeviceShadows {
     manager: IDeviceShadowManager;
-    shadows: { [id: string]: IDeviceShadow; } = {};
+    shadows: { [id: string]: IDeviceShadow; };
 
     constructor(manager: IDeviceShadowManager) {
+        super();
+        this.shadows = {};
         this.manager = manager;
     }
-    destroy = () => {
+    destroy() {
         this.delAllShadows();        
+        super.destroy();
     }
 
-    newShadow(model: string, id: string, pid?: string): Promise<IDeviceShadow> {
-        let shadow = this.shadows[id];
+    newShadow(props: IDeviceBaseProp): Promise<IDeviceShadow> {
+        let shadow = this.shadows[props.id];
         if (shadow) 
             return Promise.resolve(shadow)
         else {
             return new Promise((resolve, reject) => {
-                this.manager.plugins.loadPlugin(model)
+                this.manager.plugins.loadPlugin(props.model)
                 .then(plugin => {
                     if (plugin && plugin.Plugin) {
                         shadow = new DeviceShadow(this.manager);
-                        let device = new plugin.Plugin(id, pid, model, shadow) as IDeviceBase;
-                        shadow.device = device;
-                        this.shadows[id] = shadow;
+                        let device = new plugin.Plugin(props.id, props.pid, props.model) as IDeviceBase;
+                        shadow.attachDevice(device);
+                        this.shadows[props.id] = shadow;
                         resolve(shadow);
                     } else {
                         reject("no export Device class")
@@ -41,8 +44,10 @@ export class DeviceShadows implements IDeviceShadows {
         delete this.shadows[id];
         if (shadow) {
             let device = shadow.device;
-            if (device)
+            shadow.detachDevice();
+            if (device)               
                 device.destroy();
+            
             shadow.destroy();
         }
         return true;

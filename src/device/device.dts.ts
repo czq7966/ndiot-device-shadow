@@ -1,11 +1,24 @@
 import EventEmitter = require("events")
+import { BaseEvent, IBaseEvent } from "../common/events";
 
 export interface IBase {
-    destroy: () => void; 
+    onDestroy: IBaseEvent
+    destroy(); 
 }
 
+export class Base {
+    onDestroy: IBaseEvent;
+    constructor(){
+        this.onDestroy = new BaseEvent();
+    }
+    destroy(){
+        this.onDestroy.emit(this);
+    }; 
+}
+
+
 export interface IDeviceClass {
-    new(id: string, pid: string, plugin: string, shadow: IDeviceShadow) : Object
+    new(id: string, pid: string, model: string) : Object
 }
 
 export interface IDevicePlugin {
@@ -30,40 +43,36 @@ export interface IDevicePlugins extends IBase  {
     reloadUrlPlugin(url: string): Promise<IDeviceClass>;        
 }
 
-export interface IDeviceShadowEvent extends IBase  {
+export interface IDeviceEntryEvent extends IBase  {
     input: IDeviceBusEvent
     output: IDeviceBusEvent
 }
 
-export interface IDeviceShadowEvents extends IBase  {
-    south: IDeviceShadowEvent
-    north: IDeviceShadowEvent    
-    parent: IDeviceShadowEvent
-    child: IDeviceShadowEvent
-    config: IDeviceShadowEvent
-}
+export interface IDeviceShadowEvents extends IDeviceBaseEvents  {}
 
 export interface IDeviceShadow extends IBase {
     manager: IDeviceShadowManager
     device: IDeviceBase
     events: IDeviceShadowEvents
+    attachDevice(device: IDeviceBase);
+    detachDevice();
 }
 
 export interface IDeviceShadows extends IBase {
     manager: IDeviceShadowManager
     shadows: {[id: string] : IDeviceShadow}
-    newShadow(model: string, id: string, pid?: string): Promise<IDeviceShadow>
+    newShadow(props: IDeviceBaseProp): Promise<IDeviceShadow>
     delShadow(id: string): boolean;
     getShadow(id: string): IDeviceShadow;
 }
 
 export interface IDeviceShadowManagerBusEvent extends IBase {
-    south: IDeviceShadowEvent
-    north: IDeviceShadowEvent    
-    config: IDeviceShadowEvent
-    notify: IDeviceShadowEvent
-    plugins: IDeviceShadowEvent
-    shadows: IDeviceShadowEvent
+    south: IDeviceEntryEvent
+    north: IDeviceEntryEvent    
+    config: IDeviceEntryEvent
+    notify: IDeviceEntryEvent
+    plugins: IDeviceEntryEvent
+    shadows: IDeviceEntryEvent
 }
 
 export interface IDeviceShadowManager extends IBase  {
@@ -78,14 +87,24 @@ export interface IDeviceBaseProp {
     model: string
 }
 
+export interface IDeviceBaseEvents extends IBase {
+    south: IDeviceEntryEvent
+    north: IDeviceEntryEvent    
+    config: IDeviceEntryEvent
+    notify: IDeviceEntryEvent
+    parent: IDeviceEntryEvent
+    child: IDeviceEntryEvent
+}
+
 export interface IDeviceBase extends IBase, IDeviceBaseProp {
     id: string
     pid: string
     model: string
+    events: IDeviceBaseEvents
     props: {[name: string]: any}
-    events: {[name: string]: any}
-    services: {[name: string]: any}
-    shadow: IDeviceShadow    
+    // events: {[name: string]: any}
+    // services: {[name: string]: any}
+    // shadow: IDeviceShadow    
 }
 
 export interface IDeviceBusEventData {

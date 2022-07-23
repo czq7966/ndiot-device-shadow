@@ -8,18 +8,34 @@ manager.plugins.regPlugin("device-base", "E:/data/ndiot-device-shadow/dist/devic
 
 let plugins = ["device-base"]
 
+let pdev = {id: "pid", pid: null, model: "device-base"};
+let dev = {id: "id", pid: "pid", model: "device-base"}
 
-plugins.forEach(name => {
-    manager.shadows.newShadow(name, name, null)
+manager.shadows.newShadow(pdev)
+.then(pshadow => {
+    manager.shadows.newShadow(dev)
     .then(shadow => {
-        // console.log(shadow)        
-        // manager.shadows.newShadow(name, name+"1", null);
-        shadow.events.south.input.emit({id: shadow.device.id, payload: ""})
+        shadow.events.south.input.emit({id: shadow.device.id, payload: ""});
+        shadow.events.north.input.emit({id: shadow.device.id, payload: ""});
     })
-    .catch(err => {
-        console.log(err)
-    })
+    // console.log(shadow)        
+    // manager.shadows.newShadow(name, name+"1", null);
+    
 })
+
+
+// plugins.forEach(name => {
+//     manager.shadows.newShadow(name, name, null)
+//     .then(shadow => {
+//         // console.log(shadow)        
+//         // manager.shadows.newShadow(name, name+"1", null);
+//         shadow.events.south.input.emit({id: shadow.device.id, payload: ""});
+//         shadow.events.north.input.emit({id: shadow.device.id, payload: ""});
+//     })
+//     .catch(err => {
+//         console.log(err)
+//     })
+// })
 
 
 let event = new EventEmitter();

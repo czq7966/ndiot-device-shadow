@@ -1,18 +1,21 @@
 import * as Common from '../common'
-import {IDeviceBusEventData, IDeviceClass, IDevicePlugin, IDevicePlugins,  IDeviceShadowManager } from "./device.dts";
+import {Base, IDeviceBusEventData, IDeviceClass, IDevicePlugin, IDevicePlugins,  IDeviceShadowManager } from "./device.dts";
 
-export class DevicePlugins implements IDevicePlugins {
+export class DevicePlugins extends Base implements IDevicePlugins {
     manager: IDeviceShadowManager;
-    plugins: { [id: string]: IDevicePlugin } = {};
-    urlPlugins: { [url: string]: IDeviceClass} = {};
+    plugins: { [id: string]: IDevicePlugin };
+    urlPlugins: { [url: string]: IDeviceClass};
     defaultPlugin: IDeviceClass
 
     constructor(manager: IDeviceShadowManager) {
+        super();
+        this.plugins = {};
+        this.urlPlugins = {};
         this.manager = manager;
     }
 
-    destroy = () => {
-
+    destroy() {
+        super.destroy();
     }
     
 
@@ -23,7 +26,7 @@ export class DevicePlugins implements IDevicePlugins {
         };
         plugin.url = url || plugin.url || "";
         this.plugins[name] = plugin;
-        return plugin;
+        return this.getPlugin(name);
     }
 
     getPlugin(name: string): IDevicePlugin {
