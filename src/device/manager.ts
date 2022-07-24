@@ -102,7 +102,7 @@ export class DeviceManager extends Base implements IDeviceShadowManager {
             let payload = msg.payload as IDeviceBaseProp;
             this.shadows.newShadow(payload)
             .then(shadow => {
-                msg.payload = shadow;
+                msg.payload.shadow = shadow;
                 this.events.shadows.output.emit(msg);
             })
             .catch(err => {
