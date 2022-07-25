@@ -1,10 +1,10 @@
 import * as Common from '../common'
-import {Base, IDeviceBusEventData, IDeviceClass, IDevicePlugin, IDevicePlugins,  IDeviceShadowManager } from "./device.dts";
+import {Base, IDeviceBusEventData, IDeviceClass, IDevicePlugin, IDevicePlugins,  IDeviceShadowManager, IDeviceUrlPlugin } from "./device.dts";
 
 export class DevicePlugins extends Base implements IDevicePlugins {
     manager: IDeviceShadowManager;
     plugins: { [id: string]: IDevicePlugin };
-    urlPlugins: { [url: string]: IDeviceClass};
+    urlPlugins: { [url: string]: IDeviceUrlPlugin};
     defaultPlugin: IDeviceClass
 
     constructor(manager: IDeviceShadowManager) {
@@ -37,24 +37,10 @@ export class DevicePlugins extends Base implements IDevicePlugins {
     }    
     
 
-    loadPlugin(name: string): Promise<IDevicePlugin> {
+    loadPlugin(name: string, reload?: boolean): Promise<IDevicePlugin> {
         return new Promise((resolve, reject) => {
             let plugin = this.getPlugin(name);
-            if (plugin) {
-                plugin.Plugin = this.getUrlPlugin(plugin.url);
-                if (plugin.Plugin) 
-                    resolve(plugin);
-                else {               
-                    this.reloadUrlPlugin(plugin.url)
-                    .then(Dev => {
-                        plugin.Plugin = Dev;
-                        resolve(plugin);
-                    })
-                    .catch(err => {
-                        reject(err);
-                    });
-                }
-            } else {
+            if (!plugin || (!plugin.url && !plugin.Plugin)){
                 if (this.defaultPlugin) {
                     plugin = {
                         name: name,
@@ -65,21 +51,50 @@ export class DevicePlugins extends Base implements IDevicePlugins {
                 } else {
                     reject("error: plugin: " + name + " not regged, please reg it first");
                 }
-            }
+            } else {
+                plugin.Plugin = this.getUrlPlugin(plugin.url);
+                if (plugin.Plugin) 
+                    resolve(plugin);
+                else {       
+                    let url = this.getPluginUrl(name);
+                    let promise = reload ? this.reloadUrlPlugin(url) : this.loadUrlPlugin(url);
+                    promise
+                    .then( _Plugin => {
+                        plugin.Plugin = _Plugin;
+                        resolve(plugin);
+                    })
+                    .catch(err => {
+                        reject(err)
+                    })
+                }
+            } 
         })
     }
 
- 
+    getPluginUrl(name: string): string {
+        let _getUrl = (_name) => {
+            let _plugin = this.getPlugin(_name);
+            return _plugin ? _plugin.url : "";
+        }        
+
+        let url = _getUrl(name);
+        let url2 = "";
+        if (url && url != name) url2 = _getUrl(url);
+        if (url2 && url2 != name && url2 != url) {
+            url = this.getPluginUrl(url2) || url2;
+        }
+        return url;
+    }
 
     reloadPlugin(name: string): Promise<IDevicePlugin> {
         return new Promise((resolve, reject) => {
             let plugin = this.getPlugin(name);
-            if (plugin) {
-                
-                    Common.Amd.requirejs(plugin.url, [name, "Device"])
-                    .then((modules: any) => {
-                        plugin.Plugin = modules[name] || modules.Device || plugin.Plugin;
-                        resolve(plugin);
+            let url = this.getPluginUrl(name);
+            if (plugin && url) {
+                    this.reloadUrlPlugin(url)
+                    .then((_plugin) => {
+                        plugin.Plugin = _plugin;
+                        resolve(plugin)
                     })
                     .catch(err => {
                         reject(err);
@@ -91,44 +106,58 @@ export class DevicePlugins extends Base implements IDevicePlugins {
     }
 
     regUrlPlugin(url: string, urlPlugin: IDeviceClass): IDeviceClass {
-        this.urlPlugins[url] = urlPlugin;
+        this.urlPlugins[url] = {url: url, Plugin: urlPlugin};
         return urlPlugin;
     }    
 
     getUrlPlugin(url: string): IDeviceClass {
-        return this.urlPlugins[url];        
+        let urlPlugin =this.urlPlugins[url];
+        if (urlPlugin)
+            return urlPlugin.Plugin;
+        return null;
     }
 
     loadUrlPlugin(url: string): Promise<IDeviceClass> {
-        let plugin = this.getUrlPlugin(url);
-        if (plugin) {
-            if (plugin) 
-                return Promise.resolve(plugin);
+        let urlPlugin =this.urlPlugins[url];
+        if (urlPlugin) {
+            if (urlPlugin.Plugin) 
+                return Promise.resolve(urlPlugin.Plugin);
             else {
-                return this.reloadUrlPlugin(url);
+                if (urlPlugin.promise)
+                    return urlPlugin.promise;
+                else
+                    return this.reloadUrlPlugin(url);
             }
         } else {
-            return Promise.reject("error: plugin: " + name + " not regged, please reg it first");
+            return this.reloadUrlPlugin(url);
         }        
     }    
 
-    reloadUrlPlugin(url: string): Promise<IDeviceClass> {
-        return new Promise((resolve, reject) => {
+    reloadUrlPlugin(url: string): Promise<IDeviceClass> {     
+        console.log("reloadUrlPlugin",url)
+        let urlPlugin = this.urlPlugins[url] || {url: url};
+        this.urlPlugins[url]= urlPlugin;
+        let promise = new Promise<IDeviceClass>((resolve, reject) => {
             Common.Amd.requirejs(url, [])
             .then((modules: {}) => {
+                urlPlugin.promise = null;
                 let names = Object.keys(modules);
                 if (names.length > 0) {
                     let plugin = modules[names[0]]
-                    this.urlPlugins[url] = plugin;
+                    urlPlugin.Plugin = plugin;
                     resolve(plugin);
                 } else {
                     reject("error: module not exported");
                 }
             })
             .catch(err => {
+                urlPlugin.promise = null;
                 reject(err);
             })
         })
+        urlPlugin.promise = promise;
+
+        return promise;
                 
     }    
 

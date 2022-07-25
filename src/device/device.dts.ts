@@ -27,15 +27,22 @@ export interface IDevicePlugin {
     Plugin?: IDeviceClass
 }
 
+export interface IDeviceUrlPlugin {
+    url: string
+    Plugin?: IDeviceClass
+    promise?: Promise<IDeviceClass>
+}
+
 
 export interface IDevicePlugins extends IBase  {    
     manager: IDeviceShadowManager;
     plugins: {[name: string]: IDevicePlugin}
-    urlPlugins: {[url: string]: IDeviceClass}
+    urlPlugins: {[url: string]: IDeviceUrlPlugin}
     defaultPlugin: IDeviceClass    
     regPlugin(name: string, url: string): IDevicePlugin;
     getPlugin(name: string): IDevicePlugin;
-    loadPlugin(name: string, defaultPlugin?: IDeviceClass): Promise<IDevicePlugin>;
+    getPluginUrl(name: string): string
+    loadPlugin(name: string, reload?: boolean): Promise<IDevicePlugin>;
     reloadPlugin(name: string): Promise<IDevicePlugin>;    
     regUrlPlugin(url: string, urlPlugin: IDeviceClass): IDeviceClass;
     getUrlPlugin(url: string): IDeviceClass;

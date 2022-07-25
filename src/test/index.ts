@@ -4,24 +4,28 @@ import { DeviceManager } from "../device/manager";
 let manager = new DeviceManager();
 
 manager.plugins.regPlugin("device-base", "E:/data/ndiot-device-shadow/dist/device/amd/device/index.js");
+manager.plugins.regPlugin("device-base1", "device-base");
 // manager.plugins.regPlugin("ACGree", "E:/data/ndiot-device-shadow/dist/device/amd/ac-gree/index.js");
 
 let plugins = ["device-base"]
 
 let pdev = {id: "pid", pid: null, model: "device-base"};
-let dev = {id: "id", pid: "pid", model: "device-base"}
+let dev = {id: "id", pid: "pid", model: "device-base1"}
 
 manager.shadows.newShadow(pdev)
-.then(pshadow => {
-    manager.shadows.newShadow(dev)
-    .then(shadow => {
-        shadow.events.south.input.emit({id: shadow.device.id, payload: ""});
-        shadow.events.north.input.emit({id: shadow.device.id, payload: ""});
-    })
-    // console.log(shadow)        
-    // manager.shadows.newShadow(name, name+"1", null);
+manager.shadows.newShadow(dev)
+
+// manager.shadows.newShadow(pdev)
+// .then(pshadow => {
+//     manager.shadows.newShadow(dev)
+//     .then(shadow => {
+//         shadow.events.south.input.emit({id: shadow.device.id, payload: ""});
+//         shadow.events.north.input.emit({id: shadow.device.id, payload: ""});
+//     })
+//     // console.log(shadow)        
+//     // manager.shadows.newShadow(name, name+"1", null);
     
-})
+// })
 
 
 // plugins.forEach(name => {
