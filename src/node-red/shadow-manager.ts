@@ -42,7 +42,7 @@ export class NRShadowManager implements INRShadowManager{
     init = () => {
         this.manager = new DeviceManager();
         this.node.on("input", (msg: INRInputMsg, send, done) => {
-            console.log(msg);
+            // console.log(msg);
 
             if (msg.type == "south")
                 this.on_south_input(msg, send, done);

@@ -4,13 +4,13 @@ import { DeviceManager } from "../device/manager";
 let manager = new DeviceManager();
 
 manager.plugins.regPlugin("device-base", "E:/data/ndiot-device-shadow/dist/device/amd/device/index.js");
-manager.plugins.regPlugin("device-base1", "device-base");
+manager.plugins.regPlugin("Z3CO2652ESP8266-test", "E:/data/ndiot-device-shadow/dist/device/amd/zigbee2mqtt/index.js");
 // manager.plugins.regPlugin("ACGree", "E:/data/ndiot-device-shadow/dist/device/amd/ac-gree/index.js");
 
 let plugins = ["device-base"]
 
 let pdev = {id: "pid", pid: null, model: "device-base"};
-let dev = {id: "id", pid: "pid", model: "device-base1"}
+let dev = {id: "id-test", pid: null, model: "Z3CO2652ESP8266-test"}
 
 manager.shadows.newShadow(pdev)
 manager.shadows.newShadow(dev)
@@ -52,3 +52,7 @@ event.prependListener ("1", () => {
 })
 
 event.emit("1")
+
+setTimeout(() => {
+    manager.shadows.delShadow("id-test")
+}, 3000)

@@ -39,6 +39,7 @@ export interface IDevicePlugins extends IBase  {
     plugins: {[name: string]: IDevicePlugin}
     urlPlugins: {[url: string]: IDeviceUrlPlugin}
     defaultPlugin: IDeviceClass    
+    defaultPluginName: string
     regPlugin(name: string, url: string): IDevicePlugin;
     getPlugin(name: string): IDevicePlugin;
     getPluginUrl(name: string): string
@@ -120,6 +121,7 @@ export interface IDeviceBusEventData {
     action?: string
     topic?: string
     payload?: any
+    device?: IDeviceBase
 }
 
 export interface IDeviceBusEvent extends IBase {

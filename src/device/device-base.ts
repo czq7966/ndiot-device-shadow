@@ -1,6 +1,6 @@
 import EventEmitter = require("events");
 import { IBaseEvent, BaseEvent } from "../common/events";
-import { Base, IDeviceBase, IDeviceBaseEvents, IDeviceBusEventData, IDeviceShadow, IDeviceEntryEvent, IDeviceBusEvent } from "./device.dts";
+import { Base, IDeviceBase, IDeviceBaseEvents, IDeviceBusEventData, IDeviceShadow, IDeviceEntryEvent, IDeviceBusEvent, IDeviceBaseProp } from "./device.dts";
 
 export class DeviceBusEvent implements IDeviceBusEvent {
     eventName: string = "";
@@ -65,6 +65,12 @@ export class DeviceBaseEvents extends Base implements IDeviceBaseEvents {
         this.child.destroy();
         super.destroy();        
     }
+}
+
+export class DeviceBaseProp implements IDeviceBaseProp {
+    id: string = "";
+    pid: string = "";
+    model: string = "";    
 }
 
 export class DeviceBase extends Base implements IDeviceBase {

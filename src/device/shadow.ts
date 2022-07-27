@@ -153,10 +153,14 @@ export class DeviceShadow extends Base implements IDeviceShadow {
     //Device Events   
     //本设备南向输出，若有父设备，父影子子输入 
     on_device_south_output(msg: IDeviceBusEventData) {        
+        msg.id = msg.id || this.device.id;
         if (this.device.pid) {
             console.log("DeviceShadow parent on_device_south_output");
             let pshadow = this.manager.shadows.getShadow(this.device.pid);
-            pshadow.events.child.input.emit(msg);
+            if (pshadow)
+                pshadow.events.child.input.emit(msg);
+            else
+                console.error("error: DeviceShadow parent on_device_south_output: not parent id: " + this.device.id+ ", pid: " + this.device.pid);
         } else {
             console.log("DeviceShadow on_device_south_output");
             this.manager.events.south.output.emit(msg);
@@ -166,18 +170,21 @@ export class DeviceShadow extends Base implements IDeviceShadow {
     //本设备北向输出
     on_device_north_output(msg: IDeviceBusEventData) {
         console.log("DeviceShadow on_device_north_output");
+        msg.id = msg.id || this.device.id;
         this.manager.events.north.output.emit(msg);
     } 
 
     //本设备配置输出
     on_device_config_output(msg: IDeviceBusEventData) {
         console.log("DeviceShadow on_device_config_output");
+        msg.id = msg.id || this.device.id;
         this.manager.events.config.output.emit(msg);
     } 
 
     //本设备通知输出
     on_device_notify_output(msg: IDeviceBusEventData) {
         console.log("DeviceShadow on_device_notify_output");
+        msg.id = msg.id || this.device.id;
         this.manager.events.notify.output.emit(msg);
     } 
 
@@ -185,6 +192,7 @@ export class DeviceShadow extends Base implements IDeviceShadow {
     on_device_parent_output(msg: IDeviceBusEventData) {
         console.log("DeviceShadow on_device_parent_output");
         //msg.id == child.id
+        msg.id = msg.id || this.device.id;
         let childShadow = this.manager.shadows.getShadow(msg.id);
         if (childShadow)
             childShadow.events.parent.input.emit(msg);
@@ -192,12 +200,12 @@ export class DeviceShadow extends Base implements IDeviceShadow {
 
     on_device_child_output(msg: IDeviceBusEventData) {
         console.log("DeviceShadow on_device_child_output");
-        
+        msg.id = msg.id || this.device.id;        
     } 
 
+    //Input
     on_device_parent_input(msg: IDeviceBusEventData) {
         console.log("DeviceShadow on_device_parent_input");
-
     } 
 
     on_device_child_input(msg: IDeviceBusEventData) {

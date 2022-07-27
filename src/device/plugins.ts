@@ -6,9 +6,11 @@ export class DevicePlugins extends Base implements IDevicePlugins {
     plugins: { [id: string]: IDevicePlugin };
     urlPlugins: { [url: string]: IDeviceUrlPlugin};
     defaultPlugin: IDeviceClass
+    defaultPluginName: string
 
     constructor(manager: IDeviceShadowManager) {
         super();
+        this.defaultPluginName = "Device";
         this.plugins = {};
         this.urlPlugins = {};
         this.manager = manager;
@@ -143,7 +145,7 @@ export class DevicePlugins extends Base implements IDevicePlugins {
                 urlPlugin.promise = null;
                 let names = Object.keys(modules);
                 if (names.length > 0) {
-                    let plugin = modules[names[0]]
+                    let plugin = modules[this.defaultPluginName] || modules[names[0]];
                     urlPlugin.Plugin = plugin;
                     resolve(plugin);
                 } else {

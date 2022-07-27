@@ -16,7 +16,7 @@ module.exports = env => {
     const distDir = path.resolve(__dirname, env.distDir ? env.distDir : '../dist/device/amd');
     const srcDir =  path.resolve(__dirname, '../src/device/amd');
     entry['device/index'] = path.resolve(srcDir, "device/index.ts");
-    entry['ac-gree/index'] = path.resolve(srcDir, "ac-gree/index.ts");
+    entry['zigbee2mqtt/index'] = path.resolve(srcDir, "zigbee2mqtt/index.ts");
     
     optimization['minimizer'] = minimizer;  
 
@@ -61,8 +61,10 @@ module.exports = env => {
                 'http': 'http',
                 'https': 'https',
                 'zlib': 'zlib',
-                'socket.io-client': 'socket.io-client',
-                'events': 'events'
+                'events': 'events',
+                'net': 'net',
+                'child_process': 'child_process',
+                'is-utf8': 'is-utf8'
             }
 
         ]

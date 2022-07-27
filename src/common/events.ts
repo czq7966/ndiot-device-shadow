@@ -3,6 +3,7 @@ import EventEmitter = require("events");
 export interface IBaseEvent  {
     eventName: string
     eventEmitter: EventEmitter;
+    destroy();
     on(listener: (...args: any[]) => void, prepend?: boolean);
     once(listener: (...args: any[]) => void, prepend?: boolean);
     off(listener: (...args: any[]) => void);
