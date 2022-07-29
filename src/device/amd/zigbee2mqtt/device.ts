@@ -1,19 +1,58 @@
+import * as fs from 'fs'
 import * as net from 'net'
-import * as isUtf8 from "is-utf8";
+import * as Mqtt from 'mqtt'
+import * as Notify from 'fs.notify'
+var isUtf8 = import('is-utf8');
+import * as yaml from 'js-yaml'
 import { ChildProcess, spawn, SpawnOptions } from "child_process";
 
-import { DeviceBase, DeviceBaseProp } from "../../device-base";
-import { Base, IBase, IDeviceBase, IDeviceBaseProp, IDeviceBusEventData } from "../../device.dts";
+import { Debuger, DeviceBase, DeviceBaseProp } from "../../device-base";
+import { Base, IBase, IDeviceBase, IDeviceBaseProp, IDeviceBusDataPayload, IDeviceBusEventData } from "../../device.dts";
 import { BaseEvent, IBaseEvent } from "../../../common/events";
+import { UUID } from '../../../common/uuid';
 
 
+
+let defaultConfiguration =  {
+        homeassistant: false,
+        permit_join: false,
+        mqtt: {
+            base_topic: "{mqtt_base_topic}",
+            server: "{mqtt_server}",
+            user: "{mqtt_user}",
+            password: "{mqtt_password}"
+        },
+        serial: {
+            port: "{serial_port}"
+        },
+        device_options: {
+            legacy: false
+        },
+        advanced: {
+            pan_id: "GENERATE",                                        
+            channel: 11,
+            network_key: "GENERATE",
+            baudrate: 115200,
+            homeassistant_legacy_entity_attributes: false,
+            legacy_api: false,
+            log_level: "debug"
+        },
+        frontend: {
+            port: 0
+        }
+}
 
 export interface IZ2MTcpServerEvents extends IBase {
-    data: IBaseEvent
-    close: IBaseEvent
-    listening: IBaseEvent
-    error: IBaseEvent
-    connect: IBaseEvent    
+    input: {
+        data: IBaseEvent
+    },
+    output: {
+        data: IBaseEvent
+        close: IBaseEvent
+        listening: IBaseEvent
+        error: IBaseEvent
+        connect: IBaseEvent    
+    }
 }
 
 
@@ -38,6 +77,31 @@ export interface IZ2MTcpServer extends IBase {
 
 }
 
+
+export interface IZ2MMqttEvents extends IBase {
+    message: IBaseEvent
+    publish: IBaseEvent
+    connect: IBaseEvent
+    reconnect: IBaseEvent
+    disconnect: IBaseEvent
+}
+
+export interface IZ2MMqttConfig  {
+    base_topic: string
+    server: string
+    user: string
+    password: string
+}
+
+export interface IZ2MMqtt extends IBase {
+    events: IZ2MMqttEvents
+    config: IZ2MMqttConfig
+    initConfig(cfg: {});   
+    connect(cfg?: {})
+    disconnect()
+    publish(topic: string, payload: any);
+}
+
 export interface IZ2MZ2mConfiguration extends IBase {
     mqtt: {
         base_topic: string
@@ -59,6 +123,10 @@ export interface IZ2MZ2mConfigExec {
     options: SpawnOptions
 }
 
+export interface IZ2MZ2mConfigEvents {
+    change: IBaseEvent
+}
+
 export interface IZ2MZ2mConfig extends IBase {
     configuration: IZ2MZ2mConfiguration,
     z2mdir: string
@@ -68,6 +136,11 @@ export interface IZ2MZ2mConfig extends IBase {
     configfile: string
     databasefile: string
     coordinatorfile: string
+
+    fixUp();
+    fixDown();
+    startWatch();
+    stopWatch();
 }
 
 export interface IZ2MZ2mEvents extends IBase {
@@ -79,6 +152,7 @@ export interface IZ2MZ2mEvents extends IBase {
 export interface IZ2MZ2m extends IBase {
     config: IZ2MZ2mConfig
     events: IZ2MZ2mEvents
+    status: 'starting' | 'running' | 'killed';
     initConfig(cfg: IZ2MConfig);
     start(): Promise<number>;
     stop(): Promise<void>;
@@ -105,6 +179,7 @@ export interface IZ2MConfig extends IBase {
 export interface IZ2M extends IBase {
     tcp: IZ2MTcpServer,
     z2m: IZ2MZ2m
+    config: IZ2MConfig;
     initConfig(cfg: IZ2MConfig)
     start(): Promise<number>;
     stop(): Promise<void>;
@@ -112,6 +187,8 @@ export interface IZ2M extends IBase {
 
 export interface IZigbee2Mqtt extends IDeviceBase {
     z2m: IZ2M ;
+    config: IZigbee2MqttConfig
+    mqtt: IZ2MMqtt
 }
 
 export interface IZigbee2MqttConfig extends IBase {
@@ -120,29 +197,37 @@ export interface IZigbee2MqttConfig extends IBase {
     datafiles?: string
 }
 
+
+
 // Class **********************************************************
 
 export class Z2MTcpServerEvents extends Base implements IZ2MTcpServerEvents{
-    data: IBaseEvent;
-    close: IBaseEvent;
-    listening: IBaseEvent;
-    connect: IBaseEvent;
-    error: IBaseEvent;
+    input: { data: IBaseEvent; };
+    output: { data: IBaseEvent; close: IBaseEvent; listening: IBaseEvent; error: IBaseEvent; connect: IBaseEvent; };
+
+    
     constructor() {
         super();
-        this.data = new BaseEvent();
-        this.close = new BaseEvent();
-        this.listening = new BaseEvent();
-        this.error = new BaseEvent();
-        this.connect = new BaseEvent();
+        this.input = {
+            data: new BaseEvent()
+        }
+        this.output = {
+            data: new BaseEvent(),
+            close: new BaseEvent(),
+            listening: new BaseEvent(),
+            error: new BaseEvent(),
+            connect: new BaseEvent()
+        }
     }
 
+
     destroy() {
-        this.connect.destroy();
-        this.error.destroy();
-        this.listening.destroy();
-        this.close.destroy();
-        this.data.destroy();
+        this.input.data.destroy();
+        this.output.connect.destroy();
+        this.output.error.destroy();
+        this.output.listening.destroy();
+        this.output.close.destroy();
+        this.output.data.destroy();
         super.destroy();        
     }
 
@@ -157,6 +242,8 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
     server: net.Server;
     buffer: Buffer;
     events: IZ2MTcpServerEvents;
+
+    base64RegExp: RegExp = new RegExp('^[A-Za-z0-9+\/=]*$');
     constructor() {
         super();
         this.buffer = Buffer.alloc(0);
@@ -164,7 +251,18 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
         this.events = new Z2MTcpServerEvents();
         this.status = "killed";
         this.initServer();
+
+        this.events.input.data.on((msg) => this.on_input_data(msg));
     }
+
+    destroy() {
+        this.uninitServer();
+        this.events.destroy();
+        delete this.server;
+        delete this.buffer;
+        super.destroy();
+    }
+
 
     start(): Promise<number> {
         if (this.status != "killed")
@@ -178,13 +276,6 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
         return promise;
     }
 
-    destroy() {
-        this.uninitServer();
-        this.events.destroy();
-        delete this.server;
-        delete this.buffer;
-        super.destroy();
-    }
 
     initServer() {
         this.server.on("connection", (socket: net.Socket) => {
@@ -192,27 +283,27 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
             this.stopSockt();
             this.socket = socket;
             this.initSocket();
-            this.events.connect.emit(this);
-            console.log("Z2MTcpServer " + this.status);
+            this.events.output.connect.emit(this);
+            Debuger.Debuger.log("Z2MTcpServer " + this.status);
         })
 
         this.server.on("close", () => {
             this.status = "killed";            
-            this.events.close.emit(this);
-            console.log("Z2MTcpServer " + this.status);
+            this.events.output.close.emit(this);
+            Debuger.Debuger.log("Z2MTcpServer " + this.status);
         })
 
         this.server.on("error", (err: Error) => {
             if((err as any).code === 'EADDRINUSE' ) {
 
             } else {
-                this.events.error.emit(err);
+                this.events.output.error.emit(err);
             }
         })
         this.server.on("listening", () => {
             this.status = "listened";
-            this.events.listening.emit(this);
-            console.log("Z2MTcpServer " + this.status);
+            this.events.output.listening.emit(this);
+            Debuger.Debuger.log("Z2MTcpServer " + this.status);
         })        
     }
     uninitServer() {
@@ -252,8 +343,10 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
                     resolve(p)
                 })
                 .catch(e => {
+                    Debuger.Debuger.log("2222222222222", port, e)
                     port += 2;
-                    if (port < this.port_end)
+                    
+                    if (port < this.port_end) 
                         _start();
                     else {
                         this.port = 0;
@@ -270,7 +363,6 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
             if (this.server) {
                 this.stopSockt();
                 this.server.close();
-                delete this.server;        
             }
             resolve();
         })
@@ -279,26 +371,32 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
     initSocket() {
         let socket = this.socket;
         socket.on("data", (data: Buffer) => {
-            this.buffer = Buffer.concat([this.buffer, data], this.buffer.length + data.length);
+            // this.buffer = Buffer.concat([this.buffer, data], this.buffer.length + data.length);
+            let value = data.toString('base64');
+            Debuger.Debuger.log("initSocket data", data);
+            this.events.output.data.emit(value);
 
         })
-        socket.on("end", () => {            
-            this.events.data.emit(this.buffer);
-            delete this.buffer;
-            this.buffer = Buffer.alloc(0);
+        socket.on("end", () => {
+            Debuger.Debuger.log("initSocket end");
+            // let value = this.buffer.toString('base64');
+            // this.events.output.data.emit(value);
+
+            // delete this.buffer;
+            // this.buffer = Buffer.alloc(0);
         })
         socket.on("timeout", () => {
             socket.end();
         })
         socket.on("error", (err: Error) => {
-            this.events.error.emit(err);            
+            this.events.output.error.emit(err);            
         })
         socket.on("close", (hadError: boolean) => {
             this.status = this.status == "killed" ? this.status : "listened";
             if (socket == this.socket) 
                 this.stopSockt();
 
-            this.events.close.emit(this, socket, hadError);
+            this.events.output.close.emit(this, socket, hadError);
         })
     }
 
@@ -309,6 +407,144 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
             this.socket.unref();            
         }
         delete this.socket;
+    }
+
+    on_input_data(msg) {
+        if (this.socket) {
+            if (Buffer.isBuffer(msg)) {
+                this.socket.write(msg);
+            } else {
+                if (typeof msg === "string") {
+                    let load = msg.replace(/\s+/g,''); 
+                    if (this.base64RegExp.test(load) && (load.length % 4 === 0) ) {
+                        this.socket.write(Buffer.from(load,'base64'));
+                    }
+                    else {
+                        this.socket.write(Buffer.from("" + msg));
+                    }
+                } else {
+                    this.socket.write(Buffer.from("" + msg));                    
+                }
+            }            
+        }
+    }
+}
+
+export class Z2MMqttEvents extends Base implements IZ2MMqttEvents {
+    message: IBaseEvent;
+    publish: IBaseEvent;
+    connect: IBaseEvent;
+    reconnect: IBaseEvent;
+    disconnect: IBaseEvent;
+    constructor() {
+        super();
+        this.message = new BaseEvent();
+        this.publish = new BaseEvent();
+        this.connect = new BaseEvent();
+        this.reconnect = new BaseEvent();
+        this.disconnect = new BaseEvent();
+    }
+
+    destroy(): void {
+        this.message.destroy();
+        this.publish.destroy();
+        this.connect.destroy();
+        this.reconnect.destroy();
+        this.disconnect.destroy();      
+        super.destroy();
+    }
+}
+
+export class Z2MMqtt extends Base implements IZ2MMqtt {
+    events: IZ2MMqttEvents;
+    config: IZ2MMqttConfig;
+    mqtt: Mqtt.Client;
+    constructor() {
+        super();
+        this.events = new Z2MMqttEvents();
+        this.config = {
+            base_topic: "",
+            server: "",
+            user: "",
+            password: ""
+        };
+    }
+    publish(topic: string, payload: any) {
+        if (this.mqtt.connected) {
+            if (payload === null || payload === undefined) {
+                payload = "";
+            } else if (!Buffer.isBuffer(payload)) {
+                if (typeof payload === "object") {
+                    payload = JSON.stringify(payload);
+                } else if (typeof payload !== "string") {
+                    payload = "" + payload;
+                }
+            }
+
+            this.mqtt.publish(this.config.base_topic + "/" + topic, payload, {qos: 2, retain: false});
+        }
+    }
+
+    destroy(): void {
+        this.disconnect();
+        delete this.config;
+        this.events.destroy();
+        super.destroy();
+    }
+
+    initConfig(cfg: {}) {
+        if (cfg) {        
+            Object.keys(this.config).forEach(key => {
+                this.config[key] = cfg[key];
+            })
+        }
+    }
+
+    initOptions(ops: Mqtt.IClientOptions) {
+        ops.keepalive = 60
+        ops.clientId = UUID.Guid();
+        ops.clean = true;
+        ops.reconnectPeriod = 5000;
+        ops.connectTimeout = 30 * 1000;
+        ops.username = this.config.user;
+        ops.password = this.config.password;
+    }
+
+    connect(cfg?: {}){
+        if (this.mqtt && this.mqtt.connected)
+            return;
+        this.initConfig(cfg);
+        let ops: Mqtt.IClientOptions = {};
+        this.initOptions(ops);
+        this.mqtt = Mqtt.connect(this.config.server, ops);
+        this.mqtt.on("connect", (packet: Mqtt.IConnackPacket) => {
+            this.mqtt.subscribe(this.config.base_topic+"/#", {qos: 2});
+            this.events.connect.emit(packet);
+        })
+
+        this.mqtt.on("reconnect", () => {
+            this.events.reconnect.emit();
+        })
+
+        this.mqtt.on("disconnect", (packet: Mqtt.IDisconnectPacket) => {
+            this.events.disconnect.emit(packet);
+        })
+
+        this.mqtt.on("close", () => {
+            this.events.disconnect.emit();
+        })
+
+        this.mqtt.on("message", (topic: string, payload: Buffer, packet: Mqtt.IPublishPacket) => {
+            this.events.message.emit(topic, payload, packet);
+        })
+
+    }
+    disconnect() {
+        if (this.mqtt) {
+            this.mqtt.removeAllListeners();
+            this.mqtt.end(true);
+        }
+        delete this.mqtt;
     }
 }
 
@@ -339,6 +575,18 @@ export class Z2MZ2mConfiguration extends Base implements IZ2MZ2mConfiguration {
     };
 }
 
+export class Z2MZ2mConfigEvents extends Base implements IZ2MZ2mConfigEvents {
+    change: IBaseEvent;
+    constructor() {
+        super();
+        this.change = new BaseEvent();
+    }
+    destroy(): void {
+        this.change.destroy();
+        super.destroy();
+    }
+}
+
 export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
     configuration: IZ2MZ2mConfiguration;
     z2mdir: string;
@@ -348,6 +596,9 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
     configfile: string;
     databasefile: string;
     coordinatorfile: string;
+    events: Z2MZ2mConfigEvents
+
+    notifications: Notify;
 
     constructor() {
         super();
@@ -363,11 +614,12 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
         this.configfile = "";
         this.databasefile = "";
         this.coordinatorfile = "";
-
+        this.events = new Z2MZ2mConfigEvents();
     }    
 
 
     destroy() {
+        this.stopWatch();
         this.configuration.destroy();
         delete this.configuration;
         delete this.z2mdir;
@@ -379,6 +631,73 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
         delete this.coordinatorfile;
         super.destroy();        
     }    
+
+    fixUp() {        
+        this.load();
+        this.fixUpConfig();
+    };
+
+    fixUpConfig() {
+        let configYaml = this.datafiles[this.configfile] || yaml.dump(defaultConfiguration);
+        let config = yaml.load(configYaml) as IZ2MZ2mConfiguration;
+        config.mqtt = this.configuration.mqtt;
+        config.serial = this.configuration.serial;
+        config.frontend = this.configuration.frontend;
+        configYaml = yaml.dump(config);
+        this.datafiles[this.configfile] = configYaml;
+    }
+
+    fixDown() {
+        this.stopWatch();        
+        this.fixUpConfig();
+        this.save();
+        this.startWatch();
+    };
+
+    load() {        
+        Object.keys(this.datafiles).forEach(key => {
+            let fn = this.datadir + "/" + key;
+            if (fs.existsSync(fn)) {
+                let file = fs.openSync(fn, "r");
+                if (file > 0) {
+                    this.datafiles[key] = fs.readFileSync(file).toString();
+                    fs.closeSync(file);                    
+                    Debuger.Debuger.log("Z2MZ2mConfig load: ", this.datafiles[key])
+                }            
+            }
+        })
+    }
+
+    save() {
+        fs.mkdirSync(this.datadir, {recursive: true});
+        Object.keys(this.datafiles).forEach(key => {
+            let value = this.datafiles[key];
+            let fn = this.datadir + "/" + key;
+            let file = fs.openSync(fn, "w");        
+            fs.writeFileSync(file, value);
+            fs.closeSync(file);
+        })
+    }
+
+    startWatch() {
+        this.stopWatch();
+        let files = [];
+        Object.keys(this.datafiles).forEach(key => {
+            files.push(this.datadir + "/" + key)
+        })
+
+        this.notifications = new Notify(files);        
+        this.notifications.on('change', (file, event, fpath) => {            
+            Debuger.Debuger.log("file change: ", file, event, fpath);
+            this.events.change.emit(file, event, fpath)
+        })
+    }
+
+    stopWatch() {
+        if (this.notifications)
+            this.notifications.close();
+        delete this.notifications;
+    }
 }
 
 export class Z2MZ2mEvents extends Base implements IZ2MZ2mEvents {
@@ -431,15 +750,16 @@ export class Z2MZ2m extends Base implements IZ2MZ2m {
         this.config.configfile = "configuration.yaml";
         this.config.databasefile = "database.db";
         this.config.coordinatorfile = "coordinator_backup.json";
-        this.config.datafiles[this.config.configfile] = this.config.datadir + "/" + this.config.configfile;
-        this.config.datafiles[this.config.databasefile] = this.config.datadir + "/" + this.config.databasefile;
-        this.config.datafiles[this.config.coordinatorfile] = this.config.datadir + "/" + this.config.coordinatorfile;
+        this.config.datafiles[this.config.configfile] = "";
+        this.config.datafiles[this.config.databasefile] = "";
+        this.config.datafiles[this.config.coordinatorfile] = "";
         this.config.configuration.mqtt.base_topic = cfg.device.id;
         this.config.configuration.mqtt.server = cfg.mqtt.server;
         this.config.configuration.mqtt.user = cfg.mqtt.user;
         this.config.configuration.mqtt.password = cfg.mqtt.password;
         this.config.configuration.serial.port = "tcp://127.0.0.1:" + cfg.z2m.tcp.port;
         this.config.configuration.frontend.port = cfg.z2m.tcp.port + 1;
+        this.config.fixUp();
     };
 
     start(): Promise<number> {
@@ -458,6 +778,7 @@ export class Z2MZ2m extends Base implements IZ2MZ2m {
 
     startChild(): Promise<void> {
         return new Promise((resolve, reject) => {
+            this.config.fixDown();
             let exec = this.config.exec;
             process.env["ZIGBEE2MQTT_DATA"] = this.config.datadir;
             let child = spawn(exec.cmd, exec.args, exec.options);    
@@ -478,12 +799,12 @@ export class Z2MZ2m extends Base implements IZ2MZ2m {
             //     this.events.data.emit(payload);
             // })
             child.on("error", (err: Error) => {
-                console.error("Z2MZ2m error: " + err.message);
+                Debuger.Debuger.error("Z2MZ2m error: " + err.message);
                 this.status = "killed";
                 this.events.error.emit(err);
             })      
             child.on("close", (code, signal) => {
-                console.log("Z2MZ2m closed");
+                Debuger.Debuger.log("Z2MZ2m closed");
                 this.status = "killed";
                 this.events.close.emit(code, signal);
                 reject(code);
@@ -584,7 +905,7 @@ export class Z2M extends Base implements IZ2M {
             .then(pTcp =>{
                 this.config.z2m.tcp.port = pTcp;
                 this.z2m.initConfig(this.config);
-                console.log("tcp status:" + this.tcp.status);
+                Debuger.Debuger.log("tcp status:" + this.tcp.status);
                 this.z2m.start().then(pFront => resolve(pFront)).catch(e => reject(e));
             })
             .catch(e => {
@@ -620,56 +941,90 @@ export class Zigbee2MqttConfig extends Base implements IZigbee2MqttConfig {
 }
 
 export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
+    static Debuger: Console = console;
     z2m: IZ2M;
+    mqtt: IZ2MMqtt;    
     config: IZigbee2MqttConfig
 
+    
     //初始化
     init() {
         this.z2m = new Z2M();
+        this.mqtt = new Z2MMqtt();
         this.config = new Zigbee2MqttConfig();
+
+        this.z2m.tcp.events.output.data.on((msg) => {this.on_z2m_tcp_output_data(msg);})
+        this.z2m.z2m.events.close.on((msg) => {this.on_z2m_z2m_close(msg);})
+
         this.initConfig();
-        this.getConfig();
-        this.z2m.start();
-        console.log("Zigbee2Mqtt init");
+        this.initMqtt();
+        this.mqtt.connect();
+        // this.z2m.start();
+        setTimeout(() => this.getConfig());
+        Debuger.Debuger.log("Zigbee2Mqtt init");
     }
      
     //反初始化
     uninit() {
+        this.z2m.stop()
+        .finally(() => {
+            this.z2m.destroy();
+        })
+
         this.config.destroy();
-        this.z2m.destroy();
-        console.log("Zigbee2Mqtt uninit");
+        this.mqtt.destroy();
+        Debuger.Debuger.log("Zigbee2Mqtt uninit");
      }
 
-    //南向输入
+    //南向输入 
     on_south_input(msg: IDeviceBusEventData) {
-        console.log("Zigbee2Mqtt  on_south_input ");
+        Debuger.Debuger.log("Zigbee2Mqtt  on_south_input ");
 
-        //父设备 todo...
-        //父设备输出给子设备，msg.id = child.id
-        //msg.id = child.id
-        //this.events.parent.output.emit(msg); 
-
-        //正常 todo...
-        super.on_south_input(msg);
+        let payload: IDeviceBusDataPayload = msg.payload;
+        let entry = payload.hd.entry;
+        //透传
+        if (entry.type == "evt" && entry.id == "penet") 
+            // -> Tcp输入
+            this.do_z2m_tcp_input_data(msg);
+        else if (entry.type == "svc" && entry.id == "handshake" && payload.hd.stp == 0) 
+            // ->握手请求
+            this.on_handshake_req(msg);
+        else 
+            // -> 父类转北向输出
+            super.on_south_input(msg);
+        
     }
 
     //北向输入
     on_north_input(msg: IDeviceBusEventData) {
-        console.log("Zigbee2Mqtt  on_north_input");
+        Debuger.Debuger.log("Zigbee2Mqtt  on_north_input");
         //todo ...
         super.on_north_input(msg);
     }    
 
     //子设备输入
     on_child_input(msg: IDeviceBusEventData) {
-        console.log("Zigbee2Mqtt  on_child_input");
+        Debuger.Debuger.log("Zigbee2Mqtt  on_child_input");
         //todo...
         super.on_child_input(msg);       
     }  
 
     //配置输入
     on_config_input(msg: IDeviceBusEventData) {
-        console.log("Zigbee2Mqtt  on_child_input");
+        Debuger.Debuger.log("Zigbee2Mqtt  on_config_input");
+        if (msg.action == "get_res") {
+            if (msg.payload) {
+                let payload = JSON.parse(msg.payload) as IZigbee2MqttConfig;
+                if(payload && payload.datafiles) {
+                    Object.keys(payload.datafiles).forEach(key => {
+                        this.config.datafiles[key] = payload.datafiles[key]
+                    })
+                }
+            }
+
+            this.do_handshake_req();
+        }
+
         this.config = msg.payload as IZigbee2MqttConfig;
     }      
 
@@ -680,7 +1035,17 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
         })       
 
         this.config.z2m.device = this.config.device;
+        this.config.z2m.mqtt.base_topic = this.id;
         this.z2m.initConfig(this.config.z2m)
+    }
+
+    initMqtt() {
+        this.mqtt.initConfig(this.z2m.config.mqtt);
+        this.mqtt.events.connect.on((p) => {this.on_mqtt_events_connect(p)})
+        this.mqtt.events.reconnect.on(() => {this.on_mqtt_events_reconnect()})
+        this.mqtt.events.disconnect.on((p) => {this.on_mqtt_events_disconnect(p)})
+        this.mqtt.events.message.on((topic, payload, packet) => {this.on_mqtt_events_message(topic, payload, packet)})
+
     }
 
     getConfig() {
@@ -688,7 +1053,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
             action: "get",
             payload: this.config
         }
-        this.events.config.output.emit(msg)
+        this.events.config.output.emit(msg);
     }
 
     setConfig() {
@@ -698,4 +1063,123 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
         }
         this.events.config.output.emit(msg)
     }    
+
+    do_handshake_req() {
+        //todo 超时逻辑
+        Debuger.Debuger.log("Zigbee2Mqtt" ,"reqHandshake");
+        let payload: IDeviceBusDataPayload = {
+            hd: {
+                entry: {
+                    type: "svc",
+                    id: "handshake"
+                }
+            }
+        }
+        let msg: IDeviceBusEventData = {
+            payload: payload
+        }
+        this.events.south.output.emit(msg);        
+    }
+
+    //握手响应
+    do_handshake_resp(reqMsg: IDeviceBusEventData) {
+        let reqPld = reqMsg.payload as IDeviceBusDataPayload;
+        let respPld: IDeviceBusDataPayload  = {
+            hd: {
+                entry: reqPld.hd.entry,
+                sid: reqPld.hd.sid,
+                stp: 1
+            }
+        }
+        let msg: IDeviceBusEventData = {
+            payload: respPld
+        }
+        this.events.south.output.emit(msg);      
+    }
+
+    // 握手请求
+    on_handshake_req(msg: IDeviceBusEventData) {        
+        this.do_handshake_resp(msg);   
+        let payload = msg.payload as IDeviceBusDataPayload;
+        if (payload.pld.handshake_count === 0 || this.z2m.z2m.status == "killed") {
+            this.z2m.stop()
+            .finally(() => {
+                this.z2m.start();
+            })
+        }        
+    }
+
+    //Tcp输入
+    do_z2m_tcp_input_data(msg: IDeviceBusEventData) {        
+        let payload: IDeviceBusDataPayload = msg.payload;
+        Debuger.Debuger.log("do_z2m_tcp_input_data", payload.pld.raw);
+        this.z2m.tcp.events.input.data.emit(payload.pld.raw);
+    }
+
+    //Tcp输出 -> 南向输出
+    on_z2m_tcp_output_data(data) {
+        Debuger.Debuger.log("on_z2m_tcp_output_data", data);
+        let payload: IDeviceBusDataPayload = {
+            hd: {
+                entry: {
+                    type: "svc",
+                    id: "penet"
+                }
+            },
+            pld: {
+                raw: data
+            }
+        }
+        let msg: IDeviceBusEventData = {
+            payload: payload
+        }
+        this.events.south.output.emit(msg);
+    }
+
+    on_z2m_z2m_close(code) {
+        //服务停止，请求握手
+        this.do_handshake_req();
+    }
+
+    //协调器事件
+    on_z2m_bridge_events(topic: string, payload: Buffer, packet: Mqtt.IPublishPacket) {
+        let topics = topic.split("/");
+        if (topics[2] == "state") {
+            let topic = "bridge/request/permit_join"
+            setTimeout(() => {
+                this.mqtt.publish(topic, {value: true, time: 254});    
+            }, 3000);
+            
+        }
+
+
+    }
+    //子设备
+    on_z2m_child_events(topic: string, payload: Buffer, packet: Mqtt.IPublishPacket) {
+        let topics = topic.split("/");
+    }
+
+    //Mqtt
+    on_mqtt_events_connect(packet: Mqtt.IConnackPacket) {
+        Debuger.Debuger.log("Zigbee2Mqtt", "on_mqtt_events_connect");
+
+    }
+
+    on_mqtt_events_reconnect() {
+        Debuger.Debuger.log("Zigbee2Mqtt", "on_mqtt_events_reconnect");
+    }
+
+    on_mqtt_events_disconnect(packet: Mqtt.IDisconnectPacket) {
+        Debuger.Debuger.log("Zigbee2Mqtt", "on_mqtt_events_disconnect");
+    }
+
+    on_mqtt_events_message(topic: string, payload: Buffer, packet: Mqtt.IPublishPacket) {
+        Debuger.Debuger.log("Zigbee2Mqtt", "on_mqtt_events_message", topic);
+        let topics = topic.split("/");
+        if (topics[1] == "bridge")
+            this.on_z2m_bridge_events(topic, payload, packet);
+        else
+            this.on_z2m_child_events(topic, payload, packet);        
+    }    
+  
 }

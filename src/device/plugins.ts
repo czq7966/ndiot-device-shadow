@@ -145,8 +145,14 @@ export class DevicePlugins extends Base implements IDevicePlugins {
                 urlPlugin.promise = null;
                 let names = Object.keys(modules);
                 if (names.length > 0) {
-                    let plugin = modules[this.defaultPluginName] || modules[names[0]];
+                    let name = names[0];
+                    if (name === "Debuger" && names.length > 1) name = names[1];                    
+                    let plugin = modules[this.defaultPluginName] || modules[name];
                     urlPlugin.Plugin = plugin;
+
+                    if (name != "Debuger" && modules["Debuger"])
+                        modules["Debuger"].Debuger = console;
+
                     resolve(plugin);
                 } else {
                     reject("error: module not exported");

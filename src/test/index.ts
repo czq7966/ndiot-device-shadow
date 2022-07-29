@@ -10,10 +10,16 @@ manager.plugins.regPlugin("Z3CO2652ESP8266-test", "E:/data/ndiot-device-shadow/d
 let plugins = ["device-base"]
 
 let pdev = {id: "pid", pid: null, model: "device-base"};
-let dev = {id: "id-test", pid: null, model: "Z3CO2652ESP8266-test"}
+
+for (let i = 0; i < 1; i++) {
+    let dev = {id: "id-test-" + i, pid: null, model: "Z3CO2652ESP8266-test"}
+    manager.shadows.newShadow(dev)   
+    
+}
+
 
 manager.shadows.newShadow(pdev)
-manager.shadows.newShadow(dev)
+
 
 // manager.shadows.newShadow(pdev)
 // .then(pshadow => {
@@ -53,6 +59,6 @@ event.prependListener ("1", () => {
 
 event.emit("1")
 
-setTimeout(() => {
-    manager.shadows.delShadow("id-test")
-}, 3000)
+// setTimeout(() => {
+//     manager.shadows.delShadow("id-test")
+// }, 3000)

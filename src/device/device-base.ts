@@ -73,6 +73,10 @@ export class DeviceBaseProp implements IDeviceBaseProp {
     model: string = "";    
 }
 
+export class Debuger {
+    static Debuger: Console = console;
+}
+
 export class DeviceBase extends Base implements IDeviceBase {
     id: string;
     pid: string;
@@ -142,7 +146,7 @@ export class DeviceBase extends Base implements IDeviceBase {
     //北向输入 -> 转南向输出(若有父设备，由影子转父设备处理))
     on_north_input(msg: IDeviceBusEventData){
         console.log("DeviceBase  on_north_input");  
-        this.events.south.output.emit(msg);       
+        this.events.south.output.emit(msg);
     }
     
     //配置输入

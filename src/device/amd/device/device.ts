@@ -1,23 +1,24 @@
-import { DeviceBase } from "../../device-base";
+import { Debuger, DeviceBase } from "../../device-base";
 import { IDeviceBase, IDeviceBusEventData, IDeviceShadow } from "../../device.dts";
 
 export interface IDevice extends IDeviceBase {}
 
 export class Device extends DeviceBase implements IDevice {
+    static Debuger: Console = console;
 
     //初始化
     init() {
-        console.log("Device init");
+        Debuger.Debuger.log("Device init");
     }
      
     //反初始化
     uninit() {
-         console.log("Device uninit");
+        Debuger.Debuger.log("Device uninit");
      }
 
     //南向输入
     on_south_input(msg: IDeviceBusEventData) {
-        console.log("Device  on_south_input ");
+        Debuger.Debuger.log("Device  on_south_input ");
 
         //父设备 todo...
         //父设备输出给子设备，msg.id = child.id
@@ -30,14 +31,14 @@ export class Device extends DeviceBase implements IDevice {
 
     //北向输入
     on_north_input(msg: IDeviceBusEventData) {
-        console.log("Device  on_north_input");
+        Debuger.Debuger.log("Device  on_north_input");
         //todo ...
         super.on_north_input(msg);
     }    
 
     //子设备输入
     on_child_input(msg: IDeviceBusEventData) {
-        console.log("Device  on_child_input");
+        Debuger.Debuger.log("Device  on_child_input");
         //todo...
         super.on_child_input(msg);       
     }  

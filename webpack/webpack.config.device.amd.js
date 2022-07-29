@@ -64,7 +64,10 @@ module.exports = env => {
                 'events': 'events',
                 'net': 'net',
                 'child_process': 'child_process',
-                'is-utf8': 'is-utf8'
+                'is-utf8': 'is-utf8',
+                'js-yaml': 'js-yaml',
+                'fs.notify': 'fs.notify',
+                'mqtt': 'mqtt'
             }
 
         ]

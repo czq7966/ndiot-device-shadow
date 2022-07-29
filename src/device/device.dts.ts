@@ -131,3 +131,27 @@ export interface IDeviceBusEvent extends IBase {
     off(listener: (data: IDeviceBusEventData) => void);
     emit(data: IDeviceBusEventData);
 }
+
+export interface IDeviceBusDataPayloadHd {
+    prep?: {},
+    from?: {
+        type?: string
+        id?: string
+    },
+    to?: {
+        type?: string
+        id?: string
+    },
+    entry: {
+        type: "evt" | "svc"
+        id: string
+    },
+
+    sid?: string
+    stp?: 0 | 1    
+}
+
+export interface IDeviceBusDataPayload {
+    hd: IDeviceBusDataPayloadHd
+    pld?: any
+}
