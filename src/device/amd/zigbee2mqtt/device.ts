@@ -998,8 +998,8 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
     //北向输入
     on_north_input(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Zigbee2Mqtt  on_north_input");
-        //todo ...
-        super.on_north_input(msg);
+        this.on_mqtt_north_input(msg);
+
     }    
 
     //子设备输入
@@ -1141,23 +1141,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
         this.do_handshake_req();
     }
 
-    //协调器事件
-    on_z2m_bridge_events(topic: string, payload: Buffer, packet: Mqtt.IPublishPacket) {
-        let topics = topic.split("/");
-        if (topics[2] == "state") {
-            let topic = "bridge/request/permit_join"
-            setTimeout(() => {
-                this.mqtt.publish(topic, {value: true, time: 254});    
-            }, 3000);
-            
-        }
 
-
-    }
-    //子设备
-    on_z2m_child_events(topic: string, payload: Buffer, packet: Mqtt.IPublishPacket) {
-        let topics = topic.split("/");
-    }
 
     //Mqtt
     on_mqtt_events_connect(packet: Mqtt.IConnackPacket) {
@@ -1174,12 +1158,178 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
     }
 
     on_mqtt_events_message(topic: string, payload: Buffer, packet: Mqtt.IPublishPacket) {
-        Debuger.Debuger.log("Zigbee2Mqtt", "on_mqtt_events_message", topic);
-        let topics = topic.split("/");
-        if (topics[1] == "bridge")
-            this.on_z2m_bridge_events(topic, payload, packet);
-        else
-            this.on_z2m_child_events(topic, payload, packet);        
+        Debuger.Debuger.log("Zigbee2Mqtt", "on_mqtt_events_message", topic, payload.toString());
+        this.on_mqtt_south_input(packet);
     }    
+
+//Mqtt南向输入    
+    on_mqtt_south_input(packet: Mqtt.IPublishPacket) {
+        Debuger.Debuger.log("Zigbee2Mqtt", "on_mqtt_south_input", packet.topic);
+        let topics = packet.topic.split("/");
+        if (topics[1] == "bridge")
+            this.on_z2m_bridge_events(packet);
+        else
+            this.on_z2m_child_events(packet);           
+    }
+
+        //协调器事件 拆解
+        on_z2m_bridge_events(packet: Mqtt.IPublishPacket) {
+            let topics = packet.topic.split("/");
+            let type = topics[2];
+            if (type == "state") {  //状态
+                this.on_z2m_bridge_events_state(packet);            
+            } else if (type == "event") { //事件
+                this.on_z2m_bridge_events_event(packet);            
+            } else if (type == "response") { //响应
+                this.on_z2m_bridge_events_response(packet);
+            }
+        }
+
+        //协调器事件: 在线状态 -> 北向输出
+        on_z2m_bridge_events_state(packet: Mqtt.IPublishPacket) {
+            let payload: IDeviceBusDataPayload = {
+                hd: {
+                    entry: {
+                        type: "evt",
+                        id: "state"
+                    },
+                    sid: "",
+                    stp: 0
+                },
+                pld: {
+                    value: packet.payload.toString()
+                }
+            }
+            let msg: IDeviceBusEventData = {
+                payload: payload
+            }
+
+            this.events.north.output.emit(msg);
+        }
+
+        //协调器事件: 子设备组网事件 -> 北向输出
+        on_z2m_bridge_events_event(packet: Mqtt.IPublishPacket) {
+            let pPayload = JSON.parse(packet.payload as any);
+            if (pPayload.type === "device_joined") {
+                this.on_z2m_bridge_events_event_device_joined(packet);
+            } else if (pPayload.type === "device_leave") {
+                this.on_z2m_bridge_events_event_device_leave(packet);
+            } else if (pPayload.type === "device_announce") {
+                // this.on_z2m_bridge_events_event_device_leave(packet);
+            } else if (pPayload.type === "device_interview") {
+                // this.on_z2m_bridge_events_event_device_leave(packet);
+            }
+        }
+
+        //协调器事件: 子设备入网事件 -> 北向输出
+        on_z2m_bridge_events_event_device_joined(packet: Mqtt.IPublishPacket) {
+            let pPayload = JSON.parse(packet.payload as any);
+            let payload: IDeviceBusDataPayload = {
+                hd: {
+                    entry: {
+                        type: "evt",
+                        id: pPayload.type
+                    },
+                    sid: "",
+                    stp: 0
+                },
+                pld: {
+                    id: pPayload.data.ieee_address,
+                    pid: this.id
+                }
+            }
+
+            this.events.north.output.emit({payload: payload});
+        }
+
+        //协调器事件: 子设备脱网事件 -> 北向输出
+        on_z2m_bridge_events_event_device_leave(packet: Mqtt.IPublishPacket) {
+            let pPayload = JSON.parse(packet.payload as any);
+            let payload: IDeviceBusDataPayload = {
+                hd: {
+                    entry: {
+                        type: "evt",
+                        id: pPayload.type
+                    },
+                    sid: "",
+                    stp: 0
+                },
+                pld: {
+                    id: pPayload.data.ieee_address,
+                    pid: this.id
+                }
+            }
+
+            this.events.north.output.emit({payload: payload});
+        }        
+
+        //协调器事件: 响应事件 -> 北向输出
+        on_z2m_bridge_events_response(packet: Mqtt.IPublishPacket) {
+            let topics = packet.topic.split("/");
+            let type = topics[3];
+            if (type == "permit_join") {
+                this.on_z2m_bridge_events_response_permit_join(packet);
+            }
+        }
+
+        //协调器事件: 响应事件: 开启/关闭入网 -> 北向输出
+        on_z2m_bridge_events_response_permit_join(packet: Mqtt.IPublishPacket) {
+            let topics = packet.topic.split("/");
+            let pPayload = JSON.parse(packet.payload as any);
+            let payload: IDeviceBusDataPayload = {
+                hd: {
+                    entry: {
+                        type: "evt",
+                        id: topics[3]
+                    },
+                    sid: pPayload.transaction,
+                    stp: 1
+                },
+                pld: {
+                    permit_join: pPayload.data.value
+                }
+            }
+
+            let msg: IDeviceBusEventData = {
+                payload: payload
+            }
+
+            this.events.north.output.emit(msg);
+        }
+
+        //Mqtt南向输入(子设备事件) -> 北向输出
+        on_z2m_child_events(packet: Mqtt.IPublishPacket) {
+            let topics = packet.topic.split("/");
+        }
+            
+//Mqtt南向输出
+    on_mqtt_south_output(msg: IDeviceBusEventData) {
+        this.mqtt.publish(msg.topic, msg.payload);
+    }    
+
+//Mqtt北向输入 -> 南向输出
+    on_mqtt_north_input(msg: IDeviceBusEventData){
+        let payload: IDeviceBusDataPayload = msg.payload;
+        if (payload.hd.stp == 0) {
+            if (payload.hd.entry.type == "svc") {
+                if (payload.hd.entry.id == "set" && typeof payload.pld == "object") {
+                    if (payload.pld.hasOwnProperty("permit_join"))
+                    this.on_mqtt_north_input_request_permit_join(msg);
+                }
+            }
+        }
+    }
+        //允许、关闭入网
+        on_mqtt_north_input_request_permit_join(_msg: IDeviceBusEventData){
+            let _payload = (_msg.payload as IDeviceBusDataPayload);
+            let msg: IDeviceBusEventData = {};
+            msg.topic = "bridge/request/permit_join";
+            msg.payload = {
+                value: _payload.pld.permit_join,
+                time: 254,
+                transaction: _payload.hd.sid
+            };
+            this.on_mqtt_south_output(msg);
+        }
   
 }
