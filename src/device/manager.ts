@@ -1,6 +1,6 @@
 import { Device } from './amd/device';
-import { DeviceEntryEvent } from './device-base';
-import { Base, IDeviceBaseProp, IDeviceBusEventData, IDevicePlugin, IDevicePlugins, IDeviceEntryEvent, IDeviceShadowManager, IDeviceShadowManagerBusEvent, IDeviceShadows } from "./device.dts";
+import { Debuger, DeviceEntryEvent } from './device-base';
+import { Base, IDeviceBaseAttr, IDeviceBusEventData, IDevicePlugin, IDevicePlugins, IDeviceEntryEvent, IDeviceShadowManager, IDeviceShadowManagerBusEvent, IDeviceShadows, IDevicePluginAttr } from "./device.dts";
 import { DevicePlugins } from './plugins';
 import { DeviceShadows } from './shadows';
 
@@ -87,10 +87,10 @@ export class DeviceManager extends Base implements IDeviceShadowManager {
     }       
 
     on_plugins_input(msg: IDeviceBusEventData) {
-        console.log("manager on_plugins_input")
+        Debuger.Debuger.log("manager on_plugins_input")
         if (msg.action == "reg") {
-            let payload = msg.payload as IDevicePlugin;
-            msg.payload = this.plugins.regPlugin(payload.name, payload.url);
+            let attrs = msg.payload as IDevicePluginAttr;
+            msg.payload = this.plugins.regPlugin(attrs);
             this.events.plugins.output.emit(msg);            
         } else {
 
@@ -99,8 +99,8 @@ export class DeviceManager extends Base implements IDeviceShadowManager {
 
     on_shadows_input(msg: IDeviceBusEventData) {
         if (msg.action == "create") {
-            let payload = msg.payload as IDeviceBaseProp;
-            this.shadows.newShadow(payload)
+            let attrs = msg.payload as IDeviceBaseAttr;
+            this.shadows.newShadow(attrs)
             .then(shadow => {
                 msg.payload.shadow = shadow;
                 this.events.shadows.output.emit(msg);
@@ -110,8 +110,9 @@ export class DeviceManager extends Base implements IDeviceShadowManager {
                 this.events.shadows.output.emit(msg);
             });
 
-        } else {
-
+        } else if (msg.action == "remove") {
+            this.shadows.delShadow(msg.id);
+            this.events.shadows.output.emit(msg);
         }
 
     }   

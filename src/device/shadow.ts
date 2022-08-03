@@ -1,5 +1,5 @@
 import { IBaseEvent, BaseEvent } from "../common/events";
-import { DeviceEntryEvent } from "./device-base";
+import { Debuger, DeviceEntryEvent } from "./device-base";
 import { Base, IDeviceBase, IDeviceBusEvent, IDeviceBusEventData, IDeviceShadow, IDeviceEntryEvent, IDeviceShadowEvents, IDeviceShadowManager } from "./device.dts";
 
 
@@ -113,38 +113,38 @@ export class DeviceShadow extends Base implements IDeviceShadow {
 
     //南向输入
     on_south_input(msg: IDeviceBusEventData) {
-        console.log("DeviceShadow on_south_input");
+        Debuger.Debuger.log("DeviceShadow on_south_input");
         this.device.events.south.input.emit(msg);
     }
 
     //北向输入
     on_north_input(msg: IDeviceBusEventData) {
-        console.log("DeviceShadow on_north_input");
+        Debuger.Debuger.log("DeviceShadow on_north_input");
         this.device.events.north.input.emit(msg);
     }
         
     //配置输入
     on_config_input(msg: IDeviceBusEventData) {
-        console.log("DeviceShadow on_config_input");
+        Debuger.Debuger.log("DeviceShadow on_config_input");
         this.device.events.config.input.emit(msg);
     }    
 
     //通知输入
     on_notify_input(msg: IDeviceBusEventData) {
-        console.log("DeviceShadow on_notify_input");
+        Debuger.Debuger.log("DeviceShadow on_notify_input");
         this.device.events.notify.input.emit(msg);
     }   
 
     //父影子输出给本影子 ->本设备(子设备)转南向输入
     on_parent_input(msg: IDeviceBusEventData) {
-        console.log("DeviceShadow on_parent_input");
+        Debuger.Debuger.log("DeviceShadow on_parent_input");
         // this.device.events.parent.input.emit(msg);
         this.on_south_input(msg);
     }    
     
     //子影子输出给本影子，本设备(父设备)子输入
     on_child_input(msg: IDeviceBusEventData) {
-        console.log("DeviceShadow on_child_input");
+        Debuger.Debuger.log("DeviceShadow on_child_input");
         this.device.events.child.input.emit(msg);
     }        
 
@@ -153,63 +153,63 @@ export class DeviceShadow extends Base implements IDeviceShadow {
     //Device Events   
     //本设备南向输出，若有父设备，父影子子输入 
     on_device_south_output(msg: IDeviceBusEventData) {        
-        msg.id = msg.id || this.device.id;
-        if (this.device.pid) {
-            console.log("DeviceShadow parent on_device_south_output");
-            let pshadow = this.manager.shadows.getShadow(this.device.pid);
+        msg.id = msg.id || this.device.attrs.id;
+        if (this.device.attrs.pid) {
+            Debuger.Debuger.log("DeviceShadow parent on_device_south_output");
+            let pshadow = this.manager.shadows.getShadow(this.device.attrs.pid);
             if (pshadow)
                 pshadow.events.child.input.emit(msg);
             else
-                console.error("error: DeviceShadow parent on_device_south_output: not parent id: " + this.device.id+ ", pid: " + this.device.pid);
+            Debuger.Debuger.error("error: DeviceShadow parent on_device_south_output: not parent id: " + this.device.attrs.id+ ", pid: " + this.device.attrs.pid);
         } else {
-            console.log("DeviceShadow on_device_south_output");
+            Debuger.Debuger.log("DeviceShadow on_device_south_output");
             this.manager.events.south.output.emit(msg);
         }
     } 
 
     //本设备北向输出
     on_device_north_output(msg: IDeviceBusEventData) {
-        console.log("DeviceShadow on_device_north_output");
-        msg.id = msg.id || this.device.id;
+        Debuger.Debuger.log("DeviceShadow on_device_north_output");
+        msg.id = msg.id || this.device.attrs.id;
         this.manager.events.north.output.emit(msg);
     } 
 
     //本设备配置输出
     on_device_config_output(msg: IDeviceBusEventData) {
-        console.log("DeviceShadow on_device_config_output");
-        msg.id = msg.id || this.device.id;
+        Debuger.Debuger.log("DeviceShadow on_device_config_output");
+        msg.id = msg.id || this.device.attrs.id;
         this.manager.events.config.output.emit(msg);
     } 
 
     //本设备通知输出
     on_device_notify_output(msg: IDeviceBusEventData) {
-        console.log("DeviceShadow on_device_notify_output");
-        msg.id = msg.id || this.device.id;
+        Debuger.Debuger.log("DeviceShadow on_device_notify_output");
+        msg.id = msg.id || this.device.attrs.id;
         this.manager.events.notify.output.emit(msg);
     } 
 
     //本影子输出给子影子
     on_device_parent_output(msg: IDeviceBusEventData) {
-        console.log("DeviceShadow on_device_parent_output");
+        Debuger.Debuger.log("DeviceShadow on_device_parent_output");
         //msg.id == child.id
-        msg.id = msg.id || this.device.id;
+        msg.id = msg.id || this.device.attrs.id;
         let childShadow = this.manager.shadows.getShadow(msg.id);
         if (childShadow)
             childShadow.events.parent.input.emit(msg);
     } 
 
     on_device_child_output(msg: IDeviceBusEventData) {
-        console.log("DeviceShadow on_device_child_output");
-        msg.id = msg.id || this.device.id;        
+        Debuger.Debuger.log("DeviceShadow on_device_child_output");
+        msg.id = msg.id || this.device.attrs.id;        
     } 
 
     //Input
     on_device_parent_input(msg: IDeviceBusEventData) {
-        console.log("DeviceShadow on_device_parent_input");
+        Debuger.Debuger.log("DeviceShadow on_device_parent_input");
     } 
 
     on_device_child_input(msg: IDeviceBusEventData) {
-        console.log("DeviceShadow on_device_child_input");
+        Debuger.Debuger.log("DeviceShadow on_device_child_input");
         
     } 
 }

@@ -4,7 +4,6 @@ import { IDeviceBase, IDeviceBusEventData, IDeviceShadow } from "../../device.dt
 export interface IDevice extends IDeviceBase {}
 
 export class Device extends DeviceBase implements IDevice {
-    static Debuger: Console = console;
 
     //初始化
     init() {

@@ -3,8 +3,8 @@ import { DeviceManager } from "../device/manager";
 
 let manager = new DeviceManager();
 
-manager.plugins.regPlugin("device-base", "E:/data/ndiot-device-shadow/dist/device/amd/device/index.js");
-manager.plugins.regPlugin("Z3CO2652ESP8266-test", "E:/data/ndiot-device-shadow/dist/device/amd/zigbee2mqtt/index.js");
+manager.plugins.regPlugin({id: "device-base", url: "E:/data/ndiot-device-shadow/dist/device/amd/device/index.js"});
+manager.plugins.regPlugin({id: "Z3CO2652ESP8266-test", url: "E:/data/ndiot-device-shadow/dist/device/amd/zigbee2mqtt/index.js"});
 // manager.plugins.regPlugin("ACGree", "E:/data/ndiot-device-shadow/dist/device/amd/ac-gree/index.js");
 
 let plugins = ["device-base"]

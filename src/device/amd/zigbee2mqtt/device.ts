@@ -6,8 +6,8 @@ var isUtf8 = import('is-utf8');
 import * as yaml from 'js-yaml'
 import { ChildProcess, spawn, SpawnOptions } from "child_process";
 
-import { Debuger, DeviceBase, DeviceBaseProp } from "../../device-base";
-import { Base, IBase, IDeviceBase, IDeviceBaseProp, IDeviceBusDataPayload, IDeviceBusEventData } from "../../device.dts";
+import { Debuger, DeviceBase, DeviceBaseAttr } from "../../device-base";
+import { Base, IBase, IDeviceBase, IDeviceBaseAttr, IDeviceBusDataPayload, IDeviceBusEventData } from "../../device.dts";
 import { BaseEvent, IBaseEvent } from "../../../common/events";
 import { UUID } from '../../../common/uuid';
 
@@ -136,6 +136,7 @@ export interface IZ2MZ2mConfig extends IBase {
     configfile: string
     databasefile: string
     coordinatorfile: string
+    events: Z2MZ2mConfigEvents
 
     fixUp();
     fixDown();
@@ -173,7 +174,7 @@ export interface IZ2MConfig extends IBase {
             port?: number
         }
     },
-    device?: IDeviceBaseProp
+    device?: IDeviceBaseAttr
 }
 
 export interface IZ2M extends IBase {
@@ -192,7 +193,7 @@ export interface IZigbee2Mqtt extends IDeviceBase {
 }
 
 export interface IZigbee2MqttConfig extends IBase {
-    device: IDeviceBaseProp
+    device: IDeviceBaseAttr
     z2m: IZ2MConfig
     datafiles?: string
 }
@@ -656,14 +657,20 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
 
     load() {        
         Object.keys(this.datafiles).forEach(key => {
-            let fn = this.datadir + "/" + key;
-            if (fs.existsSync(fn)) {
-                let file = fs.openSync(fn, "r");
-                if (file > 0) {
-                    this.datafiles[key] = fs.readFileSync(file).toString();
-                    fs.closeSync(file);                    
-                    Debuger.Debuger.log("Z2MZ2mConfig load: ", this.datafiles[key])
-                }            
+            if (key) {
+                let fn = this.datadir + "/" + key;
+                if (fs.existsSync(fn)) {
+                    let file = fs.openSync(fn, "r");
+                    if (file > 0) {
+                        let buf = fs.readFileSync(file);
+                        if (buf)
+                            this.datafiles[key] = buf.toString();
+                        fs.closeSync(file);                    
+                        Debuger.Debuger.log("Z2MZ2mConfig load: ", fn, this.datafiles[key])
+                    }            
+                }
+            } else {
+                delete this.datafiles[key];
             }
         })
     }
@@ -923,12 +930,12 @@ export class Z2M extends Base implements IZ2M {
 }
 
 export class Zigbee2MqttConfig extends Base implements IZigbee2MqttConfig {
-    device: IDeviceBaseProp
+    device: IDeviceBaseAttr
     z2m: IZ2MConfig
     datafiles: string
     constructor() {
         super();
-        this.device = new DeviceBaseProp();
+        this.device = new DeviceBaseAttr();
         this.z2m = new Z2MConfig();
     }
     destroy(): void {
@@ -941,7 +948,6 @@ export class Zigbee2MqttConfig extends Base implements IZigbee2MqttConfig {
 }
 
 export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
-    static Debuger: Console = console;
     z2m: IZ2M;
     mqtt: IZ2MMqtt;    
     config: IZigbee2MqttConfig
@@ -1004,39 +1010,33 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
     //子设备输入
     on_child_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("Zigbee2Mqtt  on_child_input");
-        //todo...
-        super.on_child_input(msg);       
+        Debuger.Debuger.log("Zigbee2Mqtt  on_child_input", msg.id, msg.payload);
+        let pPayload = msg.payload as IDeviceBusDataPayload;
+        let _msg: IDeviceBusEventData = {
+            topic: msg.id + "/" + pPayload.hd.entry.id,
+            payload: pPayload.pld
+        }
+        this.on_mqtt_south_output(_msg);
     }  
 
     //配置输入
     on_config_input(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Zigbee2Mqtt  on_config_input");
         if (msg.action == "get_res") {
-            if (msg.payload) {
-                let payload = JSON.parse(msg.payload) as IZigbee2MqttConfig;
-                if(payload && payload.datafiles) {
-                    Object.keys(payload.datafiles).forEach(key => {
-                        this.config.datafiles[key] = payload.datafiles[key]
-                    })
-                }
-            }
-
-            this.do_handshake_req();
+            this.on_config_get_response(msg);
         }
 
-        this.config = msg.payload as IZigbee2MqttConfig;
     }      
 
     //私有函数
     initConfig() {
-        Object.keys(this.config.device).forEach(key => {
-            this.config.device[key] = this[key];
-        })       
-
+        this.config.device = Object.assign({}, this.attrs);
         this.config.z2m.device = this.config.device;
-        this.config.z2m.mqtt.base_topic = this.id;
-        this.z2m.initConfig(this.config.z2m)
+        this.config.z2m.mqtt.base_topic = this.attrs.id;
+        this.z2m.initConfig(this.config.z2m);
+        this.z2m.z2m.config.events.change.on((file, event, fpath) => {
+            this.on_z2m_z2m_config_events_change(file, event, fpath);
+        })
     }
 
     initMqtt() {
@@ -1048,21 +1048,50 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
     }
 
+//配置文件相关    
     getConfig() {
         let msg: IDeviceBusEventData = {
             action: "get",
-            payload: this.config
         }
         this.events.config.output.emit(msg);
     }
+    on_config_get_response(msg: IDeviceBusEventData) {
+        if (msg.payload) {
+            let payload = msg.payload as IZigbee2MqttConfig;
+            if(payload && payload.datafiles) {
+                this.config.datafiles = payload.datafiles;
+                let datafiles = JSON.parse(payload.datafiles);
+                Object.keys(datafiles).forEach(key => {
+                    this.z2m.z2m.config.datafiles[key] = datafiles[key];
+                })
+                
+            }
+        }
+
+        this.do_handshake_req();
+    }    
 
     setConfig() {
+        this.z2m.z2m.config.fixUp();
         let msg: IDeviceBusEventData = {
             action: "set",
-            payload: this.config
+            payload: {
+                datafiles: JSON.stringify(this.z2m.z2m.config.datafiles)
+            }
         }
         this.events.config.output.emit(msg)
     }    
+
+    _on_z2m_z2m_config_events_change_handler: any;
+    on_z2m_z2m_config_events_change(file, event, fpath) {
+        clearTimeout(this._on_z2m_z2m_config_events_change_handler);
+        this._on_z2m_z2m_config_events_change_handler = setTimeout(() => {
+            clearTimeout(this._on_z2m_z2m_config_events_change_handler);
+            this.setConfig();            
+        }, 10000);
+
+
+    }
 
     do_handshake_req() {
         //todo 超时逻辑
@@ -1158,7 +1187,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
     }
 
     on_mqtt_events_message(topic: string, payload: Buffer, packet: Mqtt.IPublishPacket) {
-        Debuger.Debuger.log("Zigbee2Mqtt", "on_mqtt_events_message", topic, payload.toString());
+        Debuger.Debuger.log("Zigbee2Mqtt", "on_mqtt_events_message", topic);
         this.on_mqtt_south_input(packet);
     }    
 
@@ -1203,7 +1232,6 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
             let msg: IDeviceBusEventData = {
                 payload: payload
             }
-
             this.events.north.output.emit(msg);
         }
 
@@ -1214,11 +1242,18 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
                 this.on_z2m_bridge_events_event_device_joined(packet);
             } else if (pPayload.type === "device_leave") {
                 this.on_z2m_bridge_events_event_device_leave(packet);
-            } else if (pPayload.type === "device_announce") {
-                // this.on_z2m_bridge_events_event_device_leave(packet);
             } else if (pPayload.type === "device_interview") {
-                // this.on_z2m_bridge_events_event_device_leave(packet);
+                this.on_z2m_bridge_events_event_device_interview(packet);
             }
+            else {
+                this.on_z2m_bridge_events_event_else(packet);
+            }
+            
+            // else if (pPayload.type === "device_announce") {
+            //     this.on_z2m_bridge_events_event_device_announce(packet);
+            // } else if (pPayload.type === "device_interview") {
+            //     this.on_z2m_bridge_events_event_device_interview(packet);
+            // }
         }
 
         //协调器事件: 子设备入网事件 -> 北向输出
@@ -1235,10 +1270,12 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
                 },
                 pld: {
                     id: pPayload.data.ieee_address,
-                    pid: this.id
+                    pid: this.attrs.id,
+                    app_id: this.attrs.app_id,
+                    dom_id: this.attrs.dom_id,                    
                 }
             }
-
+        
             this.events.north.output.emit({payload: payload});
         }
 
@@ -1256,12 +1293,59 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
                 },
                 pld: {
                     id: pPayload.data.ieee_address,
-                    pid: this.id
+                    pid: this.attrs.id
                 }
             }
 
             this.events.north.output.emit({payload: payload});
         }        
+
+        //协调器事件: 子设备检索事件 -> 北向输出
+        on_z2m_bridge_events_event_device_interview(packet: Mqtt.IPublishPacket) {
+            let pPayload = JSON.parse(packet.payload as any);
+            if (pPayload.data.status === "successful" ) {            
+                let payload: IDeviceBusDataPayload = {
+                    hd: {
+                        entry: {
+                            type: "evt",
+                            id: pPayload.type
+                        },
+                        sid: "",
+                        stp: 0
+                    },
+                    pld: {
+                        id: pPayload.data.ieee_address,
+                        pid: this.attrs.id,
+                        app_id: this.attrs.app_id,
+                        dom_id: this.attrs.dom_id,                                            
+                        vendor: pPayload.data.definition.vendor,
+                        model: pPayload.data.definition.vendor + "-" + pPayload.data.definition.model,
+                        desc: pPayload.data.definition.description
+                    },
+                    extra: pPayload 
+                } as any;
+
+                this.events.north.output.emit({payload: payload});
+            }
+        }   
+
+        //协调器事件: 子设备其它事件 -> 北向输出
+        on_z2m_bridge_events_event_else(packet: Mqtt.IPublishPacket) {
+            let pPayload = JSON.parse(packet.payload as any);
+            let payload: IDeviceBusDataPayload = {
+                hd: {
+                    entry: {
+                        type: "evt",
+                        id: pPayload.type
+                    },
+                    sid: "",
+                    stp: 0
+                },
+                pld: pPayload
+            }
+
+            this.events.north.output.emit({payload: payload});
+        }   
 
         //协调器事件: 响应事件 -> 北向输出
         on_z2m_bridge_events_response(packet: Mqtt.IPublishPacket) {

@@ -1,6 +1,6 @@
 import EventEmitter = require("events");
 import { IBaseEvent, BaseEvent } from "../common/events";
-import { Base, IDeviceBase, IDeviceBaseEvents, IDeviceBusEventData, IDeviceShadow, IDeviceEntryEvent, IDeviceBusEvent, IDeviceBaseProp } from "./device.dts";
+import { Base, IDeviceBase, IDeviceBaseEvents, IDeviceBusEventData, IDeviceShadow, IDeviceEntryEvent, IDeviceBusEvent, IDeviceBaseAttr } from "./device.dts";
 
 export class DeviceBusEvent implements IDeviceBusEvent {
     eventName: string = "";
@@ -67,10 +67,8 @@ export class DeviceBaseEvents extends Base implements IDeviceBaseEvents {
     }
 }
 
-export class DeviceBaseProp implements IDeviceBaseProp {
+export class DeviceBaseAttr implements IDeviceBaseAttr {
     id: string = "";
-    pid: string = "";
-    model: string = "";    
 }
 
 export class Debuger {
@@ -78,17 +76,13 @@ export class Debuger {
 }
 
 export class DeviceBase extends Base implements IDeviceBase {
-    id: string;
-    pid: string;
-    model: string;
+    attrs: IDeviceBaseAttr;
     events: IDeviceBaseEvents;
     props: { [name: string]: any; };
 
-    constructor(id: string, pid: string, model: string) {
+    constructor(attrs: IDeviceBaseAttr) {
         super();
-        this.id = id;
-        this.pid = pid;
-        this.model = model;
+        this.attrs = Object.assign({}, attrs);
         this.events = new DeviceBaseEvents();
         // this.shadow = shadow;
 
@@ -107,7 +101,7 @@ export class DeviceBase extends Base implements IDeviceBase {
         this.events.child.input.on(on_child_input);
 
         this.onDestroy.once(() => {
-            console.log("DeviceBase onDestroy");
+            Debuger.Debuger.log("DeviceBase onDestroy");
 
         })
 
@@ -120,20 +114,20 @@ export class DeviceBase extends Base implements IDeviceBase {
         this.events.destroy();
         super.destroy();
      
-        console.log("DeviceBase destroy");
+        Debuger.Debuger.log("DeviceBase destroy");
     }
 
     init() {
-       console.log("DeviceBase init");
+        Debuger.Debuger.log("DeviceBase init");
     }
 
     uninit() {
-        console.log("DeviceBase uninit");
+        Debuger.Debuger.log("DeviceBase uninit");
     }
 
     //南向输入
     on_south_input(msg: IDeviceBusEventData){
-        console.log("DeviceBase  on_south_input");   
+        Debuger.Debuger.log("DeviceBase  on_south_input");   
         //南面输入->北面输出
         this.events.north.output.emit(msg);
 
@@ -145,32 +139,32 @@ export class DeviceBase extends Base implements IDeviceBase {
 
     //北向输入 -> 转南向输出(若有父设备，由影子转父设备处理))
     on_north_input(msg: IDeviceBusEventData){
-        console.log("DeviceBase  on_north_input");  
+        Debuger.Debuger.log("DeviceBase  on_north_input");  
         this.events.south.output.emit(msg);
     }
     
     //配置输入
     on_config_input(msg: IDeviceBusEventData) {
-        console.log("DeviceBase  on_config_input");       
+        Debuger.Debuger.log("DeviceBase  on_config_input");       
     }   
 
     //通知输入
     on_notify_input(msg: IDeviceBusEventData) {
-        console.log("DeviceBase  on_config_input");       
+        Debuger.Debuger.log("DeviceBase  on_config_input");       
     }  
 
     //父设备输入 -> 转南向输入
     on_parent_input(msg: IDeviceBusEventData){
-        console.log("DeviceBase  on_parent_input");
+        Debuger.Debuger.log("DeviceBase  on_parent_input");
         this.on_south_input(msg);       
     } 
     
     //子设备输入 -> 转南向输出
     on_child_input(msg: IDeviceBusEventData) {
-        console.log("DeviceBase  on_child_input");
+        Debuger.Debuger.log("DeviceBase  on_child_input");
         
         //id需输入父id，否则死循环
-        msg.id = this.id;
+        msg.id = this.attrs.id;
         this.events.south.output.emit(msg);       
     }  
 

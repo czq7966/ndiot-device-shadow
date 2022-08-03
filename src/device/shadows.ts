@@ -1,4 +1,5 @@
-import { Base, IDeviceBase, IDeviceBaseProp, IDeviceShadow, IDeviceShadowEvents, IDeviceShadowManager, IDeviceShadows } from "./device.dts";
+import { Debuger } from "./device-base";
+import { Base, IDeviceBase, IDeviceBaseAttr, IDeviceShadow, IDeviceShadowEvents, IDeviceShadowManager, IDeviceShadows } from "./device.dts";
 import { DeviceShadow } from "./shadow";
 
 export class DeviceShadows extends Base implements IDeviceShadows {
@@ -15,19 +16,20 @@ export class DeviceShadows extends Base implements IDeviceShadows {
         super.destroy();
     }
 
-    newShadow(props: IDeviceBaseProp): Promise<IDeviceShadow> {
-        let shadow = this.shadows[props.id];
-        if (shadow) 
+    newShadow(attrs: IDeviceBaseAttr): Promise<IDeviceShadow> {
+        let shadow = this.shadows[attrs.id];
+        if (shadow && shadow.device.attrs.pid === attrs.pid && shadow.device.attrs.model === attrs.model) 
             return Promise.resolve(shadow)
         else {
+            this.delShadow(attrs.id);
             return new Promise((resolve, reject) => {
-                this.manager.plugins.loadPlugin(props.model)
+                this.manager.plugins.loadPlugin(attrs.model)
                 .then(plugin => {
                     if (plugin && plugin.Plugin) {
                         shadow = new DeviceShadow(this.manager);
-                        let device = new plugin.Plugin(props.id, props.pid, props.model) as IDeviceBase;
+                        let device = new plugin.Plugin(attrs) as IDeviceBase;
                         shadow.attachDevice(device);
-                        this.shadows[props.id] = shadow;
+                        this.shadows[attrs.id] = shadow;
                         resolve(shadow);
                     } else {
                         reject("no export Device class")
@@ -49,6 +51,8 @@ export class DeviceShadows extends Base implements IDeviceShadows {
                 device.destroy();
             
             shadow.destroy();
+        } else {
+            Debuger.Debuger.log(" delShadow no shadow", id);
         }
         return true;
     }

@@ -18,12 +18,16 @@ export class Base {
 
 
 export interface IDeviceClass {
-    new(id: string, pid: string, model: string) : Object
+    new(attrs: IDeviceBaseAttr) : Object
+}
+
+export interface IDevicePluginAttr {
+    id: string
+    url: string
 }
 
 export interface IDevicePlugin {
-    name: string
-    url: string
+    attrs: IDevicePluginAttr
     Plugin?: IDeviceClass
 }
 
@@ -36,15 +40,15 @@ export interface IDeviceUrlPlugin {
 
 export interface IDevicePlugins extends IBase  {    
     manager: IDeviceShadowManager;
-    plugins: {[name: string]: IDevicePlugin}
+    plugins: {[id: string]: IDevicePlugin}
     urlPlugins: {[url: string]: IDeviceUrlPlugin}
     defaultPlugin: IDeviceClass    
     defaultPluginName: string
-    regPlugin(name: string, url: string): IDevicePlugin;
-    getPlugin(name: string): IDevicePlugin;
-    getPluginUrl(name: string): string
-    loadPlugin(name: string, reload?: boolean): Promise<IDevicePlugin>;
-    reloadPlugin(name: string): Promise<IDevicePlugin>;    
+    regPlugin(attrs: IDevicePluginAttr): IDevicePlugin;
+    getPlugin(id: string): IDevicePlugin;
+    getPluginUrl(id: string): string
+    loadPlugin(id: string, reload?: boolean): Promise<IDevicePlugin>;
+    reloadPlugin(id: string): Promise<IDevicePlugin>;    
     regUrlPlugin(url: string, urlPlugin: IDeviceClass): IDeviceClass;
     getUrlPlugin(url: string): IDeviceClass;
     loadUrlPlugin(url: string): Promise<IDeviceClass>;    
@@ -69,7 +73,7 @@ export interface IDeviceShadow extends IBase {
 export interface IDeviceShadows extends IBase {
     manager: IDeviceShadowManager
     shadows: {[id: string] : IDeviceShadow}
-    newShadow(props: IDeviceBaseProp): Promise<IDeviceShadow>
+    newShadow(props: IDeviceBaseAttr): Promise<IDeviceShadow>
     delShadow(id: string): boolean;
     getShadow(id: string): IDeviceShadow;
 }
@@ -89,10 +93,17 @@ export interface IDeviceShadowManager extends IBase  {
     events: IDeviceShadowManagerBusEvent
 }
 
-export interface IDeviceBaseProp {
+export interface IDeviceBaseAttr {
     id: string
     pid?: string
-    model: string
+    model?: string
+    app_id?: string
+    dom_id?: string
+    vendor?: string
+    type?: string
+    name?: string
+    nick?: string
+    desc?: string
 }
 
 export interface IDeviceBaseEvents extends IBase {
@@ -104,12 +115,10 @@ export interface IDeviceBaseEvents extends IBase {
     child: IDeviceEntryEvent
 }
 
-export interface IDeviceBase extends IBase, IDeviceBaseProp {
-    id: string
-    pid: string
-    model: string
-    events: IDeviceBaseEvents
+export interface IDeviceBase extends IBase {
+    attrs: IDeviceBaseAttr;
     props: {[name: string]: any}
+    events: IDeviceBaseEvents    
     // events: {[name: string]: any}
     // services: {[name: string]: any}
     // shadow: IDeviceShadow    

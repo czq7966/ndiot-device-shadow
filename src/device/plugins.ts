@@ -1,5 +1,6 @@
 import * as Common from '../common'
-import {Base, IDeviceBusEventData, IDeviceClass, IDevicePlugin, IDevicePlugins,  IDeviceShadowManager, IDeviceUrlPlugin } from "./device.dts";
+import { Debuger } from './device-base';
+import {Base, IDeviceBusEventData, IDeviceClass, IDevicePlugin, IDevicePluginAttr, IDevicePlugins,  IDeviceShadowManager, IDeviceUrlPlugin } from "./device.dts";
 
 export class DevicePlugins extends Base implements IDevicePlugins {
     manager: IDeviceShadowManager;
@@ -21,32 +22,28 @@ export class DevicePlugins extends Base implements IDevicePlugins {
     }
     
 
-    regPlugin(name: string, url: string): IDevicePlugin {
-        let plugin = this.plugins[name] || {
-            name: name,
-            url: url || ""
-        };
-        plugin.url = url || plugin.url || "";
-        this.plugins[name] = plugin;
-        return this.getPlugin(name);
+    regPlugin(attrs: IDevicePluginAttr): IDevicePlugin {
+        let plugin: IDevicePlugin = this.plugins[attrs.id] || { attrs: attrs };
+        plugin.attrs = attrs;
+        this.plugins[attrs.id] = plugin;
+        return this.getPlugin(attrs.id);
     }
 
-    getPlugin(name: string): IDevicePlugin {
-        let plugin =  this.plugins[name];
+    getPlugin(id: string): IDevicePlugin {
+        let plugin =  this.plugins[id];
         if (plugin && !plugin.Plugin)
-            plugin.Plugin = this.getUrlPlugin(plugin.url);
+            plugin.Plugin = this.getUrlPlugin(plugin.attrs.url);
         return plugin;
     }    
     
 
-    loadPlugin(name: string, reload?: boolean): Promise<IDevicePlugin> {
+    loadPlugin(id: string, reload?: boolean): Promise<IDevicePlugin> {
         return new Promise((resolve, reject) => {
-            let plugin = this.getPlugin(name);
-            if (!plugin || (!plugin.url && !plugin.Plugin)){
+            let plugin = this.getPlugin(id);
+            if (!plugin || (!plugin.attrs.url && !plugin.Plugin)){
                 if (this.defaultPlugin) {
                     plugin = {
-                        name: name,
-                        url: "",
+                        attrs: {id: id, url: ""},
                         Plugin: this.defaultPlugin
                     }
                     resolve(plugin);
@@ -54,11 +51,11 @@ export class DevicePlugins extends Base implements IDevicePlugins {
                     reject("error: plugin: " + name + " not regged, please reg it first");
                 }
             } else {
-                plugin.Plugin = this.getUrlPlugin(plugin.url);
+                plugin.Plugin = this.getUrlPlugin(plugin.attrs.url);
                 if (plugin.Plugin) 
                     resolve(plugin);
                 else {       
-                    let url = this.getPluginUrl(name);
+                    let url = this.getPluginUrl(id);
                     let promise = reload ? this.reloadUrlPlugin(url) : this.loadUrlPlugin(url);
                     promise
                     .then( _Plugin => {
@@ -73,16 +70,16 @@ export class DevicePlugins extends Base implements IDevicePlugins {
         })
     }
 
-    getPluginUrl(name: string): string {
-        let _getUrl = (_name) => {
-            let _plugin = this.getPlugin(_name);
-            return _plugin ? _plugin.url : "";
+    getPluginUrl(id: string): string {
+        let _getUrl = (_id) => {
+            let _plugin = this.getPlugin(_id);
+            return _plugin ? _plugin.attrs.url : "";
         }        
 
-        let url = _getUrl(name);
+        let url = _getUrl(id);
         let url2 = "";
-        if (url && url != name) url2 = _getUrl(url);
-        if (url2 && url2 != name && url2 != url) {
+        if (url && url != id) url2 = _getUrl(url);
+        if (url2 && url2 != id && url2 != url) {
             url = this.getPluginUrl(url2) || url2;
         }
         return url;
@@ -136,7 +133,7 @@ export class DevicePlugins extends Base implements IDevicePlugins {
     }    
 
     reloadUrlPlugin(url: string): Promise<IDeviceClass> {     
-        console.log("reloadUrlPlugin",url)
+        Debuger.Debuger.log("reloadUrlPlugin",url)
         let urlPlugin = this.urlPlugins[url] || {url: url};
         this.urlPlugins[url]= urlPlugin;
         let promise = new Promise<IDeviceClass>((resolve, reject) => {
