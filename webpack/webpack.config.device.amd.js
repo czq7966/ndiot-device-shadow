@@ -17,6 +17,7 @@ module.exports = env => {
     const srcDir =  path.resolve(__dirname, '../src/device/amd');
     entry['device/index'] = path.resolve(srcDir, "device/index.ts");
     entry['zigbee2mqtt/index'] = path.resolve(srcDir, "zigbee2mqtt/index.ts");
+    entry['ct-dooya-dvq24gf/index'] = path.resolve(srcDir, "ct-dooya-dvq24gf/index.ts");
     
     optimization['minimizer'] = minimizer;  
 

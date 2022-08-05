@@ -344,7 +344,6 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
                     resolve(p)
                 })
                 .catch(e => {
-                    Debuger.Debuger.log("2222222222222", port, e)
                     port += 2;
                     
                     if (port < this.port_end) 
