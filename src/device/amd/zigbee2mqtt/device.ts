@@ -138,8 +138,8 @@ export interface IZ2MZ2mConfig extends IBase {
     coordinatorfile: string
     events: Z2MZ2mConfigEvents
 
-    fixUp();
-    fixDown();
+    fixUp(): Promise<any>;
+    fixDown(): Promise<any>;
     startWatch();
     stopWatch();
 }
@@ -154,7 +154,7 @@ export interface IZ2MZ2m extends IBase {
     config: IZ2MZ2mConfig
     events: IZ2MZ2mEvents
     status: 'starting' | 'running' | 'killed';
-    initConfig(cfg: IZ2MConfig);
+    initConfig(cfg: IZ2MConfig): Promise<any>;
     start(): Promise<number>;
     stop(): Promise<void>;
 }
@@ -632,9 +632,17 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
         super.destroy();        
     }    
 
-    fixUp() {        
-        this.load();
-        this.fixUpConfig();
+    fixUp(): Promise<any> {        
+        return new Promise((resolve, reject) => {
+            this.load()
+            .then(v => {
+                this.fixUpConfig();
+                resolve(1)
+            })
+            .catch(e => {
+                resolve(0);
+            });
+        })
     };
 
     fixUpConfig() {
@@ -647,42 +655,70 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
         this.datafiles[this.configfile] = configYaml;
     }
 
-    fixDown() {
-        this.stopWatch();        
-        this.fixUpConfig();
-        this.save();
-        this.startWatch();
+    fixDown(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.stopWatch();        
+            this.fixUpConfig();
+            this.save()
+            .then(v => {
+                this.startWatch();
+                resolve(1)
+            })
+            .catch(e => {
+                this.startWatch();
+                resolve(0);
+            })
+            
+        })
+
     };
 
-    load() {        
+    load(): Promise<any> {        
+        let promises: Promise<any>[] = [];
         Object.keys(this.datafiles).forEach(key => {
             if (key) {
-                let fn = this.datadir + "/" + key;
-                if (fs.existsSync(fn)) {
-                    let file = fs.openSync(fn, "r");
-                    if (file > 0) {
-                        let buf = fs.readFileSync(file);
-                        if (buf)
-                            this.datafiles[key] = buf.toString();
-                        fs.closeSync(file);                    
-                        Debuger.Debuger.log("Z2MZ2mConfig load: ", fn, this.datafiles[key])
-                    }            
-                }
+                let promise = new Promise((resolve, reject) => {
+                    let fn = this.datadir + "/" + key;
+                    fs.readFile(fn, (err, data) => {
+                        if (!err && data) {
+                            this.datafiles[key] = data.toString();
+                            Debuger.Debuger.log("Z2MZ2mConfig load: ", fn, this.datafiles[key])
+                            resolve(1);
+                        } else {
+                            resolve(0);
+                        }
+                    })
+                })
+                promises.push(promise);
+
             } else {
                 delete this.datafiles[key];
             }
         })
+        return Promise.all(promises);
     }
 
-    save() {
-        fs.mkdirSync(this.datadir, {recursive: true});
+    save(): Promise<any> {
+        let promises: Promise<any>[] = [];
+
         Object.keys(this.datafiles).forEach(key => {
-            let value = this.datafiles[key];
-            let fn = this.datadir + "/" + key;
-            let file = fs.openSync(fn, "w");        
-            fs.writeFileSync(file, value);
-            fs.closeSync(file);
+            let promise = new Promise((resolve, reject) => {
+                fs.mkdir(this.datadir, {recursive: true}, (err, path) => {
+                    let value = this.datafiles[key];
+                    let fn = this.datadir + "/" + key;
+                    fs.writeFile(fn, value, err => {
+                        if (!err)
+                            resolve(1)
+                        else
+                            resolve(0);
+                    })
+                })
+            });
+            
+            promises.push(promise);
         })
+
+        return Promise.all(promises);
     }
 
     startWatch() {
@@ -700,8 +736,10 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
     }
 
     stopWatch() {
-        if (this.notifications)
+        if (this.notifications) {
+            this.notifications.removeAllListeners();
             this.notifications.close();
+        }
         delete this.notifications;
     }
 }
@@ -731,7 +769,7 @@ export class Z2MZ2m extends Base implements IZ2MZ2m {
     status: 'starting' | 'running' | 'killed';
 
     child: ChildProcess
-    childPromise: Promise<void>
+    childPromise: Promise<number>
 
     constructor() {
         super();
@@ -747,7 +785,7 @@ export class Z2MZ2m extends Base implements IZ2MZ2m {
         super.destroy();        
     }
 
-    initConfig(cfg: IZ2MConfig) {
+    async initConfig(cfg: IZ2MConfig) {
         this.config.z2mdir =  cfg.z2m.dir || this.config.z2mdir;
         this.config.datadir = this.config.z2mdir + "/data/" + cfg.device.id;
         this.config.exec.cmd = "node";
@@ -765,7 +803,7 @@ export class Z2MZ2m extends Base implements IZ2MZ2m {
         this.config.configuration.mqtt.password = cfg.mqtt.password;
         this.config.configuration.serial.port = "tcp://127.0.0.1:" + cfg.z2m.tcp.port;
         this.config.configuration.frontend.port = cfg.z2m.tcp.port + 1;
-        this.config.fixUp();
+        await this.config.fixUp();
     };
 
     start(): Promise<number> {
@@ -773,7 +811,9 @@ export class Z2MZ2m extends Base implements IZ2MZ2m {
             this.stop()
             .then(v => {
                 this.childPromise = this.startChild();
+                resolve(1);
             })
+            .catch(e => reject(e))
         })
 
         
@@ -782,9 +822,9 @@ export class Z2MZ2m extends Base implements IZ2MZ2m {
         return this.stopChild();
     }    
 
-    startChild(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            this.config.fixDown();
+    async startChild(): Promise<number> {
+        return new Promise(async (resolve, reject) => {
+            await this.config.fixDown();
             let exec = this.config.exec;
             process.env["ZIGBEE2MQTT_DATA"] = this.config.datadir;
             let child = spawn(exec.cmd, exec.args, exec.options);    
@@ -808,12 +848,13 @@ export class Z2MZ2m extends Base implements IZ2MZ2m {
                 Debuger.Debuger.error("Z2MZ2m error: " + err.message);
                 this.status = "killed";
                 this.events.error.emit(err);
+                reject(err);
             })      
             child.on("close", (code, signal) => {
                 Debuger.Debuger.log("Z2MZ2m closed");
                 this.status = "killed";
                 this.events.close.emit(code, signal);
-                reject(code);
+                resolve(code);
             });
             this.child = child; 
         })
@@ -877,6 +918,7 @@ export class Z2M extends Base implements IZ2M {
     }
     destroy(): void {
         this.stop()
+        .catch(e => {})
         .finally( () => {
             this.z2m.destroy();
             this.tcp.destroy();
@@ -908,9 +950,9 @@ export class Z2M extends Base implements IZ2M {
         this.tcp.port_end = this.config.z2m.tcp.port_end;
         return new Promise((resolve, reject) => {
             this.tcp.start()
-            .then(pTcp =>{
+            .then(async pTcp =>{
                 this.config.z2m.tcp.port = pTcp;
-                this.z2m.initConfig(this.config);
+                await this.z2m.initConfig(this.config);
                 Debuger.Debuger.log("tcp status:" + this.tcp.status);
                 this.z2m.start().then(pFront => resolve(pFront)).catch(e => reject(e));
             })
@@ -972,6 +1014,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
     //反初始化
     uninit() {
         this.z2m.stop()
+        .catch(e => {})
         .finally(() => {
             this.z2m.destroy();
         })
@@ -1070,8 +1113,8 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
         this.do_handshake_req();
     }    
 
-    setConfig() {
-        this.z2m.z2m.config.fixUp();
+    async setConfig() {
+        await this.z2m.z2m.config.fixUp();
         let msg: IDeviceBusEventData = {
             action: "set",
             payload: {
@@ -1131,6 +1174,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
         let payload = msg.payload as IDeviceBusDataPayload;
         if (payload.pld.handshake_count === 0 || this.z2m.z2m.status == "killed") {
             this.z2m.stop()
+            .catch(e => {})
             .finally(() => {
                 this.z2m.start();
             })
@@ -1292,7 +1336,9 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
                 },
                 pld: {
                     id: pPayload.data.ieee_address,
-                    pid: this.attrs.id
+                    pid: this.attrs.id,
+                    app_id: this.attrs.app_id,
+                    dom_id: this.attrs.dom_id,                       
                 }
             }
 
@@ -1380,9 +1426,29 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
             this.events.north.output.emit(msg);
         }
 
-        //Mqtt南向输入(子设备事件) -> 北向输出
+        //Mqtt南向输入(子设备事件) -> 父输出 -> 子南向输入
         on_z2m_child_events(packet: Mqtt.IPublishPacket) {
             let topics = packet.topic.split("/");
+            let cid = topics[1]; //子设备id
+            let payload: IDeviceBusDataPayload = {
+                hd: {
+                    from: {
+                        type: "dev",
+                        id: cid,
+                    },
+                    entry: {
+                        type: "evt",
+                        id: "report"
+                    }
+                },
+                pld: packet.payload
+            }
+            let msg: IDeviceBusEventData = {
+                id: cid, 
+                payload: payload
+            }
+            //作为父设备输出给子设备
+            this.events.parent.output.emit(msg);
         }
             
 //Mqtt南向输出

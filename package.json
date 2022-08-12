@@ -11,7 +11,7 @@
     "test": "node ./dist/test/index.js",
     "nr:clean": "rimraf ./dist/node-red",
     "nr:watch": "npm run nr:clean && cross-env NODE_MODULE=node-red webpack --watch --progress --env cjs2",
-    "device:amd:clean": "rimraf ./dist/device/amd",
+    "device:amd:clean": "rimraf ./dist/node-red/amd",
     "device:amd:watch": "npm run device:amd:clean && cross-env NODE_MODULE=device-amd  webpack --watch --progress --env cjs"
   },
   "author": "CZQ",
@@ -26,6 +26,7 @@
     "fs.notify": "^0.0.4",
     "is-utf8": "^0.2.1",
     "js-yaml": "^4.1.0",
+    "mongodb": "^4.8.1",
     "mqtt": "^4.3.7",
     "rimraf": "^3.0.2",
     "ts-loader": "^9.3.1",

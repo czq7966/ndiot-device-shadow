@@ -1,6 +1,6 @@
 {
     "name": "node-red-nd-device-shadow",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "Device shadow manager",
     "node-red": {
       "nodes": {

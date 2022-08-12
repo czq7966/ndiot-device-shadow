@@ -13,7 +13,7 @@ module.exports = env => {
     const libraryTarget = env.amd ? 'amd' : env.umd ? 'umd' :  env.cjs ? 'commonjs' : env.cjs2 ? 'commonjs2' : 'commonjs2';
     // const libraryTargetPath =  env.amd ? 'amd' : env.umd ? 'umd' : env.cjs ? 'cjs' : env.old ? '' : 'cjs';
     // const distDir = path.resolve(__dirname, 'dist', libraryTargetPath);
-    const distDir = path.resolve(__dirname, env.distDir ? env.distDir : '../dist/device/amd');
+    const distDir = path.resolve(__dirname, env.distDir ? env.distDir : '../dist/node-red/amd');
     const srcDir =  path.resolve(__dirname, '../src/device/amd');
     entry['device/index'] = path.resolve(srcDir, "device/index.ts");
     entry['zigbee2mqtt/index'] = path.resolve(srcDir, "zigbee2mqtt/index.ts");

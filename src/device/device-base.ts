@@ -1,4 +1,5 @@
 import EventEmitter = require("events");
+import { InspectOptions } from "util";
 import { IBaseEvent, BaseEvent } from "../common/events";
 import { Base, IDeviceBase, IDeviceBaseEvents, IDeviceBusEventData, IDeviceShadow, IDeviceEntryEvent, IDeviceBusEvent, IDeviceBaseAttr } from "./device.dts";
 
@@ -73,6 +74,31 @@ export class DeviceBaseAttr implements IDeviceBaseAttr {
 
 export class Debuger {
     static Debuger: Console = console;
+    static Nothing: Console =  {
+        assert(value?: any, message?: any, ...optionalParams: any[]): void { },
+        clear(): void { },
+        count(label?: any): void { },
+        countReset(label?: any): void { },
+        debug(message?: any, ...optionalParams: any[]): void { },
+        dir(obj?: any, options?: any): void { },
+        dirxml(...data: any[]): void { },
+        error(message?: any, ...optionalParams: any[]): void { },
+        group(...label: any[]): void { },
+        groupCollapsed(...label: any[]): void { },
+        groupEnd(): void { },
+        info(message?: any, ...optionalParams: any[]): void { },
+        log(message?: any, ...optionalParams: any[]): void { },
+        table(tabularData?: any, properties?: any): void { },
+        time(label?: any): void { },
+        timeEnd(label?: any): void { },
+        timeLog(label?: any, ...data: any[]): void { },
+        timeStamp(label?: any): void { },
+        trace(message?: any, ...optionalParams: any[]): void { },
+        warn(message?: any, ...optionalParams: any[]): void { },
+        profile(label?: string): void { },
+        profileEnd(label?: string): void { },
+        Console: undefined
+    }
 }
 
 export class DeviceBase extends Base implements IDeviceBase {
