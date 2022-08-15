@@ -21,7 +21,7 @@ export class DeviceShadows extends Base implements IDeviceShadows {
         if (shadow && shadow.device.attrs.pid === attrs.pid && shadow.device.attrs.model === attrs.model) 
             return Promise.resolve(shadow)
         else {
-            this.delShadow(attrs.id);
+            if (shadow) this.delShadow(attrs.id);
             return new Promise((resolve, reject) => {
                 this.manager.plugins.loadPlugin(attrs.model)
                 .then(plugin => {

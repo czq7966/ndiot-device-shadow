@@ -11,8 +11,8 @@
     "test": "node ./dist/test/index.js",
     "nr:clean": "rimraf ./dist/node-red",
     "nr:watch": "npm run nr:clean && cross-env NODE_MODULE=node-red webpack --watch --progress --env cjs2",
-    "device:amd:clean": "rimraf ./dist/node-red/amd",
-    "device:amd:watch": "npm run device:amd:clean && cross-env NODE_MODULE=device-amd  webpack --watch --progress --env cjs"
+    "amd:clean": "rimraf ./dist/node-red/amd",
+    "amd:watch": "npm run amd:clean && cross-env NODE_MODULE=device-amd  webpack --watch --progress --env cjs"
   },
   "author": "CZQ",
   "license": "ISC",

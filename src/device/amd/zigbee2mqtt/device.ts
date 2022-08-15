@@ -657,15 +657,15 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
 
     fixDown(): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.stopWatch();        
+            // this.stopWatch();        
             this.fixUpConfig();
             this.save()
             .then(v => {
-                this.startWatch();
+                // this.startWatch();
                 resolve(1)
             })
             .catch(e => {
-                this.startWatch();
+                // this.startWatch();
                 resolve(0);
             })
             
@@ -680,7 +680,7 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
                 let promise = new Promise((resolve, reject) => {
                     let fn = this.datadir + "/" + key;
                     fs.readFile(fn, (err, data) => {
-                        if (!err && data) {
+                        if (!err && data && data.length > 0) {
                             this.datafiles[key] = data.toString();
                             Debuger.Debuger.log("Z2MZ2mConfig load: ", fn, this.datafiles[key])
                             resolve(1);
@@ -705,13 +705,15 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
             let promise = new Promise((resolve, reject) => {
                 fs.mkdir(this.datadir, {recursive: true}, (err, path) => {
                     let value = this.datafiles[key];
-                    let fn = this.datadir + "/" + key;
-                    fs.writeFile(fn, value, err => {
-                        if (!err)
-                            resolve(1)
-                        else
-                            resolve(0);
-                    })
+                    if (value && value.length > 0) {
+                        let fn = this.datadir + "/" + key;
+                        fs.writeFile(fn, value, err => {
+                            if (!err)
+                                resolve(1)
+                            else
+                                resolve(0);
+                        })
+                    } else resolve(0);
                 })
             });
             
@@ -860,6 +862,7 @@ export class Z2MZ2m extends Base implements IZ2MZ2m {
         })
     }
     stopChild(): Promise<void> {
+        this.config.stopWatch();
         if (this.child && !this.child.killed )
             this.child.kill();
         return new Promise((resolve, reject) => {
@@ -939,6 +942,7 @@ export class Z2M extends Base implements IZ2M {
         this.config.device = cfg.device;
 
         this.initTcp();
+        this.z2m.initConfig(this.config);
     }
     initTcp() {
         this.tcp.port_start = this.config.z2m.tcp.port_start;
@@ -1097,6 +1101,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
         }
         this.events.config.output.emit(msg);
     }
+    _on_config_get_responsed: boolean
     on_config_get_response(msg: IDeviceBusEventData) {
         if (msg.payload) {
             let payload = msg.payload as IZigbee2MqttConfig;
@@ -1106,10 +1111,10 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
                 Object.keys(datafiles).forEach(key => {
                     this.z2m.z2m.config.datafiles[key] = datafiles[key];
                 })
-                
+                this.z2m.z2m.config.fixDown();                
             }
         }
-
+        this._on_config_get_responsed = true;
         this.do_handshake_req();
     }    
 
@@ -1176,7 +1181,10 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
             this.z2m.stop()
             .catch(e => {})
             .finally(() => {
-                this.z2m.start();
+                if (this._on_config_get_responsed)
+                    this.z2m.start();
+                else 
+                    this.getConfig();
             })
         }        
     }
@@ -1259,6 +1267,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
         //协调器事件: 在线状态 -> 北向输出
         on_z2m_bridge_events_state(packet: Mqtt.IPublishPacket) {
+            let value = packet.payload.toString();
             let payload: IDeviceBusDataPayload = {
                 hd: {
                     entry: {
@@ -1269,24 +1278,37 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
                     stp: 0
                 },
                 pld: {
-                    value: packet.payload.toString()
+                    value: value
                 }
             }
-            let msg: IDeviceBusEventData = {
-                payload: payload
-            }
-            this.events.north.output.emit(msg);
+
+            this.events.north.output.emit({payload: payload});
+
+            if (value === "online") {
+                this.on_z2m_bridge_events_state_online(packet);
+            }            
         }
+
+        _on_z2m_bridge_events_state_online_count = 0;        
+        on_z2m_bridge_events_state_online(packet: Mqtt.IPublishPacket) {
+            this._on_z2m_bridge_events_state_online_count++;
+            if (this._on_z2m_bridge_events_state_online_count === 1) {
+                this.on_z2m_z2m_config_events_change(undefined, undefined, undefined);
+            }
+        }        
 
         //协调器事件: 子设备组网事件 -> 北向输出
         on_z2m_bridge_events_event(packet: Mqtt.IPublishPacket) {
             let pPayload = JSON.parse(packet.payload as any);
             if (pPayload.type === "device_joined") {
                 this.on_z2m_bridge_events_event_device_joined(packet);
+                this.on_z2m_z2m_config_events_change(undefined, undefined, undefined);
             } else if (pPayload.type === "device_leave") {
                 this.on_z2m_bridge_events_event_device_leave(packet);
+                this.on_z2m_z2m_config_events_change(undefined, undefined, undefined);
             } else if (pPayload.type === "device_interview") {
                 this.on_z2m_bridge_events_event_device_interview(packet);
+                this.on_z2m_z2m_config_events_change(undefined, undefined, undefined);
             }
             else {
                 this.on_z2m_bridge_events_event_else(packet);
