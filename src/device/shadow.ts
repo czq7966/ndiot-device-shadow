@@ -171,6 +171,8 @@ export class DeviceShadow extends Base implements IDeviceShadow {
     on_device_north_output(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("DeviceShadow on_device_north_output");
         msg.id = msg.id || this.device.attrs.id;
+        if (typeof msg.payload == "object")
+            msg.payload.device = msg.payload.device || { attrs: this.device.attrs} as any;
         this.manager.events.north.output.emit(msg);
     } 
 

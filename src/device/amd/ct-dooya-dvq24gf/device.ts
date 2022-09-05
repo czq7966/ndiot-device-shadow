@@ -1,11 +1,12 @@
 import { CRC16 } from "../../../common/crc16";
 import { Debuger, DeviceBase } from "../../device-base";
 import { IDeviceBase, IDeviceBusDataPayload, IDeviceBusEventData, IDeviceShadow } from "../../device.dts";
+import { Device } from "../device";
 
 export interface IDevice extends IDeviceBase {}
 
 //杜亚窗帘，型号：dvq24gf
-export class CT_DOOYA_DVQ24GF extends DeviceBase implements IDevice {
+export class CT_DOOYA_DVQ24GF extends Device implements IDevice {
     //查询：0x55FEFE010010442E
     //初始化
     init() {

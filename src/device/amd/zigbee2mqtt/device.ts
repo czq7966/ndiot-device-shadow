@@ -10,6 +10,7 @@ import { Debuger, DeviceBase, DeviceBaseAttr } from "../../device-base";
 import { Base, IBase, IDeviceBase, IDeviceBaseAttr, IDeviceBusDataPayload, IDeviceBusEventData } from "../../device.dts";
 import { BaseEvent, IBaseEvent } from "../../../common/events";
 import { UUID } from '../../../common/uuid';
+import { Device } from '../device';
 
 
 
@@ -992,7 +993,7 @@ export class Zigbee2MqttConfig extends Base implements IZigbee2MqttConfig {
     }
 }
 
-export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
+export class Zigbee2Mqtt extends Device implements IZigbee2Mqtt {
     z2m: IZ2M;
     mqtt: IZ2MMqtt;    
     config: IZigbee2MqttConfig
@@ -1055,13 +1056,16 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
     }    
 
     //子设备输入
+    _on_child_input_last_cache: {[id: string]: IDeviceBusDataPayload} = {};
     on_child_input(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Zigbee2Mqtt  on_child_input", msg.id, msg.payload);
         let pPayload = msg.payload as IDeviceBusDataPayload;
         let _msg: IDeviceBusEventData = {
             topic: msg.id + "/" + pPayload.hd.entry.id,
             payload: pPayload.pld
-        }
+        };
+        pPayload.hd.tms = pPayload.hd.tms || new Date().valueOf();
+        this._on_child_input_last_cache[msg.id] = pPayload;
         this.on_mqtt_south_output(_msg);
     }  
 
@@ -1386,7 +1390,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
                         app_id: this.attrs.app_id,
                         dom_id: this.attrs.dom_id,                                            
                         vendor: pPayload.data.definition.vendor,
-                        model: pPayload.data.definition.vendor + "-" + pPayload.data.definition.model,
+                        model: pPayload.data.definition.model,
                         desc: pPayload.data.definition.description
                     },
                     extra: pPayload 
@@ -1430,8 +1434,9 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
             let payload: IDeviceBusDataPayload = {
                 hd: {
                     entry: {
-                        type: "evt",
-                        id: topics[3]
+                        type: "svc",
+                        id: "set",
+                        name: topics[3]
                     },
                     sid: pPayload.transaction,
                     stp: 1
@@ -1444,7 +1449,6 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
             let msg: IDeviceBusEventData = {
                 payload: payload
             }
-
             this.events.north.output.emit(msg);
         }
 
@@ -1452,6 +1456,8 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
         on_z2m_child_events(packet: Mqtt.IPublishPacket) {
             let topics = packet.topic.split("/");
             let cid = topics[1]; //子设备id
+            let pld =  JSON.parse(packet.payload.toString());
+
             let payload: IDeviceBusDataPayload = {
                 hd: {
                     from: {
@@ -1461,10 +1467,22 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
                     entry: {
                         type: "evt",
                         id: "report"
-                    }
+                    },
+                    sid: "",
+                    stp: 0
                 },
-                pld: packet.payload
+                pld: pld                
             }
+
+            let pPayload = this._on_child_input_last_cache[cid];
+            delete this._on_child_input_last_cache[cid];
+            if (pPayload && ((new Date().valueOf()) - pPayload.hd.tms < 60 * 1000 )) {
+                payload.hd.sid = pPayload.hd.sid;
+                payload.hd.stp = 1;
+                payload.hd.entry = pPayload.hd.entry;
+            }
+
+
             let msg: IDeviceBusEventData = {
                 id: cid, 
                 payload: payload

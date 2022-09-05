@@ -153,11 +153,13 @@ export interface IDeviceBusDataPayloadHd {
     },
     entry: {
         type: "evt" | "svc"
-        id: string
+        id: string,
+        name?: string
     },
 
     sid?: string
-    stp?: 0 | 1    
+    stp?: 0 | 1,
+    tms?: number
 }
 
 export interface IDeviceBusDataPayload {
