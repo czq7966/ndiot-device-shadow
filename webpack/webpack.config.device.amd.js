@@ -18,6 +18,7 @@ module.exports = env => {
     entry['device/index'] = path.resolve(srcDir, "device/index.ts");
     entry['zigbee2mqtt/index'] = path.resolve(srcDir, "zigbee2mqtt/index.ts");
     entry['ct-dooya-dvq24gf/index'] = path.resolve(srcDir, "ct-dooya-dvq24gf/index.ts");
+    entry['rfir/rfir-penet-ir-8285/index'] = path.resolve(srcDir, "rfir/rfir-penet-ir-8285/index.ts");
     
     optimization['minimizer'] = minimizer;  
 
