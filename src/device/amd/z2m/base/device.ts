@@ -6,12 +6,11 @@ var isUtf8 = import('is-utf8');
 import * as yaml from 'js-yaml'
 import { ChildProcess, spawn, SpawnOptions } from "child_process";
 
-import { Debuger, DeviceBase, DeviceBaseAttr } from "../../device-base";
-import { Base, IBase, IDeviceBase, IDeviceBaseAttr, IDeviceBusDataPayload, IDeviceBusEventData } from "../../device.dts";
-import { BaseEvent, IBaseEvent } from "../../../common/events";
-import { UUID } from '../../../common/uuid';
-import { Device } from '../device';
-
+import { Debuger, DeviceBase, DeviceBaseAttr } from "../../../device-base";
+import { Base, IBase, IDeviceBase, IDeviceBaseAttr, IDeviceBusDataPayload, IDeviceBusEventData } from "../../../device.dts";
+import { BaseEvent, IBaseEvent } from "../../../../common/events";
+import { UUID } from '../../../../common/uuid';
+import { Utils } from '../../../../common/utils';
 
 
 let defaultConfiguration =  {
@@ -134,6 +133,7 @@ export interface IZ2MZ2mConfig extends IBase {
     datadir: string
     exec: IZ2MZ2mConfigExec
     datafiles: {[name: string]: string}
+    overrides: { [name: string]: {} };
     configfile: string
     databasefile: string
     coordinatorfile: string
@@ -173,8 +173,11 @@ export interface IZ2MConfig extends IBase {
             port_start: number,
             port_end: number
             port?: number
-        }
-    },
+        },
+        serial?: {
+            port?: string
+        },
+    }
     device?: IDeviceBaseAttr
 }
 
@@ -197,6 +200,7 @@ export interface IZigbee2MqttConfig extends IBase {
     device: IDeviceBaseAttr
     z2m: IZ2MConfig
     datafiles?: string
+    overrides?: {}
 }
 
 
@@ -594,6 +598,7 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
     datadir: string;
     exec: IZ2MZ2mConfigExec;
     datafiles: { [name: string]: string; };
+    overrides: { [name: string]: {} };
     configfile: string;
     databasefile: string;
     coordinatorfile: string;
@@ -612,6 +617,7 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
             options: {stdio: 'inherit'}
         };
         this.datafiles = {};
+        this.overrides = {};
         this.configfile = "";
         this.databasefile = "";
         this.coordinatorfile = "";
@@ -652,6 +658,7 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
         config.mqtt = this.configuration.mqtt;
         config.serial = this.configuration.serial;
         config.frontend = this.configuration.frontend;
+        Utils.DeepMerge(config, this.overrides[this.configfile])
         configYaml = yaml.dump(config);
         this.datafiles[this.configfile] = configYaml;
     }
@@ -804,7 +811,7 @@ export class Z2MZ2m extends Base implements IZ2MZ2m {
         this.config.configuration.mqtt.server = cfg.mqtt.server;
         this.config.configuration.mqtt.user = cfg.mqtt.user;
         this.config.configuration.mqtt.password = cfg.mqtt.password;
-        this.config.configuration.serial.port = "tcp://127.0.0.1:" + cfg.z2m.tcp.port;
+        this.config.configuration.serial.port = cfg.z2m.serial && cfg.z2m.serial.port || ("tcp://127.0.0.1:" + cfg.z2m.tcp.port);
         this.config.configuration.frontend.port = cfg.z2m.tcp.port + 1;
         await this.config.fixUp();
     };
@@ -993,7 +1000,7 @@ export class Zigbee2MqttConfig extends Base implements IZigbee2MqttConfig {
     }
 }
 
-export class Zigbee2Mqtt extends Device implements IZigbee2Mqtt {
+export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
     z2m: IZ2M;
     mqtt: IZ2MMqtt;    
     config: IZigbee2MqttConfig
@@ -1011,7 +1018,6 @@ export class Zigbee2Mqtt extends Device implements IZigbee2Mqtt {
         this.initConfig();
         this.initMqtt();
         this.mqtt.connect();
-        // this.z2m.start();
         setTimeout(() => this.getConfig());
         Debuger.Debuger.log("Zigbee2Mqtt init");
     }
@@ -1109,17 +1115,23 @@ export class Zigbee2Mqtt extends Device implements IZigbee2Mqtt {
     on_config_get_response(msg: IDeviceBusEventData) {
         if (msg.payload) {
             let payload = msg.payload as IZigbee2MqttConfig;
-            if(payload && payload.datafiles) {
-                this.config.datafiles = payload.datafiles;
-                let datafiles = JSON.parse(payload.datafiles);
-                Object.keys(datafiles).forEach(key => {
-                    this.z2m.z2m.config.datafiles[key] = datafiles[key];
-                })
-                this.z2m.z2m.config.fixDown();                
+            if(payload) {
+                if (payload.overrides) {
+                    this.config.overrides = payload.overrides;
+                    this.z2m.z2m.config.overrides = payload.overrides;
+                }
+                
+                if (payload.datafiles) {
+                    this.config.datafiles = payload.datafiles;
+                    let datafiles = JSON.parse(payload.datafiles);
+                    Object.keys(datafiles).forEach(key => {
+                        this.z2m.z2m.config.datafiles[key] = datafiles[key];
+                    })
+                    this.z2m.z2m.config.fixDown();                
+                }
             }
         }
-        this._on_config_get_responsed = true;
-        this.do_handshake_req();
+        this._on_config_get_responsed = true;        
     }    
 
     async setConfig() {
@@ -1127,7 +1139,8 @@ export class Zigbee2Mqtt extends Device implements IZigbee2Mqtt {
         let msg: IDeviceBusEventData = {
             action: "set",
             payload: {
-                datafiles: JSON.stringify(this.z2m.z2m.config.datafiles)
+                datafiles: JSON.stringify(this.z2m.z2m.config.datafiles),
+                overrides: this.z2m.z2m.config.overrides
             }
         }
         this.events.config.output.emit(msg)
@@ -1182,14 +1195,7 @@ export class Zigbee2Mqtt extends Device implements IZigbee2Mqtt {
         this.do_handshake_resp(msg);   
         let payload = msg.payload as IDeviceBusDataPayload;
         if (payload.pld.handshake_count === 0 || this.z2m.z2m.status == "killed") {
-            this.z2m.stop()
-            .catch(e => {})
-            .finally(() => {
-                if (this._on_config_get_responsed)
-                    this.z2m.start();
-                else 
-                    this.getConfig();
-            })
+            this.do_z2m_z2m_restart();
         }        
     }
 
@@ -1220,9 +1226,21 @@ export class Zigbee2Mqtt extends Device implements IZigbee2Mqtt {
         this.events.south.output.emit(msg);
     }
 
+    do_z2m_z2m_restart() {
+        this.z2m.stop()
+        .catch(e => {})
+        .finally(() => {
+            if (this._on_config_get_responsed)
+                this.z2m.start();
+            else 
+                this.getConfig();
+        })
+    }
+
+    // mqtt/com/tcp 不同设备处理不同
     on_z2m_z2m_close(code) {
         //服务停止，请求握手
-        this.do_handshake_req();
+        // this.do_handshake_req();
     }
 
 

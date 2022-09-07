@@ -16,7 +16,9 @@ module.exports = env => {
     const distDir = path.resolve(__dirname, env.distDir ? env.distDir : '../dist/node-red/amd');
     const srcDir =  path.resolve(__dirname, '../src/device/amd');
     entry['device/index'] = path.resolve(srcDir, "device/index.ts");
-    entry['zigbee2mqtt/index'] = path.resolve(srcDir, "zigbee2mqtt/index.ts");
+    entry['z2m/mqtt/index'] = path.resolve(srcDir, "z2m/mqtt/index.ts");
+    entry['z2m/com/index'] = path.resolve(srcDir, "z2m/com/index.ts");
+    entry['z2m/tcp/index'] = path.resolve(srcDir, "z2m/tcp/index.ts");
     entry['ct-dooya-dvq24gf/index'] = path.resolve(srcDir, "ct-dooya-dvq24gf/index.ts");
     entry['rfir/rfir-penet-ir-8285/index'] = path.resolve(srcDir, "rfir/rfir-penet-ir-8285/index.ts");
     
