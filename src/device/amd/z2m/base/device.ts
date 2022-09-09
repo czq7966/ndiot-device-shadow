@@ -1064,7 +1064,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
     //子设备输入
     _on_child_input_last_cache: {[id: string]: IDeviceBusDataPayload} = {};
     on_child_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("Zigbee2Mqtt  on_child_input", msg.id, msg.payload);
+        Debuger.Debuger.log("Zigbee2Mqtt  on_child_input");
         let pPayload = msg.payload as IDeviceBusDataPayload;
         let _msg: IDeviceBusEventData = {
             topic: msg.id + "/" + pPayload.hd.entry.id,

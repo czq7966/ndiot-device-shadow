@@ -1,21 +1,7 @@
 import EventEmitter = require("events")
-import { BaseEvent, IBaseEvent } from "../common/events";
+import { IBase, Base} from "../common/base";
 
-export interface IBase {
-    onDestroy: IBaseEvent
-    destroy(); 
-}
-
-export class Base {
-    onDestroy: IBaseEvent;
-    constructor(){
-        this.onDestroy = new BaseEvent();
-    }
-    destroy(){
-        this.onDestroy.emit(this);
-    }; 
-}
-
+export {IBase, Base}
 
 export interface IDeviceClass {
     new(attrs: IDeviceBaseAttr) : Object
