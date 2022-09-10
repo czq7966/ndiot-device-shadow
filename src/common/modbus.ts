@@ -15,10 +15,11 @@ export class EModbusType {
 
 export interface IModbusRTUTable {
     slave: number,
-    type: number,
+    func: number,
     address: number
     quantity: number
     table:{[address: number]: number}
+    error?: number 
 }
 
 export interface IModbusRTUDecoderEvents extends IBase {
@@ -30,9 +31,14 @@ export interface IModbusRTUDecoderEvents extends IBase {
     onWriteSingleRegister: IBaseEvent
     onWriteMultipleCoils: IBaseEvent
     onWriteMultipleRegisters: IBaseEvent
+    onError: IBaseEvent
+    removeAllListeners();
 }
 
 export interface IModbusRTUEncoder extends IBase {
+    modbus: IModbusRTU
+    lastFuncRtu: {[func: number]: IModbusRTUTable} 
+    encode(rtu: IModbusRTUTable): Buffer;
     readCoils(slave: number, address: number, quantity?: number): Buffer
     readDiscreteInputs(slave: number, address: number, quantity?: number): Buffer
     readHoldingRegisters(slave: number, address: number, quantity?: number): Buffer
@@ -44,7 +50,8 @@ export interface IModbusRTUEncoder extends IBase {
 }
 
 export interface IModbusRTUDecoder extends IBase {
-    decode(data: Buffer): IModbusRTUTable;
+    modbus: IModbusRTU
+    decode(data: Buffer, reqRtu: IModbusRTUTable): IModbusRTUTable;
     events: IModbusRTUDecoderEvents
 }
 
@@ -53,12 +60,13 @@ export interface IModbusRTU extends IBase {
     decoder: IModbusRTUDecoder
 }
 
-export class ModbusRTUTable implements IModbusRTUTable{
+export class ModbusRTUTable  implements IModbusRTUTable{
     slave: number = 0;
-    type: number = 0;
+    func: number = 0;
     address: number = 0;
     quantity: number = 0;
     table: { [address: number]: number; } = {};
+    error: number = 0;
 }
 
 export class ModbusRTUDecoderEvents extends Base  implements IModbusRTUDecoderEvents {
@@ -70,6 +78,7 @@ export class ModbusRTUDecoderEvents extends Base  implements IModbusRTUDecoderEv
     onWriteSingleRegister: IBaseEvent;
     onWriteMultipleCoils: IBaseEvent;
     onWriteMultipleRegisters: IBaseEvent;
+    onError: IBaseEvent;
     constructor() {
         super();
         this.onReadCoils = new BaseEvent();
@@ -80,6 +89,7 @@ export class ModbusRTUDecoderEvents extends Base  implements IModbusRTUDecoderEv
         this.onWriteSingleRegister = new BaseEvent();
         this.onWriteMultipleCoils = new BaseEvent();
         this.onWriteMultipleRegisters = new BaseEvent();
+        this.onError = new BaseEvent();
     }
 
     destroy() {
@@ -91,12 +101,74 @@ export class ModbusRTUDecoderEvents extends Base  implements IModbusRTUDecoderEv
         this.onWriteSingleRegister.destroy();
         this.onWriteMultipleCoils.destroy();
         this.onWriteMultipleRegisters.destroy();
+        this.onError.destroy();
         super.destroy();
+    }
+
+    removeAllListeners() {
+        this.onReadCoils.eventEmitter.removeAllListeners();
+        this.onReadDiscreteInputs.eventEmitter.removeAllListeners();
+        this.onReadHoldingRegisters.eventEmitter.removeAllListeners();
+        this.onReadInputRegisters.eventEmitter.removeAllListeners();
+        this.onWriteSingleCoil.eventEmitter.removeAllListeners();
+        this.onWriteSingleRegister.eventEmitter.removeAllListeners();
+        this.onWriteMultipleCoils.eventEmitter.removeAllListeners();
+        this.onWriteMultipleRegisters.eventEmitter.removeAllListeners();
+        this.onError.eventEmitter.removeAllListeners();       
     }
 
 }
 
 export class ModbusRTUEncoder extends Base implements IModbusRTUEncoder {
+    modbus: IModbusRTU;
+    lastFuncRtu: { [func: number]: IModbusRTUTable; };
+    constructor(modbus: IModbusRTU) {
+        super();
+        this.modbus = modbus;
+        this.lastFuncRtu = {};
+    }
+    encode(rtu: IModbusRTUTable): Buffer {
+        this.lastFuncRtu[rtu.func] = rtu;
+        switch (rtu.func) {
+           case EModbusType.EReadCoils:
+               return this.readCoils(rtu.slave, rtu.address, rtu.quantity);               
+               break;
+            case EModbusType.EReadDiscreteInputs:
+                return this.readDiscreteInputs(rtu.slave, rtu.address, rtu.quantity);
+                break;
+            case EModbusType.EReadHoldingRegisters:
+                return this.readHoldingRegisters(rtu.slave, rtu.address, rtu.quantity);
+                break;
+            case EModbusType.EWriteSingleCoil:
+                return this.writeSingleCoil(rtu.slave, rtu.address, !!rtu.table[rtu.address]);
+                break;
+            case EModbusType.EWriteSingleRegister:
+                return this.writeSingleRegister(rtu.slave, rtu.address, rtu.table[rtu.address]);
+                break;
+            case EModbusType.EWriteMultipleCoils:
+                let coiles: boolean[] = [];
+                for (let i = 0; i < rtu.quantity; i++) {
+                    coiles.push(!!rtu.table[rtu.address + i]);                    
+                }
+                return this.writeMultipleCoils(rtu.slave, rtu.address, coiles);
+                break;
+            case EModbusType.EWriteMultipleRegisters:
+                let regs: number[] = [];
+                for (let i = 0; i < rtu.quantity; i++) {
+                    regs.push(rtu.table[rtu.address + i]);                    
+                }
+                return this.writeMultipleRegisters(rtu.slave, rtu.address, regs);
+                break;       
+           default:
+               break;
+       }
+    }
+
+    destroy(): void {
+        this.modbus = null;
+        delete this.lastFuncRtu;
+        super.destroy();
+    }
 
     readCoils(slave: number, address: number, quantity?: number): Buffer {
         quantity = quantity || 1;
@@ -181,14 +253,82 @@ export class ModbusRTUEncoder extends Base implements IModbusRTUEncoder {
 }
 
 export class ModbusRTUDecoder extends Base implements IModbusRTUDecoder {
-    events: IModbusRTUDecoderEvents = new ModbusRTUDecoderEvents();
+    modbus: IModbusRTU;
+    events: IModbusRTUDecoderEvents;
+    constructor(modbus: IModbusRTU) {
+        super();
+        this.modbus = modbus;
+        this.events = new ModbusRTUDecoderEvents();
+    }
 
     destroy(): void {
+        this.modbus = null;
         this.events.destroy();
+        delete this.events;
         super.destroy();
     }
 
-    decode(data: Buffer): IModbusRTUTable {
-        throw new Error("Method not implemented.");
+    decode(data: Buffer, reqRtu: IModbusRTUTable): IModbusRTUTable {
+        let slave = data[0];
+        let func = data[1] & 0x0F;
+        let error = (data[1] & 0xF0) == 0x80 ? data[2] : 0;
+        if (slave == reqRtu.slave && func == reqRtu.func) {
+            if (!error) {
+                switch (func) {
+                    case EModbusType.EReadCoils:
+                        return this.decode_read_coils(data, reqRtu);
+                        break;
+                
+                    default:
+                        break;
+                }
+                    
+            }
+
+        } else {
+            error = 2;
+        }
+        reqRtu.error = error;
+        return reqRtu;
+    }
+
+    decode_read_coils(data: Buffer, rtu: IModbusRTUTable): IModbusRTUTable {
+        rtu.slave = data[0];
+        rtu.func = data[1] & 0x0F;
+        rtu.error = (data[1] & 0xF0) == 0x80 ? data[2] : 0;
+        if (!rtu.error) {
+            let bytes = data[2];
+            let quantity = rtu.quantity || bytes * 8;
+            let address = rtu.address || 0;
+            for (let i = 0; i < bytes; i++) {
+                let byte = data[3 + i];
+                for (let j = 0; j < 8; j++) {
+                    let idx = i * 8 + j;
+                    if (idx < quantity) {
+                        let v = (byte >> j) & 0x01;
+                        rtu.table[address + idx] = v;
+                    }
+                }                
+            }
+        }
+        return rtu;
+    }
+}
+
+export class ModbusRTU extends Base implements IModbusRTU {
+    encoder: IModbusRTUEncoder;
+    decoder: IModbusRTUDecoder;
+    constructor() {
+        super();
+        this.encoder = new ModbusRTUEncoder(this);
+        this.decoder = new ModbusRTUDecoder(this);
+    }
+
+    destroy(): void {
+        this.encoder.destroy();
+        this.decoder.destroy();
+        delete this.encoder;
+        delete this.decoder;
+        super.destroy();
     }
 }
