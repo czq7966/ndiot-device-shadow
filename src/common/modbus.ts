@@ -51,8 +51,17 @@ export interface IModbusRTUEncoder extends IBase {
 
 export interface IModbusRTUDecoder extends IBase {
     modbus: IModbusRTU
-    decode(data: Buffer, reqRtu: IModbusRTUTable): IModbusRTUTable;
     events: IModbusRTUDecoderEvents
+    decode(data: Buffer, reqRtu: IModbusRTUTable): IModbusRTUTable;
+    decode_common(data: Buffer): IModbusRTUTable
+    decode_read_coils(data: Buffer, rtu: IModbusRTUTable): IModbusRTUTable
+    decode_read_discrete_inputs(data: Buffer, rtu: IModbusRTUTable): IModbusRTUTable
+    decode_read_holding_registers(data: Buffer, rtu: IModbusRTUTable): IModbusRTUTable
+    decode_read_input_registers(data: Buffer, rtu: IModbusRTUTable): IModbusRTUTable
+    decode_write_single_coil(data: Buffer, rtu: IModbusRTUTable): IModbusRTUTable
+    decode_write_single_register(data: Buffer, rtu: IModbusRTUTable): IModbusRTUTable 
+    decode_write_multiple_coils(data: Buffer, rtu: IModbusRTUTable): IModbusRTUTable
+    decode_write_multiple_registers(data: Buffer, rtu: IModbusRTUTable): IModbusRTUTable
 }
 
 export interface IModbusRTU extends IBase {
@@ -268,50 +277,171 @@ export class ModbusRTUDecoder extends Base implements IModbusRTUDecoder {
         super.destroy();
     }
 
-    decode(data: Buffer, reqRtu: IModbusRTUTable): IModbusRTUTable {
-        let slave = data[0];
-        let func = data[1] & 0x0F;
-        let error = (data[1] & 0xF0) == 0x80 ? data[2] : 0;
-        if (slave == reqRtu.slave && func == reqRtu.func) {
-            if (!error) {
-                switch (func) {
-                    case EModbusType.EReadCoils:
-                        return this.decode_read_coils(data, reqRtu);
-                        break;
-                
-                    default:
-                        break;
-                }
-                    
-            }
+    compare_result(table: IModbusRTUTable, result: IModbusRTUTable ): IModbusRTUTable {
+        if (!table || 
+            !(table.slave == result.slave && table.func == result.func && 
+                table.address == result.address && table.quantity == result.quantity) 
+            ) 
 
-        } else {
-            error = 2;
-        }
-        reqRtu.error = error;
-        return reqRtu;
+            return;        
+
+        return result;
     }
 
-    decode_read_coils(data: Buffer, rtu: IModbusRTUTable): IModbusRTUTable {
-        rtu.slave = data[0];
-        rtu.func = data[1] & 0x0F;
-        rtu.error = (data[1] & 0xF0) == 0x80 ? data[2] : 0;
-        if (!rtu.error) {
+    decode(data: Buffer, table: IModbusRTUTable): IModbusRTUTable {
+        let result = this.decode_common(data);
+        switch (result.func) {
+            case EModbusType.EReadCoils:
+                result = this.decode_read_coils(data, table);
+                break;
+            case EModbusType.EReadDiscreteInputs:
+                result = this.decode_read_discrete_inputs(data, table);
+                break;  
+            case EModbusType.EReadHoldingRegisters:
+                result = this.decode_read_holding_registers(data, table);
+                break;
+            case EModbusType.EReadInputRegisters:
+                result = this.decode_read_input_registers(data, table);
+                break;
+            case EModbusType.EWriteSingleCoil:
+                result = this.decode_write_single_coil(data, table);
+                break;
+            case EModbusType.EWriteSingleRegister:
+                result = this.decode_write_single_register(data, table);
+                break;
+            case EModbusType.EWriteMultipleCoils:
+                result = this.decode_write_multiple_coils(data, table);
+                break;
+            case EModbusType.EWriteMultipleRegisters:
+                result = this.decode_write_multiple_registers(data, table);
+                break;
+            default:
+                break;
+        }
+
+        if (result) {
+            switch (result.func) {
+                case EModbusType.EReadCoils:
+                    this.events.onReadCoils.emit(result, table, data, this);
+                    break;
+                case EModbusType.EReadDiscreteInputs:
+                    this.events.onReadDiscreteInputs.emit(result, table, data, this);
+                    break;  
+                case EModbusType.EReadHoldingRegisters:
+                    this.events.onReadHoldingRegisters.emit(result, table, data, this);
+                    break;
+                case EModbusType.EReadInputRegisters:
+                    this.events.onReadInputRegisters.emit(result, table, data, this);
+                    break;
+                case EModbusType.EWriteSingleCoil:
+                    this.events.onWriteSingleCoil.emit(result, table, data, this);
+                    break;
+                case EModbusType.EWriteSingleRegister:
+                    this.events.onWriteSingleRegister.emit(result, table, data, this);
+                    break;
+                case EModbusType.EWriteMultipleCoils:
+                    this.events.onWriteMultipleCoils.emit(result, table, data, this);
+                    break;
+                case EModbusType.EWriteMultipleRegisters:
+                    this.events.onWriteMultipleRegisters.emit(result, table, data, this);
+                    break;
+                default:
+                    break;
+            }            
+        }
+        
+        return result;
+    }
+
+    decode_common(data: Buffer): IModbusRTUTable {
+        let result: IModbusRTUTable = new ModbusRTUTable();
+        result.slave = data[0];
+        result.func = data[1] & 0x0F;
+        result.error = (data[1] & 0xF0) == 0x80 ? data[2] : 0;
+        return result;
+    }
+
+
+    decode_read_coils(data: Buffer, table: IModbusRTUTable): IModbusRTUTable {        
+        let result = this.decode_common(data);
+        if (!result.error) {
             let bytes = data[2];
-            let quantity = rtu.quantity || bytes * 8;
-            let address = rtu.address || 0;
+            result.quantity = table && table.quantity || bytes * 8;            
+            result.address = table && table.address || 0;
             for (let i = 0; i < bytes; i++) {
                 let byte = data[3 + i];
                 for (let j = 0; j < 8; j++) {
                     let idx = i * 8 + j;
-                    if (idx < quantity) {
+                    if (idx < result.quantity) {
                         let v = (byte >> j) & 0x01;
-                        rtu.table[address + idx] = v;
+                        result.table[result.address + idx] = v;
                     }
                 }                
             }
+        }        
+
+        return this.compare_result(table, result);
+    }
+
+    decode_read_discrete_inputs(data: Buffer, table: IModbusRTUTable): IModbusRTUTable {
+        return this.decode_read_coils(data, table);
+    }
+
+    decode_read_holding_registers(data: Buffer, table: IModbusRTUTable): IModbusRTUTable {
+        let result = this.decode_common(data);
+        if (!result.error) {
+            let bytes = data[2];
+            result.quantity = bytes / 2;
+            result.address = table.address || 0;
+            for (let i = 0; i < result.quantity; i++) {
+                let byteH = data[3 + i * 2];
+                let byteL = data[3 + i * 2 + 1];
+                result.table[result.address + i] = byteH << 8 + byteL;        
+            }
         }
-        return rtu;
+        return this.compare_result(table, result);
+    }
+
+    decode_read_input_registers(data: Buffer, table: IModbusRTUTable): IModbusRTUTable {
+        return this.decode_read_holding_registers(data, table);
+    }
+
+    decode_write_single_coil(data: Buffer, table: IModbusRTUTable): IModbusRTUTable {
+        let result = this.decode_common(data);
+        if (!result.error) {
+            result.quantity = 1;
+            result.address = (data[2] << 8) + data[3];
+            result.table[result.address] = (data[4] == 0xFF ? 1: 0);   
+        }
+        return this.compare_result(table, result);
+    }
+
+    decode_write_single_register(data: Buffer, table: IModbusRTUTable): IModbusRTUTable {
+        let result = this.decode_common(data);
+        if (!result.error) {
+            result.quantity = 1;
+            result.address = (data[2] << 8) + data[3];
+            result.table[result.address] = (data[4] << 8) + data[5];     
+        }
+        return this.compare_result(table, result);
+    }
+
+    decode_write_multiple_coils(data: Buffer, table: IModbusRTUTable): IModbusRTUTable {
+        let result = this.decode_common(data);
+        if (!result.error) {            
+            result.address = (data[2] << 8) + data[3];
+            result.quantity = (data[4] << 8) + data[5];
+        }
+        return this.compare_result(table, result);
+    }
+
+    decode_write_multiple_registers(data: Buffer, table: IModbusRTUTable): IModbusRTUTable {
+        let result = this.decode_common(data);
+        if (!result.error) {            
+            result.address = (data[2] << 8) + data[3];
+            result.quantity = (data[4] << 8) + data[5];
+        }
+        return this.compare_result(table, result);
     }
 }
 
@@ -330,5 +460,64 @@ export class ModbusRTU extends Base implements IModbusRTU {
         delete this.encoder;
         delete this.decoder;
         super.destroy();
+    }
+}
+
+export interface IModbusCmdEvents extends IBase {
+    req: IBaseEvent
+    res: IBaseEvent
+}
+
+export interface IModbusCmd extends IBase {
+    events: IModbusCmdEvents
+}
+
+export class ModbusCmdEvents extends Base implements IModbusCmdEvents {
+    req: IBaseEvent;
+    res: IBaseEvent;
+    constructor() {
+        super();
+        this.req = new BaseEvent();
+        this.res = new BaseEvent();
+    }
+    destroy(): void {
+        this.req.destroy();
+        this.res.destroy();
+        delete this.req;
+        delete this.res;
+        super.destroy();
+    }
+
+}
+
+export interface IModbusCmdResult {
+    tables: IModbusRTUTable[], 
+    results: IModbusRTUTable[]
+}
+
+export class ModbusCmd extends Base implements IModbusCmd {
+    events: IModbusCmdEvents;
+    tables: IModbusRTUTable[];
+
+    constructor(tables: IModbusRTUTable[]) {
+        super();
+        this.tables = tables;
+        this.events = new ModbusCmdEvents();
+        this.events.res.on(data => {this.onResponse(data)})
+    }
+
+
+    destroy(): void {
+        this.events.destroy();
+        delete this.events;
+        super.destroy();
+    }
+
+    onResponse(data: Buffer) {
+
+    }
+
+    exec(): Promise<IModbusCmdResult> {
+        return;
     }
 }

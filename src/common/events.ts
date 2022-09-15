@@ -1,4 +1,5 @@
 import EventEmitter = require("events");
+import { UUID } from "./uuid";
 
 export interface IBaseEvent  {
     eventName: string
@@ -12,7 +13,7 @@ export interface IBaseEvent  {
 
 export class BaseEvent implements IBaseEvent {
     eventName: string = "";
-    eventEmitter: EventEmitter = new  EventEmitter();
+    eventEmitter: EventEmitter;
     constructor() {
         this.eventEmitter = new  EventEmitter();
     }
@@ -39,3 +40,80 @@ export class BaseEvent implements IBaseEvent {
     }
     
 }
+
+export interface ITimeoutEvent {
+
+}
+
+export interface ITimeoutEventHandler {
+    handler: string
+    timeout: number
+    listener: (...args: any[]) => void,
+    args: any[]
+}
+
+export class TimeoutEvent  implements ITimeoutEvent {
+    eventHandlers: Array<ITimeoutEventHandler>
+    currHandler: any;
+    constructor() {
+        this.eventHandlers = [];
+    }
+
+    destroy() {
+        this.eventHandlers = [];
+    }
+
+    watchTimeout() {
+        clearTimeout(this.currHandler);
+        if (this.eventHandlers.length > 0) {
+            let eventHandler = this.eventHandlers[0];
+            let timeout = eventHandler.timeout;
+            this.currHandler = setTimeout(() => {
+                this.removeHandler(eventHandler.handler);
+                eventHandler.listener(...eventHandler.args);
+            }, timeout)
+        }        
+    }
+
+    resortHandler() {
+        this.eventHandlers.sort((a, b) => {
+            return a.timeout < b.timeout ? -1 : 1;
+        });
+        this.watchTimeout();
+    }
+
+    addHandler(eventHandler: ITimeoutEventHandler) {
+        this.eventHandlers.push(eventHandler);
+        this.resortHandler();
+    }
+
+    removeHandler(handler: string) {
+        for (let i = 0; i < this.eventHandlers.length; i++) {
+            if (this.eventHandlers[i].handler === handler) {
+                this.eventHandlers.splice(i, 1);
+                break;
+            }                
+        }
+
+        this.watchTimeout();        
+    }
+
+    delay(delay: number, listener: (...args: any[]) => void, ...args: any[]): string {
+        let eventHandler: ITimeoutEventHandler = {
+            handler: UUID.Guid(),
+            timeout: delay,
+            listener: listener,
+            args: args
+        }
+        this.addHandler(eventHandler);
+
+        return eventHandler.handler;        
+    }
+
+    off(handler: string) {
+        this.removeHandler(handler);
+    }
+}
+
+let GTimeoutEvent = new TimeoutEvent();
+export { GTimeoutEvent };
