@@ -1,5 +1,7 @@
 import EventEmitter = require("events");
 import { CRC16 } from "../common/crc16";
+import { ModbusCmd, ModbusRTU, ModbusRTUTable } from "../common/modbus";
+import { ACPGDTM7000F } from "../device/amd/modbus/ac-pgdtm7000-f";
 import { DeviceManager } from "../device/manager";
 
 let manager = new DeviceManager();
@@ -57,5 +59,31 @@ let manager = new DeviceManager();
 // }, 3000)
 
 
-let buf = CRC16.Modbus("55FEFE010010", "hex");
-console.log(buf[0], buf[1])
+// let buf = CRC16.Modbus("55FEFE010010", "hex");
+// console.log(buf[0], buf[1])
+
+// let modbus = new ACPGDTM7000F({} as any)
+let table = new ModbusRTUTable();
+table.plcbase = 100000;
+table.slave = 0x32;
+table.address = 40001;
+table.quantity = 1;
+table.setPLCAddress(440002)
+let tables = [table]
+
+let cmd = new ModbusCmd(tables);
+cmd.events.req.on((data: Buffer) => {
+    console.log(data)
+    let res = [0x32, 0x03, 0x02, 0x00, 0x00, 0xbc, 0x40]
+    cmd.events.res.emit(Buffer.from(res));
+
+})
+
+cmd.exec()
+.then(v => {
+    console.log("11111111111111111111111111", v);
+})
+.catch(e => {
+    console.log("222222222222222222222222222", e);
+
+})

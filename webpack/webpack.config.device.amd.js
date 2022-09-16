@@ -19,6 +19,7 @@ module.exports = env => {
     entry['z2m/mqtt/index'] = path.resolve(srcDir, "z2m/mqtt/index.ts");
     entry['z2m/com/index'] = path.resolve(srcDir, "z2m/com/index.ts");
     entry['z2m/tcp/index'] = path.resolve(srcDir, "z2m/tcp/index.ts");
+    entry['modbus/ac-pgdtm7000-f/index'] = path.resolve(srcDir, "modbus/ac-pgdtm7000-f/index.ts");
     entry['ct-dooya-dvq24gf/index'] = path.resolve(srcDir, "ct-dooya-dvq24gf/index.ts");
     entry['rfir/rfir-penet-ir-8285/index'] = path.resolve(srcDir, "rfir/rfir-penet-ir-8285/index.ts");
     
