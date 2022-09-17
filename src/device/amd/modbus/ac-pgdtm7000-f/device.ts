@@ -36,58 +36,24 @@ export class ACPGDTM7000F extends Modbus implements IACPGDTM7000F {
     //反初始化
     uninit() {
         Debuger.Debuger.log("ACPGDTM7000F uninit");
+        super.uninit();
      }
 
     //南向输入
     on_south_input(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("ACPGDTM7000F  on_south_input ", msg);
-        let payload = msg.payload as IDeviceBusDataPayload
-        let hd = payload.hd;
-        if (hd.entry.type == "evt") {
-            if (hd.entry.id == "penet") {
-                return this.on_south_input_evt_penet(msg);                
-            } 
-        }
+
         
 
 
         super.on_south_input(msg);
     }
 
-    //南向输入
-    on_south_input_evt_penet(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("ACPGDTM7000F  on_south_input_evt_penet ", msg);
-        if (this.cmd) {
-            let payload = msg.payload as IDeviceBusDataPayload
-            let pld = payload.pld;
-            let rawStr = pld.raw;
-            if (rawStr) {
-                let raw = Buffer.from(rawStr,'base64');
-                if (raw.length > 5) {
-                    this.cmd.events.res.emit(raw);
-                    return;
-                }
-            }
-        }
-
-        super.on_south_input(msg);
-    }
 
     //北向输入
     on_north_input(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("ACPGDTM7000F  on_north_input");
-        let payload = msg.payload as IDeviceBusDataPayload
-        let hd = payload.hd;
-        if (hd.entry.type == "svc") {
-            if (hd.entry.id == "get") {
-                return this.on_north_input_svc_get(msg);                
-            } 
-
-            if (hd.entry.id == "set") {
-                return this.on_north_input_svc_set(msg);
-            }
-        }
-        
+       
         super.on_north_input(msg);
     }    
 
@@ -107,32 +73,32 @@ export class ACPGDTM7000F extends Modbus implements IACPGDTM7000F {
             tables.push(table);
         })
 
-        this.cmd = new ModbusCmd(tables);
-        this.cmd.events.req.on((data: Buffer) => {
-            let rawStr = data.toString("base64");
-            let _hd:IDeviceBusDataPayloadHd  = Utils.DeepMerge({}, hd) as any;
-            let _pld = {raw: rawStr};
-            _hd.entry.type = "svc";
-            _hd.entry.id = "penet";
-            let _msg: IDeviceBusEventData = {
-                payload: {
-                    hd: _hd,
-                    pld: _pld
-                }
-            };
+        // this.cmd = new ModbusCmd(tables);
+        // this.cmd.events.req.on((data: Buffer) => {
+        //     let rawStr = data.toString("base64");
+        //     let _hd:IDeviceBusDataPayloadHd  = Utils.DeepMerge({}, hd) as any;
+        //     let _pld = {raw: rawStr};
+        //     _hd.entry.type = "svc";
+        //     _hd.entry.id = "penet";
+        //     let _msg: IDeviceBusEventData = {
+        //         payload: {
+        //             hd: _hd,
+        //             pld: _pld
+        //         }
+        //     };
     
-            super.on_north_input(_msg);
+        //     super.on_north_input(_msg);
 
-        })
+        // })
 
-        this.cmd.exec()
-        .then(v => {
-            console.log("11111111111111111111111111", v);
-        })
-        .catch(e => {
-            console.log("222222222222222222222222222", e);
+        // this.cmd.exec()
+        // .then(v => {
+        //     console.log("11111111111111111111111111", v);
+        // })
+        // .catch(e => {
+        //     console.log("222222222222222222222222222", e);
 
-        })
+        // })
         
     }
 
