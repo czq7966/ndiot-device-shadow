@@ -2,6 +2,7 @@ import { Debuger } from "../device/device-base";
 import { Base, IBase } from "./base";
 import { CRC16 } from "./crc16";
 import { BaseEvent, IBaseEvent } from "./events";
+import { Utils } from "./utils";
 
 export class EModbusType {
     static EReadCoils: number = 1;
@@ -34,8 +35,9 @@ export interface IModbusRTUTable {
     table:{[address: number]: number}
     error?: number 
     plcbase?: number
-    setPLCAddress(address: number);
+    setPLCAddress(address: number, value?: number);
     getPLCAddress(address?: number): number
+    clone(): IModbusRTUTable
 }
 
 export interface IModbusRTUDecoderEvents extends IBase {
@@ -94,7 +96,7 @@ export class ModbusRTUTable  implements IModbusRTUTable{
         this.plcbase = pldbase || this.plcbase;
     }
 
-    setPLCAddress(plcAddr: number) {
+    setPLCAddress(plcAddr: number, value?: number) {
         plcAddr = plcAddr || 0;
         let address = plcAddr % this.plcbase - 1;
         if (address < 0)
@@ -116,13 +118,16 @@ export class ModbusRTUTable  implements IModbusRTUTable{
                 case EModbusPLCType.EReadHoldingRegisters :
                     this.func = EModbusType.EReadHoldingRegisters;
                     break;                                     
-            }            
-
-        }        
+            }
+        }    
+        
+        if (value || value === 0) {
+            this.table[address] = value;
+        }
     }
 
     getPLCAddress(address?: number): number {
-        address = address || address === 0 ? address : this.address;
+        address = (address || address === 0) ? address : this.address;
         switch(this.func) {
             case EModbusType.EReadCoils :
             case EModbusType.EWriteSingleCoil:
@@ -135,10 +140,15 @@ export class ModbusRTUTable  implements IModbusRTUTable{
             
             case EModbusType.EReadHoldingRegisters:
             case EModbusType.EWriteSingleRegister:
-            case EModbusType.EWriteMultipleRegisters:            
+            case EModbusType.EWriteMultipleRegisters:     
                 return  this.plcbase * EModbusPLCType.EReadHoldingRegisters + address + 1;   
 
         }
+    }
+
+    clone(): IModbusRTUTable {
+        let table = new ModbusRTUTable();
+        return Utils.DeepMerge(table, this) as any;        
     }
 }
 
@@ -339,6 +349,7 @@ export class ModbusRTUDecoder extends Base implements IModbusRTUDecoder {
 
             return;        
 
+        resTable.plcbase = reqTable && reqTable.plcbase;
         return resTable;
     }
 
@@ -452,11 +463,9 @@ export class ModbusRTUDecoder extends Base implements IModbusRTUDecoder {
             for (let i = 0; i < result.quantity; i++) {
                 let byteH = rtu[3 + i * 2];
                 let byteL = rtu[3 + i * 2 + 1];
-                console.log(byteH, byteL)
                 result.table[result.address + i] =  (byteH << 8) + byteL;        
             }
         }
-        Debuger.Debuger.log("decode_read_holding_registers", result)
         return this.compare_tables(table, result);
     }
 
@@ -533,6 +542,8 @@ export interface IModbusCmdEvents extends IBase {
 
 export interface IModbusCmd extends IBase {
     events: IModbusCmdEvents
+    reqTables: IModbusRTUTable[];
+    resTables: IModbusRTUTable[];
     exec(): Promise<IModbusCmdResult>
 }
 
@@ -574,7 +585,6 @@ export interface IModbusCmdResult {
 
 export class ModbusCmd extends Base implements IModbusCmd {
     events: IModbusCmdEvents;
-    tables: IModbusRTUTable[];
     reqTables: IModbusRTUTable[];
     resTables: IModbusRTUTable[];
     execPromise: Promise<IModbusCmdResult>
@@ -582,7 +592,6 @@ export class ModbusCmd extends Base implements IModbusCmd {
     constructor(tables: IModbusRTUTable[]) {
         super();
         this.execPromise = null;
-        this.tables = [].concat(tables);
         this.reqTables = [].concat(tables);
         this.resTables = [];
         this.events = new ModbusCmdEvents();
@@ -592,6 +601,8 @@ export class ModbusCmd extends Base implements IModbusCmd {
     destroy(): void {
         this.events.destroy();
         delete this.events;
+        delete this.reqTables;
+        delete this.resTables;
         super.destroy();
     }
 
@@ -600,24 +611,33 @@ export class ModbusCmd extends Base implements IModbusCmd {
             return this.execPromise;
         
         this.execPromise = new Promise((resolve, reject) => {
+            let reqTables = [].concat(this.reqTables);
             let reqTable: IModbusRTUTable;
+            let timeoutHandler: any;
             let execReqTable = () => {
-                reqTable = this.reqTables.pop();
+                reqTable = reqTables.pop();
                 if (reqTable) {
-                    let reqRtu = GModeBusRTU.encoder.encode(reqTable)
+                    let reqRtu = GModeBusRTU.encoder.encode(reqTable);
                     this.events.req.emit(reqRtu);
+                    timeoutHandler = setTimeout(() => {                        
+                        let resTable = reqTable.clone();
+                        resTable.error = -1;
+                        this.resTables.push(resTable);                        
+                        reject(-1);                        
+                    }, 5000);
                 }
 
                 if (reqTable) {
                     return reqTable;
                 } else {
                     this.events.res.eventEmitter.removeAllListeners();
-                    resolve({req: this.tables,  res: this.resTables});
+                    resolve({req: this.reqTables,  res: this.resTables});
                 }                    
             }
 
 
             this.events.res.on((resRtu: Buffer) => {
+                clearTimeout(timeoutHandler);
                 let resTable = GModeBusRTU.decoder.decode(resRtu, reqTable);
                 this.resTables.push(resTable);
                 execReqTable();
@@ -673,13 +693,15 @@ export class ModbusCmds extends Base implements IModbusCmds {
                 promise
                 .then(v => {
                     this.cmd.events.then.emit(v, this.cmd);
-                    this.cmd.destroy();                    
-                    this.execNextCmd();
+                    this.cmd.destroy();   
+                    delete this.cmd;                 
+                    this.execCmd();
                 })
                 .catch(e => {
                     this.cmd.events.catch.emit(e, this.cmd);
                     this.cmd.destroy();
-                    this.execNextCmd();
+                    delete this.cmd; 
+                    this.execCmd();
                 })
             }
         }

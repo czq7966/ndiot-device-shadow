@@ -9,15 +9,17 @@ export class Utils {
         Object.keys(fromObj).forEach(key => {
             let toValue = toObj[key];
             let fromValue = fromObj[key];
-            if (typeof fromValue === "object") {
-                toValue = (typeof toValue === "object") ? toValue: {}
-                toValue = this.DeepMerge(toValue, fromValue);
-            } else {
-                toValue = fromValue;
+            let type = typeof fromValue;
+            if (type !== "function") {
+                if (type === "object") {
+                    toValue = (typeof toValue === "object") ? toValue: {}
+                    toValue = this.DeepMerge(toValue, fromValue);
+                } else {
+                    toValue = fromValue;
+                }
+
+                toObj[key] = toValue
             }
-
-            toObj[key] = toValue
-
         })
 
         return toObj;

@@ -1,6 +1,7 @@
 
 
-import { GModeBusRTU, IModbusCmd, IModbusCmds, IModbusRTU, IModbusRTUTable, ModbusCmd, ModbusCmds, ModbusRTU, ModbusRTUTable } from "../../../../common/modbus";
+import { EModbusType, GModeBusRTU, IModbusCmd, IModbusCmdResult, IModbusCmds, IModbusRTU, IModbusRTUTable, ModbusCmd, ModbusCmds, ModbusRTU, ModbusRTUTable } from "../../../../common/modbus";
+import { Utils } from "../../../../common/utils";
 import { Debuger, DeviceBase } from "../../../device-base";
 import { IDeviceBase, IDeviceBusDataPayload, IDeviceBusDataPayloadHd, IDeviceBusEventData } from "../../../device.dts";
 
@@ -94,15 +95,17 @@ export class Modbus extends DeviceBase implements IModbus {
         Debuger.Debuger.log("Modbus  on_north_input");
         let payload = msg.payload as IDeviceBusDataPayload
         let hd = payload.hd;
-        if (hd.entry.type == "svc") {
-            if (hd.entry.id == "get") {
-                return this.on_north_input_svc_get(msg);                
-            } 
+        if (this.mode == "alone") {
+            if (hd.entry.type == "svc") {
+                if (hd.entry.id == "get") {
+                    return this.on_north_input_svc_get(msg);                
+                } 
 
-            if (hd.entry.id == "set") {
-                return this.on_north_input_svc_set(msg);
-            }
-        }        
+                if (hd.entry.id == "set") {
+                    return this.on_north_input_svc_set(msg);
+                }
+            }        
+        }
         super.on_north_input(msg);
     }    
 
@@ -135,6 +138,8 @@ export class Modbus extends DeviceBase implements IModbus {
             if (raw.length > 5) {
                 this.cmds.events.res.emit(raw);
                 return;
+            } else {
+                Debuger.Debuger.log("on_south_input_evt_penet_alone raw < 5", raw);
             }
         }        
 
@@ -208,66 +213,200 @@ export class Modbus extends DeviceBase implements IModbus {
         super.on_north_input(msg);    
     }
 
-    //北向输入查询空调状态
+    //北向输入查询空调状态(alone)
     on_north_input_svc_get(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("ACPGDTM7000F  on_north_input_svc_get");
-
-        let tables = [];
-        Object.values(this.tables.names).forEach(v => {
-            let table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
-            table.slave = this.slave;
-            table.setPLCAddress(v);
-            table.quantity = 1;
-            tables.push(table);
-        })
-
-        if (tables.length == 0)
-            return;
-
+        Debuger.Debuger.log("Modbus  on_north_input_svc_get");
         let payload = msg.payload as IDeviceBusDataPayload
         let hd = payload.hd;
         let pld = payload.pld;
+        this.do_svc_get(Object.keys(this.tables.names))
+        .then(v => {
+            let _hd:IDeviceBusDataPayloadHd  = Utils.DeepMerge({}, hd) as any;
+            _hd.to = hd.from;
+            _hd.from = {type:"dev", id: this.attrs.id}
+            _hd.stp = 1;
+            let _pld = v;
 
-        let cmd = this.cmds.exec(tables);
-        cmd.events.then.once(v => {
-            console.log("11111111111111111111111111", v);
+            let _msg: IDeviceBusEventData = {
+                payload: {
+                    hd: _hd,
+                    pld: _pld
+                }
+            }
+            super.on_south_input(_msg);
 
         })
-        cmd.events.catch.once(e => {
-            console.log("222222222222222222222222222", e);
+        .catch(e => {
+            Debuger.Debuger.log("Modbus  on_north_input_svc_get error: ", e);
         })
 
-        // this.cmd = new ModbusCmd(tables);
-        // this.cmd.events.req.on((data: Buffer) => {
-        //     let rawStr = data.toString("base64");
-        //     let _hd:IDeviceBusDataPayloadHd  = Utils.DeepMerge({}, hd) as any;
-        //     let _pld = {raw: rawStr};
-        //     _hd.entry.type = "svc";
-        //     _hd.entry.id = "penet";
-        //     let _msg: IDeviceBusEventData = {
-        //         payload: {
-        //             hd: _hd,
-        //             pld: _pld
-        //         }
-        //     };
-    
-        //     super.on_north_input(_msg);
-
-        // })
-
-        // this.cmd.exec()
-        // .then(v => {
-        //     console.log("11111111111111111111111111", v);
-        // })
-        // .catch(e => {
-        //     console.log("222222222222222222222222222", e);
-
-        // })
         
     }
 
     //北向输入设备空调状态
     on_north_input_svc_set(msg: IDeviceBusEventData) {        
+        Debuger.Debuger.log("Modbus  on_north_input_svc_set");
+        let payload = msg.payload as IDeviceBusDataPayload
+        let hd = payload.hd;
+        let pld = payload.pld;
+        this.do_svc_set(pld)
+        .then(v => {
+            let _hd:IDeviceBusDataPayloadHd  = Utils.DeepMerge({}, hd) as any;
+            _hd.to = hd.from;
+            _hd.from = {type:"dev", id: this.attrs.id}
+            _hd.stp = 1;
+            let _pld = v;
 
+            let _msg: IDeviceBusEventData = {
+                payload: {
+                    hd: _hd,
+                    pld: _pld
+                }
+            }
+            super.on_south_input(_msg);
+
+        })
+        .catch(e => {
+            Debuger.Debuger.log("Modbus  on_north_input_svc_set error: ", e);
+        })
     }
+
+    //查询
+    do_svc_get(names: string[]): Promise<{[name: string]: any}> {
+        return new Promise((resolve, reject) => {
+            let tables = [];
+            let result = {};
+
+            names.forEach(name => {
+                result[name] = null;
+                let plcaddr = this.tables.names[name];
+                if (plcaddr) {
+                    let table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
+                    table.slave = this.slave;
+                    table.setPLCAddress(plcaddr);
+                    table.quantity = 1;
+                    tables.push(table);                
+                }
+            })
+
+
+            let cmd = this.cmds.exec(tables);
+            cmd.events.then.once((v: IModbusCmdResult) => {
+                let resTables = v.res;
+                resTables.forEach((t => {
+                    let name = this.tables.address[t.getPLCAddress()];
+                    result[name] = t.table[t.address];
+                }))
+                resolve(result)                        
+            })
+
+            cmd.events.catch.once(e => {
+                let resTables = cmd.resTables;
+                if (resTables.length > 0) {
+                    resTables.forEach((t => {
+                        let name = this.tables.address[t.getPLCAddress()];
+                        result[name] = t.table[t.address];
+                    }))
+                    resolve(result)                        
+                } else {
+                    reject(e)
+                }
+            })
+        })
+    }
+
+    //设置
+    do_svc_set(values: {[name: string]: any}): Promise<{[name: string]: number}> {
+        return new Promise((resolve, reject) => {
+            let tables = [];
+            let result = {};
+            let names = Object.keys(values);
+
+            names.forEach(name => {
+                let value = values[name];
+                let plcaddr = this.tables.names[name];
+                if (plcaddr) {
+                    result[name] = null;
+                    let table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
+                    table.slave = this.slave;
+                    table.setPLCAddress(plcaddr, value);
+                    table.quantity = 1;
+                    table.func = EModbusType.EWriteSingleRegister;
+                    tables.push(table);                
+                }
+            })
+
+
+            let cmd = this.cmds.exec(tables);
+            cmd.events.then.once((v: IModbusCmdResult) => {
+                let resTables = v.res;
+                resTables.forEach((t => {
+                    let name = this.tables.address[t.getPLCAddress()];
+                    result[name] = t.error;
+                }))
+                resolve(result)                        
+            })
+
+            cmd.events.catch.once(e => {
+                let resTables = cmd.resTables;
+                if (resTables.length > 0) {
+                    resTables.forEach((t => {
+                        let name = this.tables.address[t.getPLCAddress()];
+                        result[name] = t.error;
+                    }))
+                    resolve(result)                        
+                } else {
+                    reject(e)
+                }
+            })
+        })
+    }
+
+    //上报
+    do_evt_report(): Promise<{[name: string]: number}> {
+        let promise = this.do_svc_get(Object.keys(this.tables.names))
+        promise
+        .then(v => {
+            let hd:IDeviceBusDataPayloadHd = {
+                from: {type:"dev", id: this.attrs.id},
+                entry: {type: "evt", id: "report"},
+                stp : 0
+            }
+            let pld = v
+
+            let msg: IDeviceBusEventData = {
+                payload: {
+                    hd: hd,
+                    pld: pld
+                }
+            }
+            super.on_south_input(msg);
+        })
+        .catch(e => {
+            Debuger.Debuger.log("Modbus  do_evt_report error: ", e);
+        })     
+        return promise;   
+    }
+
+    //定时上报
+    _interval_evt_report_handler: any;
+    start_interval_evt_report(timeout: number) {
+        this.stop_interval_evt_report();
+        this._interval_evt_report_handler = setTimeout(() => {
+             this.do_evt_report()
+             .then(v => {
+                this.start_interval_evt_report(timeout)
+             })
+             .catch(e => {
+                this.start_interval_evt_report(timeout)
+             })
+            
+        }, timeout);
+    }
+
+    stop_interval_evt_report() {
+        clearTimeout(this._interval_evt_report_handler);
+        this._interval_evt_report_handler = 0;
+    }
+    
 }
