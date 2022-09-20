@@ -11,7 +11,7 @@ export class Utils {
             let fromValue = fromObj[key];
             let type = typeof fromValue;
             if (type !== "function") {
-                if (type === "object") {
+                if (type === "object" && fromValue !== null) {
                     toValue = (typeof toValue === "object") ? toValue: {}
                     toValue = this.DeepMerge(toValue, fromValue);
                 } else {

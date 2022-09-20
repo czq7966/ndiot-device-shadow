@@ -57,7 +57,7 @@ export class ACPGDTM7000F extends Modbus implements IACPGDTM7000F {
     do_svc_get(names: string[]): Promise<{[name: string]: any}> {
         return new Promise((resolve, reject) => {
             super.do_svc_get(names)
-            .then(v => {              
+            .then(v => {                              
                 let result = Utils.DeepMerge({}, v) as any;
                 result.power = v.power === 0 ? "off" : v.power === 1 ? "on" : v.power;
                 result.mode = v.mode === 0 ? "cool" : v.mode === 1 ? "heat" : v.mode === 2 ? "fan" : v.mode;

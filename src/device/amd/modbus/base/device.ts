@@ -278,7 +278,6 @@ export class Modbus extends DeviceBase implements IModbus {
             let result = {};
 
             names.forEach(name => {
-                result[name] = null;
                 let plcaddr = this.tables.names[name];
                 if (plcaddr) {
                     let table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
@@ -295,7 +294,9 @@ export class Modbus extends DeviceBase implements IModbus {
                 let resTables = v.res;
                 resTables.forEach((t => {
                     let name = this.tables.address[t.getPLCAddress()];
-                    result[name] = t.table[t.address];
+                    result[name] = null;
+                    if (!t.error) 
+                        result[name] = t.table[t.address];                    
                 }))
                 resolve(result)                        
             })
@@ -305,7 +306,9 @@ export class Modbus extends DeviceBase implements IModbus {
                 if (resTables.length > 0) {
                     resTables.forEach((t => {
                         let name = this.tables.address[t.getPLCAddress()];
-                        result[name] = t.table[t.address];
+                        result[name] = null;
+                        if (!t.error) 
+                            result[name] = t.table[t.address];
                     }))
                     resolve(result)                        
                 } else {
