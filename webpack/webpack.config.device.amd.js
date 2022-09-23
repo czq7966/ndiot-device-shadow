@@ -73,7 +73,8 @@ module.exports = env => {
                 'is-utf8': 'is-utf8',
                 'js-yaml': 'js-yaml',
                 'fs.notify': 'fs.notify',
-                'mqtt': 'mqtt'
+                'mqtt': 'mqtt',
+                'iconv-lite': 'iconv-lite'
             }
 
         ]
