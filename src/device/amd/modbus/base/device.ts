@@ -334,7 +334,7 @@ export class Modbus extends DeviceBase implements IModbus {
                     table.slave = this.slave;
                     table.setPLCAddress(plcaddr, value);
                     table.quantity = 1;
-                    table.func = EModbusType.EWriteSingleRegister;
+                    table.func = value < table.plcbase ? EModbusType.EWriteSingleCoil : EModbusType.EWriteSingleRegister;
                     tables.push(table);                
                 }
             })
