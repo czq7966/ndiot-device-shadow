@@ -622,7 +622,8 @@ export class ModbusCmd extends Base implements IModbusCmd {
                     timeoutHandler = setTimeout(() => {                        
                         let resTable = reqTable.clone();
                         resTable.error = -1;
-                        this.resTables.push(resTable);                        
+                        this.resTables.push(resTable);        
+                        console.log("2222222222", resTable);                
                         reject(-1);                        
                     }, 5000);
                 }
@@ -639,6 +640,7 @@ export class ModbusCmd extends Base implements IModbusCmd {
             this.events.res.on((resRtu: Buffer) => {
                 clearTimeout(timeoutHandler);
                 let resTable = GModeBusRTU.decoder.decode(resRtu, reqTable);
+                console.log("1111111111111", resTable);
                 this.resTables.push(resTable);
                 execReqTable();
             })

@@ -135,11 +135,11 @@ export class Modbus extends DeviceBase implements IModbus {
         let rawStr = pld.raw;
         if (rawStr) {
             let raw = Buffer.from(rawStr,'base64');
-            if (raw.length > 5) {
+            if (raw.length > 4) {
                 this.cmds.events.res.emit(raw);
                 return;
             } else {
-                Debuger.Debuger.log("on_south_input_evt_penet_alone raw < 5", raw);
+                Debuger.Debuger.log("on_south_input_evt_penet_alone raw < 5 ,", raw);
             }
         }        
 
@@ -154,7 +154,7 @@ export class Modbus extends DeviceBase implements IModbus {
         let rawStr = pld.raw;
         if (rawStr) {
             let raw = Buffer.from(rawStr,'base64');
-            if (raw.length > 5) {
+            if (raw.length > 4) {
                 let table = GModeBusRTU.decoder.decode_common(raw);
                 if (table.slave > 0) {
                     let cid = this.attrs.id + "_" + table.slave;

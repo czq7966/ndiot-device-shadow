@@ -1123,7 +1123,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
                 
                 if (payload.datafiles) {
                     this.config.datafiles = payload.datafiles;
-                    let datafiles = JSON.parse(payload.datafiles);
+                    let datafiles = JSON.parse(payload.datafiles || "{}");
                     Object.keys(datafiles).forEach(key => {
                         this.z2m.z2m.config.datafiles[key] = datafiles[key];
                     })
@@ -1321,7 +1321,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
         //协调器事件: 子设备组网事件 -> 北向输出
         on_z2m_bridge_events_event(packet: Mqtt.IPublishPacket) {
-            let pPayload = JSON.parse(packet.payload as any);
+            let pPayload = JSON.parse(packet.payload as any || "{}");
             if (pPayload.type === "device_joined") {
                 this.on_z2m_bridge_events_event_device_joined(packet);
                 this.on_z2m_z2m_config_events_change(undefined, undefined, undefined);
@@ -1345,7 +1345,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
         //协调器事件: 子设备入网事件 -> 北向输出
         on_z2m_bridge_events_event_device_joined(packet: Mqtt.IPublishPacket) {
-            let pPayload = JSON.parse(packet.payload as any);
+            let pPayload = JSON.parse(packet.payload as any || "{}");
             let payload: IDeviceBusDataPayload = {
                 hd: {
                     entry: {
@@ -1368,7 +1368,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
         //协调器事件: 子设备脱网事件 -> 北向输出
         on_z2m_bridge_events_event_device_leave(packet: Mqtt.IPublishPacket) {
-            let pPayload = JSON.parse(packet.payload as any);
+            let pPayload = JSON.parse(packet.payload as any || "{}");
             let payload: IDeviceBusDataPayload = {
                 hd: {
                     entry: {
@@ -1391,7 +1391,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
         //协调器事件: 子设备检索事件 -> 北向输出
         on_z2m_bridge_events_event_device_interview(packet: Mqtt.IPublishPacket) {
-            let pPayload = JSON.parse(packet.payload as any);
+            let pPayload = JSON.parse(packet.payload as any || "{}");
             if (pPayload.data.status === "successful" ) {            
                 let payload: IDeviceBusDataPayload = {
                     hd: {
@@ -1420,7 +1420,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
         //协调器事件: 子设备其它事件 -> 北向输出
         on_z2m_bridge_events_event_else(packet: Mqtt.IPublishPacket) {
-            let pPayload = JSON.parse(packet.payload as any);
+            let pPayload = JSON.parse(packet.payload as any || "{}");
             let payload: IDeviceBusDataPayload = {
                 hd: {
                     entry: {
@@ -1448,7 +1448,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
         //协调器事件: 响应事件: 开启/关闭入网 -> 北向输出
         on_z2m_bridge_events_response_permit_join(packet: Mqtt.IPublishPacket) {
             let topics = packet.topic.split("/");
-            let pPayload = JSON.parse(packet.payload as any);
+            let pPayload = JSON.parse(packet.payload as any || "{}");
             let payload: IDeviceBusDataPayload = {
                 hd: {
                     entry: {
@@ -1474,7 +1474,8 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
         on_z2m_child_events(packet: Mqtt.IPublishPacket) {
             let topics = packet.topic.split("/");
             let cid = topics[1]; //子设备id
-            let pld =  JSON.parse(packet.payload.toString());
+            
+            let pld =  JSON.parse(packet.payload.toString() || "{}");
 
             let payload: IDeviceBusDataPayload = {
                 hd: {

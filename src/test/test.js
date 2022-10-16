@@ -6,4 +6,22 @@
 // cmd.copy(data, head.length);
 // console.log(data)
 
-let abc = new ACPGDTM7000F()
+// let abc = new ACPGDTM7000F()
+// let arr = [];
+// let abc="abc";
+// arr.push('a'.charCodeAt());
+// arr.push('b'.charCodeAt());
+// arr.push('c'.charCodeAt());
+// arr.push(0);
+// arr.push('d'.charCodeAt());
+// let buf = Buffer.from(arr);
+
+let abc="60000";
+let buf=Buffer.from([48,49,50,0]);
+
+let b =  buf.subarray(1, 3);
+
+
+
+
+console.log(buf.toString(),b.toString());
