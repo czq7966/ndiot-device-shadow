@@ -4,6 +4,9 @@ import { EModbusType, GModeBusRTU, IModbusCmd, IModbusCmdResult, IModbusCmds, IM
 import { Utils } from "../../../../common/utils";
 import { Debuger, DeviceBase } from "../../../device-base";
 import { IDeviceBase, IDeviceBusDataPayload, IDeviceBusDataPayloadHd, IDeviceBusEventData } from "../../../device.dts";
+import { NDDevice } from "../../nd-device";
+import { CmdId } from "../../nd-device/cmd";
+import { RegTable } from "../../nd-device/regtable";
 
 export interface IModbus extends IDeviceBase {
     mode: "alone" | "bus"   
@@ -44,7 +47,7 @@ export class ModbusPLCTables implements IModbusPLCTables {
     };    
 }
 
-export class Modbus extends DeviceBase implements IModbus {
+export class Modbus extends NDDevice implements IModbus {
     mode: "alone" | "bus";
     cmds: IModbusCmds
     tables: IModbusPLCTables
@@ -78,16 +81,25 @@ export class Modbus extends DeviceBase implements IModbus {
     //南向输入
     on_south_input(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Modbus  on_south_input ");
+        if (this.recvcmd.decode(msg.payload)){
+            msg.decoded = true;
+            msg.payload = {
+                hd: this.recvcmd.head,
+                pld: this.recvcmd.getPayload()
+            }
 
-        let payload = msg.payload as IDeviceBusDataPayload
-        let hd = payload.hd;
-        if (hd.entry.type == "evt") {
-            if (hd.entry.id == "penet") {
-                //透传事件
-                return this.on_south_input_evt_penet(msg);                
-            } 
-        }
-        super.on_south_input(msg);
+            let head = this.recvcmd.head;
+
+            //透传
+            if (head.cmd_id == CmdId.penet)  
+                // -> Tcp输入
+                this.on_south_input_evt_penet(msg);
+            else
+                // -> 父类转北向输出
+                super.on_south_input(msg);
+
+        } else
+            super.on_south_input(msg);
     }
 
     //北向输入
@@ -130,16 +142,15 @@ export class Modbus extends DeviceBase implements IModbus {
     //南向透传输入_独立
     on_south_input_evt_penet_alone(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Modbus  on_south_input_evt_penet_alone ");
-        let payload = msg.payload as IDeviceBusDataPayload
-        let pld = payload.pld;
-        let rawStr = pld.raw;
-        if (rawStr) {
-            let raw = Buffer.from(rawStr,'base64');
-            if (raw.length > 4) {
-                this.cmds.events.res.emit(raw);
+        let payload: IDeviceBusDataPayload = msg.payload;
+        let data = payload.pld[RegTable.Keys.penet_data];
+
+        if (data) {
+            if (data.length > 4) {
+                this.cmds.events.res.emit(data);
                 return;
             } else {
-                Debuger.Debuger.log("on_south_input_evt_penet_alone raw < 5 ,", raw);
+                Debuger.Debuger.log("on_south_input_evt_penet_alone raw < 5 ,", data);
             }
         }        
 
@@ -149,13 +160,13 @@ export class Modbus extends DeviceBase implements IModbus {
     //南向透传输入_总线 -> 子设备
     on_south_input_evt_penet_bus(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Modbus  on_south_input_evt_penet_bus ");
-        let payload = msg.payload as IDeviceBusDataPayload
-        let pld = payload.pld;
-        let rawStr = pld.raw;
-        if (rawStr) {
-            let raw = Buffer.from(rawStr,'base64');
-            if (raw.length > 4) {
-                let table = GModeBusRTU.decoder.decode_common(raw);
+        let payload: IDeviceBusDataPayload = msg.payload;
+        let data = payload.pld[RegTable.Keys.penet_data];
+
+
+        if (data) {
+            if (data.length > 4) {
+                let table = GModeBusRTU.decoder.decode_common(data);
                 if (table.slave > 0) {
                     let cid = this.attrs.id + "_" + table.slave;
                     let payload: IDeviceBusDataPayload = {
@@ -171,7 +182,7 @@ export class Modbus extends DeviceBase implements IModbus {
                             sid: "",
                             stp: 0
                         },
-                        pld: pld                
+                        pld: data                
                     }
                     let msg: IDeviceBusEventData = {
                         id: cid, 
@@ -190,27 +201,15 @@ export class Modbus extends DeviceBase implements IModbus {
 
     //指令透传请求
     on_cmds_events_req_penet(data: Buffer) {
-        let rawStr = data.toString("base64");
-        let hd:IDeviceBusDataPayloadHd  = {
-            to: {
-                type: "dev",
-                id: this.attrs.id
-            },
-            entry: {
-                type: "svc",
-                id: "penet"
-            }
-        };
-        let pld = {raw: rawStr};
-
+        this.sendcmd.reset();
+        this.sendcmd.head.cmd_id = CmdId.penet;
+        this.sendcmd.regtable.tables[RegTable.Keys.penet_data] = data;
+        
         let msg: IDeviceBusEventData = {
-            payload: {
-                hd: hd,
-                pld: pld
-            }
-        };
-
-        super.on_north_input(msg);    
+            payload: this.sendcmd.encode()
+        }
+        //南向直接输出
+        this.events.south.output.emit(msg);   
     }
 
     //北向输入查询空调状态(alone)
@@ -228,6 +227,7 @@ export class Modbus extends DeviceBase implements IModbus {
             let _pld = v;
 
             let _msg: IDeviceBusEventData = {
+                decoded: true,
                 payload: {
                     hd: _hd,
                     pld: _pld
@@ -258,6 +258,7 @@ export class Modbus extends DeviceBase implements IModbus {
             let _pld = v;
 
             let _msg: IDeviceBusEventData = {
+                decoded: true,
                 payload: {
                     hd: _hd,
                     pld: _pld
@@ -378,6 +379,7 @@ export class Modbus extends DeviceBase implements IModbus {
             let pld = v
 
             let msg: IDeviceBusEventData = {
+                decoded: true,
                 payload: {
                     hd: hd,
                     pld: pld

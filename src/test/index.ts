@@ -139,4 +139,5 @@
 // })
 
 
-import "./regtable.ts"
+// import "./nd-device/regtable.ts"
+import "./nd-device/cmd.ts"

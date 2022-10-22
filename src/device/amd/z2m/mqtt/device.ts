@@ -1,6 +1,6 @@
 
 import { IDeviceBusEventData } from "../../../device.dts";
-import { IZigbee2Mqtt, Zigbee2Mqtt } from "../base/device";
+import { IZigbee2Mqtt, Zigbee2Mqtt } from "../base/nd-device";
 
 export interface IZigbee2Mqtt_MQTT extends IZigbee2Mqtt {}
 

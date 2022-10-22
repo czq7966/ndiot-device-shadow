@@ -1,4 +1,4 @@
-import { RegTable } from "../device/amd/nd-device/regtable";
+import { RegTable } from "../../device/amd/nd-device/regtable";
 
 let entable = new RegTable();
 let detable = new RegTable();

@@ -1,4 +1,5 @@
 import { Device } from './amd/device';
+import { NDDevice } from './amd/nd-device';
 import { Debuger, DeviceEntryEvent } from './device-base';
 import { Base, IDeviceBaseAttr, IDeviceBusEventData, IDevicePlugin, IDevicePlugins, IDeviceEntryEvent, IDeviceShadowManager, IDeviceShadowManagerBusEvent, IDeviceShadows, IDevicePluginAttr } from "./device.dts";
 import { DevicePlugins } from './plugins';
@@ -32,7 +33,7 @@ export class DeviceManager extends Base implements IDeviceShadowManager {
         this.plugins = new DevicePlugins(this);
         this.shadows = new DeviceShadows(this);
         this.events = new DeviceShadowManagerBusEvent();
-        this.plugins.defaultPlugin = Device;
+        this.plugins.defaultPlugin = NDDevice;
 
         let on_south_input = (msg) => {this.on_south_input(msg);}
         let on_north_input = (msg) => {this.on_north_input(msg);}

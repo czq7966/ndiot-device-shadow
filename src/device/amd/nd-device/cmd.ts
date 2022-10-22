@@ -15,18 +15,26 @@ export class CmdId {
     static update = 8;
     static online = 9;
     static offline = 10;    
+    static resetconfig = 11;
+    static device_joined = 12;
+    static device_leave = 13;
+    static device_interview = 14;
+
 }
 
 export interface IHead {
-    pro_logo: number;        
-    pro_ver: number;
-    dev_id: number;
-    cmd_id: number;
-    cmd_stp: number;
-    err_no: number;
-    cmd_sid: number;                
-    pld_sum: number;
-    pld_len: number;
+    pro_logo?: number;        
+    pro_ver?: number;
+    dev_id?: number;
+    cmd_id?: number;
+    cmd_stp?: number;
+    err_no?: number;
+    cmd_sid?: number;                
+    pld_sum?: number;
+    pld_len?: number;
+}
+
+export interface ICmdHead extends IHead {
     encode(): Buffer;
     decode(buf: Buffer);
     reset();
@@ -34,16 +42,17 @@ export interface IHead {
 
 
 export interface ICmd {
-    head: IHead
+    head: ICmdHead
     regtable: IRegTable
     payload: Buffer
      
     reset();  
-    encode(): Buffer;
+    encode(hd: {}, pld: Buffer | {}): Buffer;
     decode(buf: Buffer): boolean;  
+    getPayload(): any;
 }
 
-export class Head implements IHead {
+export class Head implements ICmdHead {
     pro_logo: number;
     pro_ver: number;
     dev_id: number;
@@ -112,11 +121,12 @@ export class Head implements IHead {
 
 
 export class Cmd implements ICmd {
-    head: IHead;
+    head: ICmdHead;
     regtable: IRegTable
     payload: Buffer
     constructor() {
         this.head = new Head();
+        this.head.reset();
         this.regtable = new RegTable();
         this.payload = Buffer.from([]);
     }
@@ -130,26 +140,29 @@ export class Cmd implements ICmd {
         this.regtable.tables = {};
         this.payload = Buffer.from([]);
     }
-    encode(): Buffer {
-        if (this.head.cmd_id != CmdId.penet) 
-            this.payload = this.regtable.encode();
-        
+    encode(hd?: {}, pld?: Buffer | {}): Buffer {
+        Object.assign(this.head, hd);        
+        Object.assign(this.regtable.tables, pld);
+        this.payload = this.regtable.encode();        
         this.head.pld_len = this.payload.length;
-        return Buffer.concat([this.head.encode(), this.payload]);
-        
+        return Buffer.concat([this.head.encode(), this.payload]);        
     }
+
     decode(buf: Buffer): boolean {
         this.reset();
-        if (Buffer.isBuffer(buf) && this.head.decode(buf)){
+        if (Buffer.isBuffer(buf) && this.head.decode(buf)){            
             if (buf.length == this.head.pld_len + HEAD_LEN){
-                this.payload = buf.subarray(buf.length - HEAD_LEN);
-                if (this.head.cmd_id != CmdId.penet)
-                    this.regtable.decode(this.payload);
+                this.payload = buf.subarray(HEAD_LEN, buf.length);
+                this.regtable.decode(this.payload);
                 return true;
             }
         }
 
         return false;
+    }
+
+    getPayload(): any {
+        return this.regtable.tables;
     }
 
 }

@@ -1,9 +1,6 @@
-import { timeStamp } from "console";
-import { CRC16 } from "../../../../common/crc16";
-import { EModbusPLCType, EModbusType, IModbusRTUTable, ModbusCmd, ModbusRTUTable } from "../../../../common/modbus";
-import { Utils } from "../../../../common/utils";
+import { EModbusPLCType } from "../../../../common/modbus";
 import { Debuger } from "../../../device-base";
-import { IDeviceBusDataPayload, IDeviceBusDataPayloadHd, IDeviceBusEventData } from "../../../device.dts";
+import { IDeviceBusEventData } from "../../../device.dts";
 import { IModbus, Modbus } from "../base/device";
 
 export interface IACHisenseHCPCH2M1C extends IModbus {}
