@@ -363,6 +363,7 @@ export class ModbusRTUDecoder extends Base implements IModbusRTUDecoder {
 
     decode(rtu: Buffer, table: IModbusRTUTable): IModbusRTUTable {
         let result = this.decode_common(rtu);
+        result.plcbase = table.plcbase;
         switch (result.func) {
             case EModbusType.EReadCoils:
                 result = this.decode_read_coils(rtu, table);
@@ -622,8 +623,7 @@ export class ModbusCmd extends Base implements IModbusCmd {
                     timeoutHandler = setTimeout(() => {                        
                         let resTable = reqTable.clone();
                         resTable.error = -1;
-                        this.resTables.push(resTable);        
-                        console.log("2222222222", resTable);                
+                        this.resTables.push(resTable);                 
                         reject(-1);                        
                     }, 5000);
                 }
@@ -640,7 +640,6 @@ export class ModbusCmd extends Base implements IModbusCmd {
             this.events.res.on((resRtu: Buffer) => {
                 clearTimeout(timeoutHandler);
                 let resTable = GModeBusRTU.decoder.decode(resRtu, reqTable);
-                console.log("1111111111111", resTable);
                 this.resTables.push(resTable);
                 execReqTable();
             })

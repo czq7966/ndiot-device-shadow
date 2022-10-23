@@ -92,7 +92,7 @@ export class Modbus extends NDDevice implements IModbus {
 
             //透传
             if (head.cmd_id == CmdId.penet)  
-                // -> Tcp输入
+                // -> 透传输入
                 this.on_south_input_evt_penet(msg);
             else
                 // -> 父类转北向输出
@@ -141,7 +141,7 @@ export class Modbus extends NDDevice implements IModbus {
 
     //南向透传输入_独立
     on_south_input_evt_penet_alone(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("Modbus  on_south_input_evt_penet_alone ");
+        Debuger.Debuger.log("Modbus  on_south_input_evt_penet_alone ", msg);
         let payload: IDeviceBusDataPayload = msg.payload;
         let data = payload.pld[RegTable.Keys.penet_data];
 
@@ -171,10 +171,6 @@ export class Modbus extends NDDevice implements IModbus {
                     let cid = this.attrs.id + "_" + table.slave;
                     let payload: IDeviceBusDataPayload = {
                         hd: {
-                            from: {
-                                type: "dev",
-                                id: cid,
-                            },
                             entry: {
                                 type: "evt",
                                 id: "penet"
@@ -218,11 +214,11 @@ export class Modbus extends NDDevice implements IModbus {
         let payload = msg.payload as IDeviceBusDataPayload
         let hd = payload.hd;
         let pld = payload.pld;
-        this.do_svc_get(Object.keys(this.tables.names))
+        let keys = pld && Object.keys(pld) || [];
+        keys = keys.length > 0 ? keys : Object.keys(this.tables.names);
+        this.do_svc_get(keys)
         .then(v => {
             let _hd:IDeviceBusDataPayloadHd  = Utils.DeepMerge({}, hd) as any;
-            _hd.to = hd.from;
-            _hd.from = {type:"dev", id: this.attrs.id}
             _hd.stp = 1;
             let _pld = v;
 
@@ -252,8 +248,6 @@ export class Modbus extends NDDevice implements IModbus {
         this.do_svc_set(pld)
         .then(v => {
             let _hd:IDeviceBusDataPayloadHd  = Utils.DeepMerge({}, hd) as any;
-            _hd.to = hd.from;
-            _hd.from = {type:"dev", id: this.attrs.id}
             _hd.stp = 1;
             let _pld = v;
 
@@ -335,8 +329,8 @@ export class Modbus extends NDDevice implements IModbus {
                     table.slave = this.slave;
                     table.setPLCAddress(plcaddr, value);
                     table.quantity = 1;
-                    table.func = value < table.plcbase ? EModbusType.EWriteSingleCoil : EModbusType.EWriteSingleRegister;
-                    tables.push(table);                
+                    table.func = plcaddr < table.plcbase ? EModbusType.EWriteSingleCoil : EModbusType.EWriteSingleRegister;
+                    tables.push(table);          
                 }
             })
 

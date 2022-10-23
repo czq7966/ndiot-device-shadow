@@ -1,11 +1,12 @@
 import { EModbusPLCType } from "../../../../common/modbus";
 import { Debuger } from "../../../device-base";
 import { IDeviceBusEventData } from "../../../device.dts";
+import { ACDevice } from "../base/ac-device";
 import { IModbus, Modbus } from "../base/device";
 
 export interface IACHisenseHCPCH2M1C extends IModbus {}
 
-export class ACHisenseHCPCH2M1C extends Modbus implements IACHisenseHCPCH2M1C {
+export class ACHisenseHCPCH2M1C extends ACDevice implements IACHisenseHCPCH2M1C {
 
     //初始化
     init() {
