@@ -1,6 +1,11 @@
 
 export class CRC16 {
     static Modbus(str: string | Buffer, type?: "hex" | "asc", length?: number ): Buffer {
+        let crc = this.Calculate(str, type, length);
+        return Buffer.from([crc & 0xFF, crc >> 8 & 0xFF]);
+    }; 
+
+    static Calculate(str: string | Buffer, type?: "hex" | "asc", length?: number ): number {
         let buf: Buffer;        
         if (Buffer.isBuffer(str))
             buf = str;
@@ -20,6 +25,6 @@ export class CRC16 {
                     crc >>= 1;
             }
         }
-        return Buffer.from([crc & 0xFF, crc >> 8 & 0xFF]);
+        return crc;
     }; 
 }

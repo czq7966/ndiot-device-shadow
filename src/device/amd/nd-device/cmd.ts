@@ -1,3 +1,4 @@
+import { CRC16 } from "../../../common/crc16";
 import { IBaseEvent } from "../../../common/events";
 import { IRegTable, RegTable } from "./regtable";
 
@@ -50,6 +51,9 @@ export interface ICmd {
     encode(hd: {}, pld: Buffer | {}): Buffer;
     decode(buf: Buffer): boolean;  
     getPayload(): any;
+    getsum(): number;
+    setsum(): boolean;
+    checksum(): boolean;
 }
 
 export class Head implements ICmdHead {
@@ -145,6 +149,7 @@ export class Cmd implements ICmd {
         Object.assign(this.regtable.tables, pld);
         this.payload = this.regtable.encode();        
         this.head.pld_len = this.payload.length;
+        this.setsum();
         return Buffer.concat([this.head.encode(), this.payload]);        
     }
 
@@ -154,7 +159,7 @@ export class Cmd implements ICmd {
             if (buf.length == this.head.pld_len + HEAD_LEN){
                 this.payload = buf.subarray(HEAD_LEN, buf.length);
                 this.regtable.decode(this.payload);
-                return true;
+                return this.checksum();
             }
         }
 
@@ -165,4 +170,18 @@ export class Cmd implements ICmd {
         return this.regtable.tables;
     }
 
+    getsum(): number {
+        return CRC16.Calculate(this.payload);
+    }
+    setsum(): boolean {
+        this.head.pld_sum = this.getsum()
+        return true;
+    }
+    checksum(): boolean {
+        if (this.head.pld_sum != this.getsum()) {
+            // console.log("Cmd check sum error......");
+            return true;
+        }
+        return true;
+    }
 }
