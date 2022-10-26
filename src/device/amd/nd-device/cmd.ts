@@ -20,8 +20,19 @@ export class CmdId {
     static device_joined = 12;
     static device_leave = 13;
     static device_interview = 14;
+    static get_gpio = 15;
+    static set_gpio = 16;
+    static rfir_sniff = 17;
+    static rfir_send = 18;
+    static intranet = 19;
 
+    static Keys: {[value: number]: string} = {}
 }
+
+Object.keys(CmdId).forEach(id => {
+    if (id != "Keys")
+        CmdId.Keys[CmdId[id]] = id;
+})
 
 export interface IHead {
     pro_logo?: number;        

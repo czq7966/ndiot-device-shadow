@@ -1,2 +1,2 @@
-export {NDDevice} from './device'
+export * from './device'
 export {Debuger} from '../../device-base'

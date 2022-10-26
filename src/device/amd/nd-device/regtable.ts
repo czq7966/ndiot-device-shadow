@@ -26,8 +26,17 @@ export class RegTableKeys {
     static wifi_ssid_dev =      60014;
     static wifi_pass_dev =      60015;
 
+    static intranet_mqtt_ip =	60040;
+    static intranet_mqtt_user =	60041;
+    static intranet_mqtt_pass =	60042;
+    static intranet_ip =    	60043;
+    
+
     //二进制
     static penet_data =         60500;
+    static rfir_sniff_data =	60501;
+    static rfir_send_data = 	60502;
+
     
     //数字
     static dev_online =         61000;
@@ -70,7 +79,34 @@ export class RegTableKeys {
 
     static net_report_reason =   61030;
     static serial_read_timeout = 61031;
-
+    static serial_read_bufsize = 61032;
+    static serial_half_rw_pin =	 61033;
+    static serial_half_r_level = 61034;
+        
+    static gpio_rw_pin =	     61035;
+    static gpio_rw_value =	     61036;
+        
+    static intranet_mqtt_enable =61040;
+    static intranet_mqtt_port =	 61041;
+    static intranet_enable =	 61042;
+    static intranet_port =	     61043;
+        
+    static rfir_sniff_enable =	 61050;
+    static rfir_sniff_pin =	     61051;
+    static rfir_sniff_inverted = 61052;
+    static rfir_sniff_minCount = 61053;
+    static rfir_sniff_maxCount = 61054;
+    static rfir_sniff_minDelta = 61055;
+    static rfir_sniff_maxDelta = 61056;
+        
+    static rfir_send_enable =	 61060;
+    static rfir_send_pin =	     61061;
+    static rfir_send_inverted =	 61062;
+    static rfir_send_modulation =61063;
+    static rfir_send_repeat =	 61064;
+    static rfir_send_frequency = 61065;
+    static rfir_send_dutycycle = 61066;
+    
 }
 
 export class RegTable implements IRegTable {
@@ -79,6 +115,13 @@ export class RegTable implements IRegTable {
     static BytesMinNum: number = 60500;
     static BytesMaxNum: number = 60999;    
     static Keys = RegTableKeys
+    static Values: {[id: number]: string} = {};
+    static InitValues() {
+        Object.keys(RegTable.Keys).forEach(key => {
+            let val = RegTable.Keys[key];
+            RegTable.Values[val] = key;
+        })
+    }
     
     tables: { [key: number]: Buffer | string | number; } = {};
 
@@ -146,3 +189,5 @@ export class RegTable implements IRegTable {
 
 }
 
+
+RegTable.InitValues();
