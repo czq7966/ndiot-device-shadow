@@ -141,4 +141,5 @@
 
 // import "./nd-device/regtable.ts"
 // import "./nd-device/cmd.ts"
-import "./nd-device/coder.ts"
+// import "./nd-device/coder.ts"
+import "./nd-device/tv-hisense-65wr30a"

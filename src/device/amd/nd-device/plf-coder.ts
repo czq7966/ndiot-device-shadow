@@ -55,6 +55,7 @@ export class PLFCoder_Head implements IPLFCoder_head{
     }
 
     encode_sid(sid: string): number {    
+        sid = sid ? sid : "";
         let result = parseInt(sid);
         if (result >= 0 || result <= 0) {
             

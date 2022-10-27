@@ -1,8 +1,7 @@
 import { Debuger } from "../../../device-base";
 import { IDeviceBusDataPayload, IDeviceBusEventData } from "../../../device.dts";
 import { NDDevice, INDDevice} from "../../nd-device";
-import { Cmd, CmdId } from "../../nd-device/cmd";
-import { PLFCoder_payload } from "../../nd-device/plf-coder";
+import { CmdId } from "../../nd-device/cmd";
 import { RegTable } from "../../nd-device/regtable";
 import { Coder, DEVProtocal, ICoder, IDEVProtocal, IPLFProtocal } from "./coder";
 
@@ -11,11 +10,11 @@ export interface ITV_HISENSE_65WR30A extends INDDevice {
 
 export class TV_HISENSE_65WR30A extends NDDevice implements ITV_HISENSE_65WR30A {
     
-
+    coder = new Coder();
     //初始化
     init() {
         Debuger.Debuger.log("TV_HISENSE_65WR30A init");
-        this.coder = new Coder();
+        
     }
      
     //反初始化
@@ -58,24 +57,26 @@ export class TV_HISENSE_65WR30A extends NDDevice implements ITV_HISENSE_65WR30A 
     //北向输入
     on_north_input(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("TV_HISENSE_65WR30A  on_north_input");
-
+        console.log(msg.payload);
         if (!msg.encoded && msg.payload && !this.attrs.pid) {
             let payload = msg.payload as IDeviceBusDataPayload;
             
             this.coder.head.reset();
             this.coder.payload.reset();
             let hd = this.coder.head.encode(payload.hd);
-            
-            let pro = this.coder.payload.encode(payload.pld) as IDEVProtocal;
             let pld = payload.pld;
-            if (pro) {
-                hd.cmd_id = CmdId.penet;                
-                pld = {};
-                pld[RegTable.Keys.penet_data] = pro.encode();                
-
+            if (hd.cmd_id == CmdId.get || hd.cmd_id == CmdId.set) {
+                let devPro = this.coder.payload.encode(hd.cmd_id == CmdId.get ? {} : payload.pld) as IDEVProtocal;
+                if (devPro) {
+                    hd.cmd_id = CmdId.penet;                
+                    pld = {};
+                    pld[RegTable.Keys.penet_data] = devPro.encode();   
+                } else {
+                    pld = NDDevice.Plf_coder.payload.encode(pld); 
+                }
             } else {                
                 pld = NDDevice.Plf_coder.payload.encode(pld);
-            }            
+            }                      
 
             this.sendcmd.reset();
             msg.payload = this.sendcmd.encode(hd, pld);

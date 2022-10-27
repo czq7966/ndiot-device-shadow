@@ -82,16 +82,18 @@ export class Modbus extends NDDevice implements IModbus {
     on_south_input(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Modbus  on_south_input ");
         if (this.recvcmd.decode(msg.payload)){
-            msg.decoded = true;
+            let hd = this.coder.head.decode(this.recvcmd.head);
+            let pld = this.coder.payload.decode(this.recvcmd.getPayload());
+
             msg.payload = {
-                hd: this.recvcmd.head,
-                pld: this.recvcmd.getPayload()
+                hd: hd,
+                pld: pld
             }
 
-            let head = this.recvcmd.head;
+            msg.decoded = true;            
 
             //透传
-            if (head.cmd_id == CmdId.penet)  
+            if (hd.cmd_id == CmdId.penet)  
                 // -> 透传输入
                 this.on_south_input_evt_penet(msg);
             else
@@ -105,18 +107,19 @@ export class Modbus extends NDDevice implements IModbus {
     //北向输入
     on_north_input(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Modbus  on_north_input");
-        let payload = msg.payload as IDeviceBusDataPayload
-        let hd = payload.hd;
-        if (this.mode == "alone") {
-            if (hd.entry.type == "svc") {
-                if (hd.entry.id == "get") {
-                    return this.on_north_input_svc_get(msg);                
-                } 
 
-                if (hd.entry.id == "set") {
-                    return this.on_north_input_svc_set(msg);
-                }
-            }        
+        this.coder.head.reset();
+        let hd = this.coder.head.encode(msg.payload.hd) as IDeviceBusDataPayloadHd;
+
+        if (this.mode == "alone") {
+            if (hd.cmd_id == CmdId.get && hd.entry && hd.entry.id == "get") {
+                return this.on_north_input_svc_get(msg);                
+            } 
+
+            if (hd.cmd_id == CmdId.set && hd.entry && hd.entry.id == "set") {
+                return this.on_north_input_svc_set(msg);
+            }
+
         }
         super.on_north_input(msg);
     }    

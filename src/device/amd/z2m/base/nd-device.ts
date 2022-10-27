@@ -1037,19 +1037,19 @@ export class Zigbee2Mqtt extends NDDevice implements IZigbee2Mqtt {
         Debuger.Debuger.log("Zigbee2Mqtt  on_south_input ");
 
         if (this.recvcmd.decode(msg.payload)){
-            msg.decoded = true;
+            let hd = this.coder.head.decode(this.recvcmd.head);
+            let pld = this.coder.payload.decode(this.recvcmd.getPayload());
             msg.payload = {
-                hd: this.recvcmd.head,
-                pld: this.recvcmd.getPayload()
+                hd: hd,
+                pld: pld
             }
-
-            let head = this.recvcmd.head;
+            msg.decoded = true;
 
             //透传
-            if (head.cmd_id == CmdId.penet)  
+            if (hd.cmd_id == CmdId.penet)  
                 // -> Tcp输入
                 this.do_z2m_tcp_input_data(msg);
-            else if (head.cmd_id == CmdId.handshake && head.cmd_stp == 0)
+            else if (hd.cmd_id == CmdId.handshake && hd.cmd_stp == 0)
                 // ->握手请求
                 this.on_handshake_req(msg);
             else

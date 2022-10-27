@@ -17,6 +17,7 @@ export interface IDEVProtocal {
     encode(): Buffer
     decode(buf: Buffer): boolean
     calsum(): number
+    callen(): number
     reset();
 }
 
@@ -52,9 +53,9 @@ export class DEVProtocal implements IDEVProtocal {
     static CMD_input = 0xC1080000;
     static CMD_mute = 0xC1260000;
     static CMD_power_off = 0xC1150000;
-    static CMD_power_on = 0xA10000;
-    static CMD_volume = 0xC12700;
-    static CMD_get = 0xC12800;
+    static CMD_power_on = 0xA1000000;
+    static CMD_volume = 0xC1270000;
+    static CMD_get = 0xC1280000;
 
     static DATA_input = {
         analog: [0x01, 0x01],
@@ -120,7 +121,7 @@ export class DEVProtocal implements IDEVProtocal {
         buf.push((this.head >> 8) & 0xFF);
         buf.push(this.head & 0xFF);        
 
-        let len = this.data.length + 5;
+        let len = this.callen();
         buf.push((len >> 8) & 0xFF);
         buf.push(len & 0xFF);
 
@@ -137,8 +138,6 @@ export class DEVProtocal implements IDEVProtocal {
         buf.push(this.sum);
         buf.push((this.end >> 8) & 0xFF);
         buf.push(this.end & 0xFF);
-       
-        console.log(this.calsum());
 
         return Buffer.from(buf);
     }
@@ -162,8 +161,9 @@ export class DEVProtocal implements IDEVProtocal {
     }
 
     calsum(): number {
-        let sum =   ((this.len >> 8) & 0xFF) ^
-                    ((this.len >> 0) & 0xFF) ^
+        let len = this.callen()
+        let sum =   ((len >> 8) & 0xFF) ^
+                    ((len >> 0) & 0xFF) ^
                     ((this.cmd >> 24) & 0xFF) ^
                     ((this.cmd >> 16) & 0xFF) ^
                     ((this.cmd >> 8) & 0xFF) ^
@@ -173,6 +173,10 @@ export class DEVProtocal implements IDEVProtocal {
             sum ^= this.data[i];                
         }
         return sum;
+    }
+
+    callen(): number {
+        return this.data.length + 5;
     }
 
     reset(toPC?: number){        
@@ -193,14 +197,19 @@ export class PLFProtocal extends PLFCoder_payload implements IPLFProtocal {
     encode(pld: IPLFProps): IDEVProtocal {
         let pro = new DEVProtocal();
         pro.reset();
-        if (!pld && Object.keys(pld).length == 0) {
+        if (!pld || Object.keys(pld).length == 0) {
             pro.cmd = DEVProtocal.CMD_get;
+            pro.data = DEVProtocal.DATA_get;
             return pro;
         } else  {
-            if (pld.power === "on")
-                pro.cmd = DEVProtocal.CMD_power_on;
-            else if (pld.power === "off")
+            if (pld.power === "on") {
+                pro.cmd = DEVProtocal.CMD_power_on;                
+                pro.data = DEVProtocal.DATA_power_on;
+            }
+            else if (pld.power === "off") {
                 pro.cmd = DEVProtocal.CMD_power_off;
+                pro.data = DEVProtocal.DATA_power_off;
+            }
             else if (pld.input) {
                 pro.cmd = DEVProtocal.CMD_input;
                 pro.data = DEVProtocal.DATA_input[pld.input];
@@ -215,7 +224,6 @@ export class PLFProtocal extends PLFCoder_payload implements IPLFProtocal {
                 pro.data = DEVProtocal.DATA_volume.concat([pld.volume]);
             }             
         }
-            
         return pro.cmd ? pro : null;
     }
     decode(dev: IDEVProtocal): IPLFProps {
@@ -261,9 +269,6 @@ export class PLFProtocal extends PLFCoder_payload implements IPLFProtocal {
 
 
 export class Coder extends PLFCoder implements ICoder {
-    constructor() {
-        super();
-        this.head = new PLFHead()
-        this.payload = new PLFProtocal();
-    }
+    head = new PLFHead()
+    payload = new PLFProtocal();
 }
