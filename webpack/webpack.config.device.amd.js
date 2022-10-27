@@ -23,6 +23,7 @@ module.exports = env => {
     entry['modbus/ac-pgdtm7000-f/index'] = path.resolve(srcDir, "modbus/ac-pgdtm7000-f/index.ts");
     entry['modbus/ac-hisense-hcpc-h2m1c/index'] = path.resolve(srcDir, "modbus/ac-hisense-hcpc-h2m1c/index.ts");
     entry['ct-dooya-dvq24gf/index'] = path.resolve(srcDir, "ct-dooya-dvq24gf/index.ts");
+    entry['tv/tv-hisense-65wr30a/index'] = path.resolve(srcDir, "tv/tv-hisense-65wr30a/index.ts");
     entry['rfir/rfir-penet-ir-8285/index'] = path.resolve(srcDir, "rfir/rfir-penet-ir-8285/index.ts");
     
     optimization['minimizer'] = minimizer;  

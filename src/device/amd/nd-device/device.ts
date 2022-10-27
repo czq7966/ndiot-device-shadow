@@ -1,6 +1,6 @@
 import { Debuger, DeviceBase } from "../../device-base";
-import { IDeviceBase, IDeviceBusEventData } from "../../device.dts";
-import { Cmd, ICmd } from "./cmd";
+import { IDeviceBase, IDeviceBusDataPayload, IDeviceBusDataPayloadHd, IDeviceBusEventData } from "../../device.dts";
+import { Cmd, ICmd, ICmdHead } from "./cmd";
 import { IPLFCoder, PLFCoder } from "./plf-coder";
 
 export interface INDDevice extends IDeviceBase {
@@ -31,11 +31,11 @@ export class NDDevice extends DeviceBase implements INDDevice {
 
         if (!msg.decoded && msg.payload) {
             if (this.recvcmd.decode(msg.payload)){
-                let hd = this.coder.head.decode(this.recvcmd.head);
-                let pld = this.coder.payload.decode(this.recvcmd.getPayload());
+                let payload = this.on_south_input_decode(this.recvcmd.head, this.recvcmd.getPayload());
+                payload.pld = NDDevice.Plf_coder.payload.decode(payload.pld);
                 msg.payload = {
-                    hd: hd,
-                    pld: pld
+                    hd: payload.hd,
+                    pld: payload.pld
                 }
                 msg.decoded = true;
             };
@@ -56,13 +56,9 @@ export class NDDevice extends DeviceBase implements INDDevice {
         //todo ...
         console.log(msg.payload);
         if (!msg.encoded && msg.payload && !this.attrs.pid) {
-            this.coder.head.reset();
-            this.coder.payload.reset();  
-            let hd = this.coder.head.encode(msg.payload.hd);
-            let pld = this.coder.payload.encode(msg.payload.pld);
-
+            let payload: IDeviceBusDataPayload = this.on_north_input_encode(msg.payload.hd, msg.payload.pld);
             this.sendcmd.reset();
-            msg.payload = this.sendcmd.encode(hd, pld);
+            msg.payload = this.sendcmd.encode(payload.hd, payload.pld);
             msg.encoded = true;
             console.log(msg.payload);
         }        
@@ -75,4 +71,25 @@ export class NDDevice extends DeviceBase implements INDDevice {
         //todo...
         super.on_child_input(msg);       
     }  
+
+    on_south_input_decode(p_hd: ICmdHead, p_pld: any): IDeviceBusDataPayload {
+        let hd = this.coder.head.decode(p_hd);
+        let pld = this.coder.payload.decode(p_pld);
+
+        return {
+            hd: hd,
+            pld: pld
+        }
+    }
+
+    on_north_input_encode(p_hd: IDeviceBusDataPayloadHd, p_pld: any): IDeviceBusDataPayload {
+        this.coder.head.reset();
+        this.coder.payload.reset();  
+        let hd = this.coder.head.encode(p_hd);
+        let pld = this.coder.payload.encode(p_pld);
+        return {
+            hd: hd,
+            pld: pld
+        }
+    }
 }

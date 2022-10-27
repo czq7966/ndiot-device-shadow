@@ -25,15 +25,16 @@ export interface IPLFCoder {
 
 export class PLFCoder_Head implements IPLFCoder_head{
     sids: {[name: number]: IDeviceBusDataPayloadHd} = {};
+    penets: IDeviceBusDataPayloadHd[] = [];
     encode(hd: IDeviceBusDataPayloadHd): ICmdHead {
         let cmdHd = new Head()
         cmdHd.reset();
         cmdHd.cmd_stp = hd.stp ? hd.stp : 0;
         cmdHd.cmd_sid = this.encode_sid(hd.sid);
+        
         if (cmdHd.cmd_sid) this.sids[cmdHd.cmd_sid] = hd;
         if (hd.entry && hd.entry.id) cmdHd.cmd_id = CmdId[hd.entry.id];  
         Object.assign(cmdHd, hd);      
-
         return cmdHd;
     }
     decode(cmdHd: ICmdHead): IDeviceBusDataPayloadHd {
@@ -83,8 +84,9 @@ export class PLFCoder_Head implements IPLFCoder_head{
         this.sids = {};
     };
 
-    reset(){
+    reset(){        
         this.clear_sids();
+        this.penets = [];
     }
 
 }
@@ -118,7 +120,7 @@ export class PLFCoder_payload implements IPLFCoder_payload{
             let keys = Object.keys(result);
             keys.forEach(key => {
                 let val = result[key];
-                delete pld[key];
+                delete result[key];
                 let _key = RegTable.Values[key];
                 _key = _key ? _key : key;
                  result[_key] = val;

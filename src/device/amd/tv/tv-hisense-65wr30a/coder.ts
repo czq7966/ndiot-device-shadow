@@ -1,5 +1,4 @@
-import { IDeviceBusDataPayloadHd } from "../../../device.dts";
-import { CmdId, ICmdHead } from "../../nd-device/cmd";
+import { NDDevice } from "../../nd-device";
 import { IPLFCoder, IPLFCoder_head, IPLFCoder_payload, PLFCoder, PLFCoder_Head, PLFCoder_payload } from "../../nd-device/plf-coder";
 
 export interface IPLFHead extends IPLFCoder_head {
@@ -23,7 +22,7 @@ export interface IDEVProtocal {
 
 export interface IPLFProps{
     input?: string
-    power?: "on" | "off",
+    power?: "on" | "off" | "up",
     mute?: "on" | "off",
     volume?: number
     signal?: boolean
@@ -57,7 +56,7 @@ export class DEVProtocal implements IDEVProtocal {
     static CMD_volume = 0xC1270000;
     static CMD_get = 0xC1280000;
 
-    static DATA_input = {
+    static DATA_input_PC2TV = {
         analog: [0x01, 0x01],
         digital: [0x01, 0x02],
         pc: [0x01, 0x0C],
@@ -67,10 +66,22 @@ export class DEVProtocal implements IDEVProtocal {
         vector: [0x01, 0x07],
         vga: [0x01, 0x17]
     }
-    static DATA_input_name(value: number[]): string {
+
+    static DATA_input_TV2PC = {
+        analog: [0x01, 0x01],
+        digital: [0x02, 0x01],
+        pc: [0x05, 0x01],
+        hdmi1: [0x05, 0x03],
+        hdmi2: [0x05, 0x02],
+        video: [0x04, 0x01],
+        vector: [0x03, 0x01],
+        vga: [0x08, 0x01]
+    }
+
+    static DATA_input_name(data: {}, value: number[]): string {
         let result: string;
-        Object.keys(DEVProtocal.DATA_input).forEach(key => {
-            let val = DEVProtocal.DATA_input[key];
+        Object.keys(data).forEach(key => {
+            let val = data[key];
             if (DEVProtocal.DATA_ARRAY_COMP(val, value)) {
                 result = key;
             }
@@ -144,7 +155,7 @@ export class DEVProtocal implements IDEVProtocal {
 
     decode(buf: Buffer): boolean {
         let idx = 0;
-        if (buf.length > 10 ) {
+        if (buf.length >= 10 ) {
             this.head = (buf[idx++] << 8) + buf[idx++];
             this.len = (buf[idx++] << 8) + buf[idx++];
             this.cmd = Uint32Array.from([buf[idx++] << 24 | (buf[idx++] << 16) | (buf[idx++] << 8) | (buf[idx++] << 0) ] )[0];
@@ -152,7 +163,8 @@ export class DEVProtocal implements IDEVProtocal {
             while (idx < buf.length - 3) {
                 this.data.push(buf[idx++]);
             }
-            this.sum = buf[idx++];
+            if (buf.length > 10)
+                this.sum = buf[idx++];
             this.end = (buf[idx++] << 8) + buf[idx++];
 
             return true;
@@ -212,7 +224,7 @@ export class PLFProtocal extends PLFCoder_payload implements IPLFProtocal {
             }
             else if (pld.input) {
                 pro.cmd = DEVProtocal.CMD_input;
-                pro.data = DEVProtocal.DATA_input[pld.input];
+                pro.data = DEVProtocal.DATA_input_PC2TV[pld.input];
             } else if (pld.mute === "on") {
                 pro.cmd = DEVProtocal.CMD_mute;
                 pro.data = DEVProtocal.DATA_mute_on;
@@ -220,7 +232,7 @@ export class PLFProtocal extends PLFCoder_payload implements IPLFProtocal {
                 pro.cmd = DEVProtocal.CMD_mute;
                 pro.data = DEVProtocal.DATA_mute_off;
             } else if (pld.volume === 0 || pld.volume) {
-                pro.cmd = DEVProtocal.CMD_mute;
+                pro.cmd = DEVProtocal.CMD_volume;
                 pro.data = DEVProtocal.DATA_volume.concat([pld.volume]);
             }             
         }
@@ -229,8 +241,8 @@ export class PLFProtocal extends PLFCoder_payload implements IPLFProtocal {
     decode(dev: IDEVProtocal): IPLFProps {
         let pro: IPLFProps = {}
         this.reset();
-        if (dev.cmd == DEVProtocal.CMD_power_on) {
-            pro.power = "on";
+        if (dev.cmd == DEVProtocal.CMD_power_on) {            
+            pro.power = dev.len == 0x0104 ? "up" : "on";
             return pro;
         }
         else if (dev.cmd == DEVProtocal.CMD_power_off){
@@ -238,7 +250,7 @@ export class PLFProtocal extends PLFCoder_payload implements IPLFProtocal {
             return pro;
         }
         else if (dev.cmd == DEVProtocal.CMD_input){
-            pro.input = DEVProtocal.DATA_input_name(dev.data );
+            pro.input = DEVProtocal.DATA_input_name(DEVProtocal.DATA_input_PC2TV, dev.data);
             return pro;
         }
         else if (dev.cmd == DEVProtocal.CMD_mute){
@@ -246,14 +258,14 @@ export class PLFProtocal extends PLFCoder_payload implements IPLFProtocal {
             return pro;
         }
         else if (dev.cmd == DEVProtocal.CMD_volume){
-            pro.volume = dev.data[2]
+            pro.volume = dev.data[1]
             return pro;
         }
         else if (dev.cmd == DEVProtocal.CMD_get) {
             if (dev.data.length >= 7) {
                 let idx = 1;
                 pro.volume = dev.data[idx++];
-                pro.input = DEVProtocal.DATA_input_name([dev.data[idx++], dev.data[idx++]]);
+                pro.input = DEVProtocal.DATA_input_name(DEVProtocal.DATA_input_TV2PC, [dev.data[idx++], dev.data[idx++]]);
                 pro.power = dev.data[idx++] == 0x00 ? "on" : "off";
                 pro.signal = !!dev.data[idx++];
                 return pro;
