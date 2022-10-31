@@ -1504,7 +1504,8 @@ export class Zigbee2Mqtt extends NDDevice implements IZigbee2Mqtt {
 
             let msg: IDeviceBusEventData = {
                 id: cid, 
-                payload: payload
+                payload: payload,
+                decoded: true
             }
             //作为父设备输出给子设备
             this.events.parent.output.emit(msg);

@@ -29,7 +29,7 @@ export class NDDevice extends DeviceBase implements INDDevice {
     on_south_input(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("NDDevice  on_south_input ");
 
-        if (!msg.decoded && msg.payload) {
+        if (!msg.decoded && msg.payload && !this.attrs.pid) {
             if (this.recvcmd.decode(msg.payload)){
                 let payload = this.on_south_input_decode(this.recvcmd.head, this.recvcmd.getPayload());
                 payload.pld = NDDevice.Plf_coder.payload.decode(payload.pld);

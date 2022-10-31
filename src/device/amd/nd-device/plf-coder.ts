@@ -120,7 +120,7 @@ export class PLFCoder_payload implements IPLFCoder_payload{
             let keys = Object.keys(result);
             keys.forEach(key => {
                 let val = result[key];
-                delete result[key];
+                // delete result[key];
                 let _key = RegTable.Values[key];
                 _key = _key ? _key : key;
                  result[_key] = val;

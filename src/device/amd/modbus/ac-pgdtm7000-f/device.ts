@@ -11,7 +11,6 @@ export class ACPGDTM7000F extends Modbus implements IACPGDTM7000F {
     init() {
         super.init();
         Debuger.Debuger.log("ACPGDTM7000F init");
-        this.mode = "alone";
         this.slave = 0x2;
         this.tables.plcbase = 10000;
         this.tables.names = {
@@ -54,9 +53,9 @@ export class ACPGDTM7000F extends Modbus implements IACPGDTM7000F {
     }  
 
     //查询
-    do_svc_get(names: string[]): Promise<{[name: string]: any}> {
+    on_svc_get(msg: IDeviceBusEventData): Promise<{[name: string]: any}> {
         return new Promise((resolve, reject) => {
-            super.do_svc_get(names)
+            super.on_svc_get(msg)
             .then(v => {                              
                 let result = Utils.DeepMerge({}, v) as any;
                 result.power = v.power === 0 ? "off" : v.power === 1 ? "on" : v.power;
@@ -71,9 +70,10 @@ export class ACPGDTM7000F extends Modbus implements IACPGDTM7000F {
     }
 
     //设置
-    do_svc_set(values: {[name: string]: any}): Promise<{[name: string]: number}> {
+    on_svc_set(msg: IDeviceBusEventData): Promise<{[name: string]: number}> {
         return new Promise((resolve, reject) => {
-            let tables:{[name: string]: any} = {};
+            let tables: {[name: string]: any} = {};
+            let values: {[name: string]: any} = msg.payload.pld || {};
             
             if (values.hasOwnProperty("power")) tables.power = (values.power == "on" ? 1 : 0);
             if (values.hasOwnProperty("mode")) tables.mode = (values.mode == "cool" ? 0 : values.mode == "heat" ? 1 : 2);
@@ -82,7 +82,7 @@ export class ACPGDTM7000F extends Modbus implements IACPGDTM7000F {
                 if (values.mode == "heat") tables.heattemperature = values.temperature * 10;
             }
 
-            super.do_svc_set(tables)
+            super.on_svc_set(msg)
             .then(v => {                
                 resolve(v);
             })

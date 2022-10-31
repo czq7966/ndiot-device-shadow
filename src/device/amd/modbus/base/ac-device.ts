@@ -9,9 +9,9 @@ export class ACDevice extends Modbus implements IACDevice {
 
 
     //查询
-    do_svc_get(names: string[]): Promise<{[name: string]: any}> {
+    on_svc_get(msg: IDeviceBusEventData): Promise<{[name: string]: any}> {
         return new Promise((resolve, reject) => {
-            super.do_svc_get(names)
+            super.on_svc_get(msg)
             .then(v => {                              
                 let result = Utils.DeepMerge({}, v) as any;
                 result.power = v.power === 0 ? "off" : v.power === 1 ? "on" : v.power;
@@ -25,13 +25,14 @@ export class ACDevice extends Modbus implements IACDevice {
     }
 
     //设置
-    do_svc_set(values: {[name: string]: any}): Promise<{[name: string]: number}> {
+    on_svc_set(msg: IDeviceBusEventData): Promise<{[name: string]: number}> {
         return new Promise((resolve, reject) => {
-            let tables:{[name: string]: any} = {};
+            let tables:{[name: string]: any} = Object.assign({}, msg.payload.pld);            
+            if (tables.hasOwnProperty("power")) tables.power = (tables.power == "on" ? 1 : 0);
+            if (tables.hasOwnProperty("mode")) tables.mode = (tables.mode == "cool" ? 0 : tables.mode == "heat" ? 1 : tables.mode == "fan" ? 2 : 3);
+            msg.payload.pld = tables;
             
-            if (values.hasOwnProperty("power")) tables.power = (values.power == "on" ? 1 : 0);
-            if (values.hasOwnProperty("mode")) tables.mode = (values.mode == "cool" ? 0 : values.mode == "heat" ? 1 : values.mode == "fan" ? 2 : 3);
-            super.do_svc_set(tables)
+            super.on_svc_set(msg)
             .then(v => {          
                 resolve(v);
             })

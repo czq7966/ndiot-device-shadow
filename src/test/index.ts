@@ -142,4 +142,6 @@
 // import "./nd-device/regtable.ts"
 // import "./nd-device/cmd.ts"
 // import "./nd-device/coder.ts"
-import "./nd-device/tv-hisense-65wr30a"
+// import "./nd-device/tv-hisense-65wr30a"
+// import "./nd-device/ac-gree-gmv6"
+import "./nd-device/ac-hisense-hcpc-h2m1c"

@@ -1,4 +1,4 @@
-import { EModbusPLCType } from "../../../../common/modbus";
+import { EModbusPLCType, IModbusRTUTable } from "../../../../common/modbus";
 import { Debuger } from "../../../device-base";
 import { IDeviceBusEventData } from "../../../device.dts";
 import { ACDevice } from "../base/ac-device";
@@ -12,7 +12,6 @@ export class ACHisenseHCPCH2M1C extends ACDevice implements IACHisenseHCPCH2M1C 
     init() {
         super.init();
         Debuger.Debuger.log("ACHisenseHCPCH2M1C init");
-        this.mode = "alone";
         this.slave = 0x32;
         this.tables.plcbase = 100000;
         let regPlcbase = EModbusPLCType.EReadHoldingRegisters * this.tables.plcbase + 1;
@@ -25,36 +24,15 @@ export class ACHisenseHCPCH2M1C extends ACDevice implements IACHisenseHCPCH2M1C 
 
         this.tables.initAddressFromNames();
 
+    }     
+
+    on_svc_get_tables(msg: IDeviceBusEventData): IModbusRTUTable[] {
+        Debuger.Debuger.log("ACHisenseHCPCH2M1C on_svc_get_tables", msg);
+        
+        let pld = msg.payload.pld;
+        pld = pld && (Object.keys(pld).length > 0) && pld || Object.assign({}, this.tables.names);
+        msg.payload.pld = pld;
+        return super.on_svc_get_tables(msg);
     }
-     
-    //反初始化
-    uninit() {
-        Debuger.Debuger.log("ACHisenseHCPCH2M1C uninit");
-        super.uninit();
-     }
-
-    //南向输入
-    on_south_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("ACHisenseHCPCH2M1C  on_south_input ", msg);
-        super.on_south_input(msg);
-    }
-
-
-    //北向输入
-    on_north_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("ACHisenseHCPCH2M1C  on_north_input");
-       
-        super.on_north_input(msg);
-    }    
-
-
-
-    //子设备输入
-    on_child_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("ACHisenseHCPCH2M1C  on_child_input");
-        //todo...
-        super.on_child_input(msg);       
-    }  
-
 
 }
