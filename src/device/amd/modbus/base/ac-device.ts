@@ -26,20 +26,12 @@ export class ACDevice extends Modbus implements IACDevice {
 
     //设置
     on_svc_set(msg: IDeviceBusEventData): Promise<{[name: string]: number}> {
-        return new Promise((resolve, reject) => {
-            let tables:{[name: string]: any} = Object.assign({}, msg.payload.pld);            
-            if (tables.hasOwnProperty("power")) tables.power = (tables.power == "on" ? 1 : 0);
-            if (tables.hasOwnProperty("mode")) tables.mode = (tables.mode == "cool" ? 0 : tables.mode == "heat" ? 1 : tables.mode == "fan" ? 2 : 3);
-            msg.payload.pld = tables;
-            
-            super.on_svc_set(msg)
-            .then(v => {          
-                resolve(v);
-            })
-            .catch(e => {
-                reject(e);
-            })
-        })
+        let tables:{[name: string]: any} = Object.assign({}, msg.payload.pld);            
+        if (tables.hasOwnProperty("power")) tables.power = (tables.power == "on" ? 1 : 0);
+        if (tables.hasOwnProperty("mode")) tables.mode = (tables.mode == "cool" ? 0 : tables.mode == "heat" ? 1 : tables.mode == "fan" ? 2 : 3);
+        msg.payload.pld = tables;
+        
+        return super.on_svc_set(msg);
 
     }
 }

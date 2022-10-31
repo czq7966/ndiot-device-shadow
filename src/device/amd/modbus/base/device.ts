@@ -427,7 +427,6 @@ export class Modbus extends NDDevice implements IModbus {
         promise
         .then(v => {
             let hd:IDeviceBusDataPayloadHd = {
-                from: {type:"dev", id: this.attrs.id},
                 entry: {type: "evt", id: "report"},
                 stp : 0
             }
@@ -435,6 +434,7 @@ export class Modbus extends NDDevice implements IModbus {
 
             let msg: IDeviceBusEventData = {
                 decoded: true,
+                id: this.attrs.id,
                 payload: {
                     hd: hd,
                     pld: pld

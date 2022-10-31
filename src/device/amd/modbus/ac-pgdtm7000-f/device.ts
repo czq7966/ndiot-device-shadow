@@ -22,35 +22,7 @@ export class ACPGDTM7000F extends Modbus implements IACPGDTM7000F {
 
         this.tables.initAddressFromNames();
     }
-     
-    //反初始化
-    uninit() {
-        Debuger.Debuger.log("ACPGDTM7000F uninit");
-        super.uninit();
-     }
-
-    //南向输入
-    on_south_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("ACPGDTM7000F  on_south_input ", msg);
-        super.on_south_input(msg);
-    }
-
-
-    //北向输入
-    on_north_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("ACPGDTM7000F  on_north_input");
-       
-        super.on_north_input(msg);
-    }    
-
-
-
-    //子设备输入
-    on_child_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("ACPGDTM7000F  on_child_input");
-        //todo...
-        super.on_child_input(msg);       
-    }  
+    
 
     //查询
     on_svc_get(msg: IDeviceBusEventData): Promise<{[name: string]: any}> {
@@ -71,25 +43,16 @@ export class ACPGDTM7000F extends Modbus implements IACPGDTM7000F {
 
     //设置
     on_svc_set(msg: IDeviceBusEventData): Promise<{[name: string]: number}> {
-        return new Promise((resolve, reject) => {
-            let tables: {[name: string]: any} = {};
-            let values: {[name: string]: any} = msg.payload.pld || {};
-            
-            if (values.hasOwnProperty("power")) tables.power = (values.power == "on" ? 1 : 0);
-            if (values.hasOwnProperty("mode")) tables.mode = (values.mode == "cool" ? 0 : values.mode == "heat" ? 1 : 2);
-            if (values.hasOwnProperty("temperature")) {
-                if (values.mode == "cool") tables.cooltemperature = values.temperature * 10;
-                if (values.mode == "heat") tables.heattemperature = values.temperature * 10;
-            }
+        let tables: {[name: string]: any} = Object.assign({}, msg.payload.pld);
+        
+        if (tables.hasOwnProperty("power")) tables.power = (tables.power == "on" ? 1 : 0);
+        if (tables.hasOwnProperty("mode")) tables.mode = (tables.mode == "cool" ? 0 : tables.mode == "heat" ? 1 : 2);
+        if (tables.hasOwnProperty("temperature")) {
+            if (tables.mode == "cool") tables.cooltemperature = tables.temperature * 10;
+            if (tables.mode == "heat") tables.heattemperature = tables.temperature * 10;
+        }
 
-            super.on_svc_set(msg)
-            .then(v => {                
-                resolve(v);
-            })
-            .catch(e => {
-                reject(e);
-            })
-        })
-
+        msg.payload.pld = tables;
+        return super.on_svc_set(msg);
     }
 }
