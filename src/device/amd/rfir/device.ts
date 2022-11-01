@@ -1,23 +1,24 @@
-import { Debuger, DeviceBase } from "../../../device-base";
-import { IDeviceBase, IDeviceBusEventData, IDeviceShadow } from "../../../device.dts";
 
-export interface IDevice extends IDeviceBase {}
+import { IDeviceBusEventData } from "../../device.dts";
+import { Debuger, INDDevice, NDDevice } from "../nd-device";
 
-export  class RfirPenetIr8285 extends DeviceBase implements IDevice {
+export interface IRFIRDEvice extends INDDevice {}
+
+export  class RFIRDEvice extends NDDevice implements IRFIRDEvice {
 
     //初始化
     init() {
-        Debuger.Debuger.log("RfirPenetIr8285 init");
+        Debuger.Debuger.log("RFIRDEvice init");
     }
      
     //反初始化
     uninit() {
-        Debuger.Debuger.log("RfirPenetIr8285 uninit");
+        Debuger.Debuger.log("RFIRDEvice uninit");
      }
 
     //南向输入
     on_south_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("RfirPenetIr8285  on_south_input ");
+        Debuger.Debuger.log("RFIRDEvice  on_south_input ");
 
         //父设备 todo...
         //父设备输出给子设备，msg.id = child.id
@@ -30,14 +31,14 @@ export  class RfirPenetIr8285 extends DeviceBase implements IDevice {
 
     //北向输入
     on_north_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("RfirPenetIr8285  on_north_input");
+        Debuger.Debuger.log("RFIRDEvice  on_north_input");
         //todo ...
         super.on_north_input(msg);
     }    
 
     //子设备输入
     on_child_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("RfirPenetIr8285  on_child_input");
+        Debuger.Debuger.log("RFIRDEvice  on_child_input");
         //todo...
         super.on_child_input(msg);       
     }  
