@@ -1,45 +1,39 @@
-import { Coder, ISegCoderParam, SegCoderParam } from "../../device/amd/rfir/coder";
+// import { RFIRDeviceACGree } from "../../device/amd/rfir/ac-gree";
+// import { RfirCoder, ISegCoderParam, SegCoderParam } from "../../device/amd/rfir/coder";
 
-let coder = new  Coder();
-let param1 = new SegCoderParam();
-
-
-param1.tolerance = 20;
-param1.excess = 0;
-param1.atleast = true;                              
-param1.MSBfirst = false;
-param1.step = 2;
-
-param1.nbits = 4 * 8;
-param1.headermark = 9000;
-param1.headerspace = 4500;
-param1.onemark = 620;
-param1.onespace = 1600;
-param1.zeromark = 620;
-param1.zerospace = 540;
-param1.footermark = 0;
-param1.footerspace = 0;
-param1.lastspace = 0;
-
-coder.params.push(param1);
-let param2 = Object.assign({}, param1) as ISegCoderParam;
-param2.nbits = 3;
-
-coder.params.push(param2);
-
-let param3 = Object.assign({}, param1) as ISegCoderParam;
-coder.params.push(param3);
+// let device = new  RFIRDeviceACGree({
+//     "id" : "ndiot485519666fc5",
+//     "app_id" : "ndiot",
+//     "desc" : "武汉云启/485透传/ndiot485519666fc5",
+//     "dom_id" : "yunqi",
+//     "model" : "RFIR-PENET",
+//     "pid" : null,
+//     "type" : "",
+//     "vendor" : "ND"    
+// });
 
 
-let bytes1 = [0x1, 0x2, 0x3, 0x4];
-let bits2 = [false, true, false];
-let bytes3 = [0x5, 0x6, 0x7, 0x8];
 
-let codess = coder.encodeBytes([bytes1, bits2 as any, bytes3 ]);
 
-console.log(codess, codess.length);
+// // let bytes1 = [0x1, 0x2, 0x3, 0x4];
+// // let bits2 = [false, true, false];
+// // let bytes3 = [0x5, 0x6, 0x7, 0x8];
 
-let bytess = coder.decodeBytes(codess)
+// // let codess = device.coder.encodeBytes([bytes1, bits2 as any, bytes3 ]);
 
-console.log(bytess)
+// // console.log(codess, codess.length);
+
+// // let bytess = coder.decodeBytes(codess)
+
+// // console.log(bytess)
+
+// // let buf =  [143,34,118,17,149,2,110,6,149,2,32,2,149,2,34,2,149,2,33,2,150,2,113,6,147,2,110,6,150,2,32,2,151,2,31,2,149,2,120,6,141,2,33,2,150,2,32,2,148,2,128,6,134,2,34,2,149,2,33,2,147,2,33,2,151,2,33,2,150,2,30,2,150,2,34,2,149,2,32,2,151,2,32,2,149,2,34,2,147,2,114,6,148,2,34,2,147,2,35,2,148,2,34,2,150,2,32,2,149,2,34,2,151,2,31,2,150,2,112,6,148,2,33,2,151,2,117,6,143,2,31,2,151,2,32,2,149,2,112,6,148,2,34,2,150,2,43,78,116,2,34,2,149,2,34,2,148,2,32,2,151,2,34,2,148,2,33,2,149,2,33,2,150,2,32,2,150,2,34,2,148,2,34,2,149,2,34,2,148,2,32,2,149,2,33,2,150,2,33,2,148,2,34,2,149,2,111,6,148,2,34,2,148,2,34,2,169,2,14,2,149,2,33,2,150,2,33,2,147,2,36,2,147,2,34,2,149,2,33,2,150,2,32,2,150,2,34,2,147,2,35,2,149,2,33,2,149,2,32,2,151,2,33,2,148,2,33,2,149,2,34,2,125,2,136,6,149,2,68,156,46,35,106,17,147,2,123,6,137,2,33,2,150,2,32,2,149,2,34,2,148,2,113,6,147,2,112,6,149,2,31,2,151,2,34,2,148,2,112,6,150,2,32,2,149,2,34,2,147,2,113,6,147,2,32,2,149,2,32,2,149,2,36,2,148,2,35,2,148,2,33,2,147,2,55,2,137,2,26,2,148,2,33,2,150,2,33,2,149,2,111,6,150,2,32,2,149,2,33,2,150,2,32,2,151,2,32,2,148,2,34,2,149,2,32,2,150,2,113,6,149,2,111,6,148,2,111,6,156,2,26,2,149,2,33,2,149,2,110,6,157,2,25,2,150,2,13,78,147,2,33,2,150,2,32,2,148,2,41,2,143,2,33,2,149,2,32,2,149,2,33,2,151,2,33,2,147,2,34,2,150,2,31,2,151,2,33,2,149,2,34,2,148,2,35,2,148,2,33,2,149,2,33,2,151,2,32,2,149,2,33,2,157,2,53,2,134,2,21,2,149,2,38,2,143,2,42,2,159,2,104,6				]
+
+// // console.log("111", buf.length);
+
+// // let bytes = device.coder.payload.decode(Buffer.from(buf));
+// console.log("222", bytes)
+
+
+
 

@@ -35,14 +35,9 @@ export interface IPLFProtocal extends IPLFCoder_payload {
 
 
 
-export interface ICoder extends IPLFCoder {
+export interface ICoder extends IPLFCoder {}
 
-}
-
-export class PLFHead extends PLFCoder_Head implements IPLFHead {
-
-    
-}
+export class PLFHead extends PLFCoder_Head implements IPLFHead {}
 
 export class DEVProtocal implements IDEVProtocal {
     static PC2TV_head = 0xDDFF;

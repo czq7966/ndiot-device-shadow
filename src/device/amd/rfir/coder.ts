@@ -1,4 +1,3 @@
-import { IBaseEvent } from "../../../common/events";
 
 export interface ISegCoderParam {
     headermark: number,
@@ -113,6 +112,7 @@ export class SegDecoder {
                         this.matchSpace(space, param.zerospace, param.tolerance, param.excess)) {
                 bits.push(false);
             } else {     
+                console.log("5555", bits, mark, space)
                 if (nbits > 0)         
                     return false;  
                 else break;
@@ -189,16 +189,19 @@ export class SegDecoder {
 }
 
 
-export interface ICoder {
+export interface ISegsCoder{
     params: ISegCoderParam[]
     encodeBits(bitss: boolean[][]): number[]
     decodeBits(codes: number[]): boolean[][]
 
     encodeBytes(bytes: number[][]): number[]
     decodeBytes(codes: number[]): number[][]
+
+    encode(bytes: number[][]): Buffer
+    decode(buf: Buffer): number[][]
 }
 
-export class Coder implements ICoder {
+export class SegsCoder implements ISegsCoder {
     params: ISegCoderParam[] = [];
     encodeBits(bitss: boolean[][]): number[] {
         let result = [];
@@ -286,4 +289,33 @@ export class Coder implements ICoder {
         return bytess;
     }
     
+    encode(bytes: number[][]): Buffer {
+        let codes = this.encodeBytes(bytes);
+        let buf: number[] = [];
+        codes.forEach(code => {
+            buf.push(code & 0xFF);
+            buf.push((code >> 8) & 0xFF);
+        })
+
+        return Buffer.from(buf);
+    }
+
+    decode(buf: Buffer): number[][] {
+        let codes: number[] = [];
+        let idx = 0;
+        while(idx < buf.length) {
+            let code = buf[idx++] + (buf[idx++] << 8);
+            codes.push(code);
+        }
+        return this.decodeBytes(codes);
+    }
+    reset() {
+
+        
+    }
+
 }
+
+
+export interface IRfirCoder extends ISegsCoder {}
+export class RfirCoder extends SegsCoder implements IRfirCoder {}
