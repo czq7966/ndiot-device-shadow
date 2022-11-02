@@ -31,6 +31,7 @@ export  class RFIRDevice extends NDDevice implements IRFIRDevice {
             let data = this.recvcmd.regtable.tables[RegTable.Keys.rfir_sniff_data] as Buffer;            
             if (data) {
                 pld = this.rfir_coder.decode(data);
+                // Debuger.Debuger.log("RFIRDEvice on_south_input_decode 1", pld);
             }
         } 
 

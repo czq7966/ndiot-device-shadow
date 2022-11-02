@@ -219,18 +219,42 @@ export class SegsCoder implements ISegsCoder {
     decodeBits(codes: number[]): boolean[][] {
         let result = [];
         let offset = 0;
-        this.params.forEach(param => {
-            let segCodes = codes.slice(offset);
-            let bits = [];
-            let count = SegDecoder.decode(segCodes, param, bits);
+        for (let i = 0; i < this.params.length; i++) {
+            let param = this.params[i];
+            while (codes.length - offset >= param.nbits * param.step) {
+                let segCodes = codes.slice(offset);
+                let bits = [];
+                let count = SegDecoder.decode(segCodes, param, bits);
 
-            if (count) {
-                offset = offset + count;
-                result.push(bits);
-            }
-        })
+                if (count) {
+                    offset = offset + count;
+                    result.push(bits);
+                    break;
+                } else {
+                    if (result.length > 0 ) 
+                        return [];
+                    else
+                        offset = offset + param.step;
+                }
+            }            
+        }
 
         return result;
+
+        // let result = [];
+        // let offset = 0;
+        // this.params.forEach(param => {
+        //     let segCodes = codes.slice(offset);
+        //     let bits = [];
+        //     let count = SegDecoder.decode(segCodes, param, bits);
+
+        //     if (count) {
+        //         offset = offset + count;
+        //         result.push(bits);
+        //     }
+        // })
+
+        // return result;
     }
 
     encodeBytes(bytess: number[][]): number[] {
