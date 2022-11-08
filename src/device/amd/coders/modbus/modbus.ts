@@ -1,8 +1,7 @@
-import { Debuger } from "../device/device-base";
-import { Base, IBase } from "./base";
-import { CRC16 } from "./crc16";
-import { BaseEvent, IBaseEvent } from "./events";
-import { Utils } from "./utils";
+import { Base, IBase } from "../../../../common/base";
+import { CRC16 } from "../../../../common/crc16";
+import { BaseEvent, IBaseEvent } from "../../../../common/events";
+import { Utils } from "../../../../common/utils";
 
 export class EModbusType {
     static EReadCoils: number = 1;

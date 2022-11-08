@@ -1,4 +1,4 @@
-import { EModbusPLCType, EModbusType, IModbusRTUTable, ModbusRTUTable } from "../../../../common/modbus";
+import { EModbusPLCType, EModbusType, IModbusRTUTable, ModbusRTUTable } from "../../coders/modbus/modbus";
 import { Debuger } from "../../../device-base";
 import { IDeviceBusDataPayload, IDeviceBusEventData } from "../../../device.dts";
 import { IModbus, Modbus } from "../base/device";

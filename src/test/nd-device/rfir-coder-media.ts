@@ -1,4 +1,4 @@
-import { RfirCoder, SegCoderParam } from "../../device/amd/rfir/coder";
+import { RfirCoder, SegCoderParam } from "../../device/amd/coders/rfir/rfir-coder";
 
 let coder = new  RfirCoder();
 let param = new SegCoderParam();

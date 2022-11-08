@@ -1,41 +1,36 @@
 
 import { IDeviceBusDataPayload, IDeviceBusDataPayloadHd } from "../../device.dts";
+import { CmdId } from "../coders/dev-bin-json/cmd";
+import { ICmdHead } from "../coders/dev-bin-json/cmd-head";
+import { IPldTable, PldTable } from "../coders/dev-bin-json/pld-table";
+import { IRfirCoder, RfirCoder } from "../coders/rfir/rfir-coder";
 import { Debuger, INDDevice, NDDevice } from "../nd-device";
-import { CmdId, ICmdHead } from "../nd-device/cmd";
-import { RegTable } from "../nd-device/regtable";
-import { IRfirCoder, RfirCoder, SegsCoder } from "./coder";
+
 
 export interface IRFIRDevice extends INDDevice {
     rfir_coder: IRfirCoder
 }
 
 export  class RFIRDevice extends NDDevice implements IRFIRDevice {
-    rfir_coder: IRfirCoder;
+    rfir_coder: IRfirCoder = new RfirCoder();
 
     //初始化
     init() {
         Debuger.Debuger.log("RFIRDEvice init");
-        super.init();
-        this.rfir_coder = new RfirCoder();
     }
     
-    on_south_input_decode(p_hd: ICmdHead, p_pld: any): IDeviceBusDataPayload {
+    on_south_input_decode(p_hd: ICmdHead, p_pld: IPldTable): IDeviceBusDataPayload {
         Debuger.Debuger.log("RFIRDEvice on_south_input_decode");
         let payload = super.on_south_input_decode(p_hd, p_pld);
 
         let hd = payload.hd;
         let pld = payload.pld;
         if (hd.cmd_id == CmdId.rfir_sniff) {  
-            pld = null;            
-            
-            let data = this.recvcmd.regtable.tables[RegTable.Keys.rfir_sniff_data] as Buffer;            
+            let data = this.recvcmd.payload.tables[PldTable.Keys.rfir_sniff_data] as Buffer;            
             if (data) {
                 pld = this.rfir_coder.decode(data);
-                // Debuger.Debuger.log("RFIRDEvice on_south_input_decode 1", pld);
             }
         } 
-
-        pld = pld ? pld : this.recvcmd.getPayload();
 
         return {
             hd: hd,
@@ -48,17 +43,13 @@ export  class RFIRDevice extends NDDevice implements IRFIRDevice {
         let hd = payload.hd;
         let pld = payload.pld;
         if (hd.cmd_id == CmdId.rfir_send ) {
-            let bytess = pld[RegTable.Keys.rfir_send_data] as number[][] || [];
+            let bytess = pld[PldTable.Keys.rfir_send_data] as number[][] || [];
             let buf = this.rfir_coder.encode(bytess);
             if (buf && buf.length > 0) {
                 pld = {};
-                pld[RegTable.Keys.rfir_send_data] = buf;   
-            } else {
-                pld = NDDevice.Plf_coder.payload.encode(p_pld); 
-            }
-        } else {                
-            pld = NDDevice.Plf_coder.payload.encode(p_pld);
-        }               
+                pld[PldTable.Keys.rfir_send_data] = buf;   
+            } 
+        }             
         
         return {
             hd: hd,

@@ -12,8 +12,9 @@ import { BaseEvent, IBaseEvent } from "../../../../common/events";
 import { UUID } from '../../../../common/uuid';
 import { Utils } from '../../../../common/utils';
 import { INDDevice, NDDevice } from '../../nd-device/device';
-import { CmdId, IHead } from '../../nd-device/cmd';
-import { RegTable } from '../../nd-device/regtable';
+import { CmdId } from '../../coders/dev-bin-json/cmd';
+import { PldTable } from '../../coders/dev-bin-json/pld-table';
+
 
 
 let defaultConfiguration =  {
@@ -1037,8 +1038,8 @@ export class Zigbee2Mqtt extends NDDevice implements IZigbee2Mqtt {
         Debuger.Debuger.log("Zigbee2Mqtt  on_south_input ");
 
         if (this.recvcmd.decode(msg.payload)){
-            let hd = this.coder.head.decode(this.recvcmd.head);
-            let pld = this.coder.payload.decode(this.recvcmd.getPayload());
+            let hd = this.plf_coder.head.decode(this.recvcmd.head);
+            let pld = this.plf_coder.payload.decode(this.recvcmd.payload);
             msg.payload = {
                 hd: hd,
                 pld: pld
@@ -1173,7 +1174,7 @@ export class Zigbee2Mqtt extends NDDevice implements IZigbee2Mqtt {
         Debuger.Debuger.log("Zigbee2Mqtt" ,"reqHandshake");
 
         this.sendcmd.reset();
-        this.sendcmd.head.cmd_id = CmdId.handshake;        
+        this.sendcmd.head.head.cmd_id = CmdId.handshake;        
         let msg: IDeviceBusEventData = {
             payload: this.sendcmd.encode()
         }
@@ -1183,8 +1184,8 @@ export class Zigbee2Mqtt extends NDDevice implements IZigbee2Mqtt {
     //握手响应
     do_handshake_resp(reqMsg: IDeviceBusEventData) {
         this.sendcmd.reset();
-        this.sendcmd.head.cmd_id = CmdId.handshake;
-        this.sendcmd.head.cmd_stp = 1;
+        this.sendcmd.head.head.cmd_id = CmdId.handshake;
+        this.sendcmd.head.head.cmd_stp = 1;
         let msg: IDeviceBusEventData = {
             payload: this.sendcmd.encode()
         }
@@ -1199,7 +1200,7 @@ export class Zigbee2Mqtt extends NDDevice implements IZigbee2Mqtt {
         let pld = payload.pld;
         
         
-        if (pld[RegTable.Keys.net_handshake_count] === 0 || this.z2m.z2m.status == "killed") {
+        if (pld[PldTable.Keys.net_handshake_count] === 0 || this.z2m.z2m.status == "killed") {
             this.do_z2m_z2m_restart();
         }        
     }
@@ -1207,7 +1208,7 @@ export class Zigbee2Mqtt extends NDDevice implements IZigbee2Mqtt {
     //Tcp输入
     do_z2m_tcp_input_data(msg: IDeviceBusEventData) {        
         let payload: IDeviceBusDataPayload = msg.payload;
-        let data = payload.pld[RegTable.Keys.penet_data];
+        let data = payload.pld[PldTable.Keys.penet_data];
         Debuger.Debuger.log("do_z2m_tcp_input_data", data);
         this.z2m.tcp.events.input.data.emit(data);
     }
@@ -1217,8 +1218,8 @@ export class Zigbee2Mqtt extends NDDevice implements IZigbee2Mqtt {
         Debuger.Debuger.log("on_z2m_tcp_output_data", data);
 
         this.sendcmd.reset();
-        this.sendcmd.head.cmd_id = CmdId.penet;
-        this.sendcmd.regtable.tables[RegTable.Keys.penet_data] = data;
+        this.sendcmd.head.head.cmd_id = CmdId.penet;
+        this.sendcmd.payload.tables[PldTable.Keys.penet_data] = data;
         
         let msg: IDeviceBusEventData = {
             payload: this.sendcmd.encode()

@@ -1,5 +1,3 @@
-import { RegTable } from "../../device/amd/nd-device/regtable";
-import { DEVProtocal } from "../../device/amd/tv/tv-hisense-65wr30a/coder";
 
 // let pro = new DEVProtocal();
 // pro.head = 0xdfff;
@@ -9,6 +7,8 @@ import { DEVProtocal } from "../../device/amd/tv/tv-hisense-65wr30a/coder";
 // pro.data.push(0x01);
 // pro.data.push(0x00);
 
+import { PldTable } from "../../device/amd/coders/dev-bin-json/pld-table";
+
 // let buf = pro.encode();
 
 // console.log(buf);
@@ -17,4 +17,4 @@ import { DEVProtocal } from "../../device/amd/tv/tv-hisense-65wr30a/coder";
 // pro1.decode(buf)
 // console.log(pro, pro1)
 
-console.log(RegTable.Values);
+console.log(PldTable.Names);

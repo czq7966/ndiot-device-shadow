@@ -1,12 +1,13 @@
 
 
-import { EModbusType, GModeBusRTU, IModbusCmd, IModbusCmdResult, IModbusCmds, IModbusRTU, IModbusRTUTable, ModbusCmd, ModbusCmds, ModbusRTU, ModbusRTUTable } from "../../../../common/modbus";
+import { EModbusType, GModeBusRTU, IModbusCmd, IModbusCmdResult, IModbusCmds, IModbusRTU, IModbusRTUTable, ModbusCmd, ModbusCmds, ModbusRTU, ModbusRTUTable } from "../../coders/modbus/modbus";
 import { Utils } from "../../../../common/utils";
 import { Debuger, DeviceBase } from "../../../device-base";
 import { IDeviceBase, IDeviceBusDataPayload, IDeviceBusDataPayloadHd, IDeviceBusEventData } from "../../../device.dts";
+import { CmdId } from "../../coders/dev-bin-json/cmd";
+import { PldTable } from "../../coders/dev-bin-json/pld-table";
 import { INDDevice, NDDevice } from "../../nd-device";
-import { CmdId } from "../../nd-device/cmd";
-import { RegTable } from "../../nd-device/regtable";
+
 
 export interface IModbus extends INDDevice {
 
@@ -80,8 +81,8 @@ export class Modbus extends NDDevice implements IModbus {
         Debuger.Debuger.log("Modbus  on_south_input ");
         if (!msg.decoded && msg.payload && !this.attrs.pid) {
             if (this.recvcmd.decode(msg.payload)){
-                let hd = this.coder.head.decode(this.recvcmd.head);
-                let pld = this.coder.payload.decode(this.recvcmd.getPayload());
+                let hd = this.plf_coder.head.decode(this.recvcmd.head);
+                let pld = this.plf_coder.payload.decode(this.recvcmd.payload);
 
                 msg.payload = {
                     hd: hd,
@@ -103,8 +104,8 @@ export class Modbus extends NDDevice implements IModbus {
     on_north_input(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Modbus  on_north_input");
         if (!msg.encoded && msg.payload && !this.attrs.pid) {
-            this.coder.head.reset();
-            let hd = this.coder.head.encode(msg.payload.hd) as IDeviceBusDataPayloadHd;
+            this.plf_coder.head.reset();
+            let hd = this.plf_coder.head.encode(msg.payload.hd).head as IDeviceBusDataPayloadHd;
 
             if (hd.entry && hd.entry.type == "svc" ) {
                 if (hd.cmd_id == CmdId.get) {
@@ -126,8 +127,8 @@ export class Modbus extends NDDevice implements IModbus {
         let hd: IDeviceBusDataPayloadHd; 
 
         if (!msg.encoded && msg.payload ) {
-            this.coder.head.reset();
-            hd = this.coder.head.encode(msg.payload.hd);
+            this.plf_coder.head.reset();
+            hd = this.plf_coder.head.encode(msg.payload.hd).head;
         } else 
             hd = msg.payload.hd;
 
@@ -149,7 +150,7 @@ export class Modbus extends NDDevice implements IModbus {
     on_south_input_evt_penet(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Modbus  on_south_input_evt_penet ", msg);
         let payload: IDeviceBusDataPayload = msg.payload;
-        let data = payload.pld[RegTable.Keys.penet_data];
+        let data = payload.pld[PldTable.Keys.penet_data];
 
         if (data) {
             if (data.length > 4) {
@@ -167,7 +168,7 @@ export class Modbus extends NDDevice implements IModbus {
     on_south_input_evt_penet_alone(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Modbus  on_south_input_evt_penet_alone ", msg);
         let payload: IDeviceBusDataPayload = msg.payload;
-        let data = payload.pld[RegTable.Keys.penet_data];
+        let data = payload.pld[PldTable.Keys.penet_data];
 
         if (data) {
             if (data.length > 4) {
@@ -185,7 +186,7 @@ export class Modbus extends NDDevice implements IModbus {
     on_south_input_evt_penet_bus(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Modbus  on_south_input_evt_penet_bus ");
         let payload: IDeviceBusDataPayload = msg.payload;
-        let data = payload.pld[RegTable.Keys.penet_data];
+        let data = payload.pld[PldTable.Keys.penet_data];
 
 
         if (data) {
@@ -222,8 +223,8 @@ export class Modbus extends NDDevice implements IModbus {
     //指令透传请求
     on_cmds_events_req_penet(data: Buffer) {
         this.sendcmd.reset();
-        this.sendcmd.head.cmd_id = CmdId.penet;
-        this.sendcmd.regtable.tables[RegTable.Keys.penet_data] = data;
+        this.sendcmd.head.head.cmd_id = CmdId.penet;
+        this.sendcmd.payload.tables[PldTable.Keys.penet_data] = data;
         
         let msg: IDeviceBusEventData = {
             payload: this.sendcmd.encode()

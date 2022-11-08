@@ -147,3 +147,4 @@
 // import "./nd-device/ac-hisense-hcpc-h2m1c"
 // import "./nd-device/rfir-coder-media"
 import "./nd-device/rfir-coder-gree"
+// import "./nd-device/device"

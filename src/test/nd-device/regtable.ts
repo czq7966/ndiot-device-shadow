@@ -1,7 +1,7 @@
-import { RegTable } from "../../device/amd/nd-device/regtable";
+import { PldTable } from "../../device/amd/coders/dev-bin-json/pld-table";
 
-let entable = new RegTable();
-let detable = new RegTable();
+let entable = new PldTable();
+let detable = new PldTable();
 entable.tables[60000] = "abc";
 entable.tables[60100] = "345";
 let buf = entable.encode();

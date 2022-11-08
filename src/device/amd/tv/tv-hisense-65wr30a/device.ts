@@ -1,9 +1,10 @@
 import { Debuger } from "../../../device-base";
-import { IDeviceBusDataPayload, IDeviceBusDataPayloadHd, IDeviceBusEventData } from "../../../device.dts";
+import { IDeviceBusDataPayload, IDeviceBusDataPayloadHd } from "../../../device.dts";
+import { CmdId } from "../../coders/dev-bin-json/cmd";
+import { ICmdHead } from "../../coders/dev-bin-json/cmd-head";
+import { IPldTable, PldTable } from "../../coders/dev-bin-json/pld-table";
+import { Coder } from "../../coders/tv/tv-hisense-65wr30a/coder";
 import { NDDevice, INDDevice} from "../../nd-device";
-import { CmdId, ICmdHead } from "../../nd-device/cmd";
-import { RegTable } from "../../nd-device/regtable";
-import { Coder, DEVProtocal, ICoder, IDEVProtocal, IPLFProtocal } from "./coder";
 
 export interface ITV_HISENSE_65WR30A extends INDDevice {
 }
@@ -23,14 +24,13 @@ export class TV_HISENSE_65WR30A extends NDDevice implements ITV_HISENSE_65WR30A 
      }
 
 
-    on_south_input_decode(p_hd: ICmdHead, p_pld: any): IDeviceBusDataPayload {
+    on_south_input_decode(p_hd: ICmdHead, p_pld: IPldTable): IDeviceBusDataPayload {
         let payload = super.on_south_input_decode(p_hd, p_pld);
 
         let hd = payload.hd;
         let pld = payload.pld;
         if (hd.cmd_id == CmdId.penet) {  
-            pld = null;            
-            let s_hd = this.coder.head.penets.pop(); 
+            let s_hd = this.plf_coder.head.penets.pop(); 
             if (s_hd) {
                 hd.entry = s_hd.entry;
                 hd.sid = s_hd.sid;
@@ -41,14 +41,12 @@ export class TV_HISENSE_65WR30A extends NDDevice implements ITV_HISENSE_65WR30A 
                     id: "report"
                 }
             }
-            let data = this.recvcmd.regtable.tables[RegTable.Keys.penet_data] as Buffer;
-            let devPro = new DEVProtocal();
-            if (data && devPro.decode(data)) {
-                pld = (this.coder.payload as IPLFProtocal).decode(devPro);
+            let data = this.recvcmd.payload.tables[PldTable.Keys.penet_data] as Buffer;
+            this.coder.pnt_table.reset();
+            if (data && this.coder.pnt_table.decode(data)) {                
+                pld = this.coder.plf_props.decode(this.coder.pnt_table)
             }
         } 
-
-        pld = pld ? pld : this.recvcmd.getPayload();
 
         return {
             hd: hd,
@@ -56,23 +54,20 @@ export class TV_HISENSE_65WR30A extends NDDevice implements ITV_HISENSE_65WR30A 
         };
     }
 
-    on_north_input_encode(p_hd: IDeviceBusDataPayloadHd, p_pld: any): IDeviceBusDataPayload {
+    on_north_input_encode(p_hd: IDeviceBusDataPayloadHd, p_pld: {}): IDeviceBusDataPayload {
         let payload = super.on_north_input_encode(p_hd, p_pld);
         let hd = payload.hd;
         let pld = payload.pld;
         if ((hd.cmd_id == CmdId.get || hd.cmd_id == CmdId.set) && hd.entry && hd.entry.type == "svc" ) {
-            let devPro = this.coder.payload.encode(hd.cmd_id == CmdId.get ? {} : p_pld) as IDEVProtocal;
-            if (devPro) {
+            let pnttable = this.coder.plf_props.encode(hd.cmd_id == CmdId.get ? {} : p_pld);
+
+            if (pnttable) {
                 hd.cmd_id = CmdId.penet;     
-                this.coder.head.penets.push(p_hd);
+                this.plf_coder.head.penets.push(p_hd);
                 pld = {};
-                pld[RegTable.Keys.penet_data] = devPro.encode();   
-            } else {
-                pld = NDDevice.Plf_coder.payload.encode(p_pld); 
-            }
-        } else {                
-            pld = NDDevice.Plf_coder.payload.encode(p_pld);
-        }               
+                pld[PldTable.Keys.penet_data] = pnttable.encode();
+            } 
+        }              
         
         return {
             hd: hd,

@@ -1,13 +1,14 @@
 
 
-export interface IRegTable{
+export interface IPldTable{
     tables: {[key: number]:  Buffer | string | number};
     encode(): Buffer;
     decode(buf: Buffer);
+    reset();
 
 }
 
-export class RegTableKeys {
+export class PldTableKeys {
     //字符串
     static dev_vender =         60000;
     static dev_model =          60001;
@@ -109,17 +110,17 @@ export class RegTableKeys {
     
 }
 
-export class RegTable implements IRegTable {
+export class PldTable implements IPldTable {
     static StrMinNum: number = 60000;
     static StrMaxNum: number = 60499;
     static BytesMinNum: number = 60500;
     static BytesMaxNum: number = 60999;    
-    static Keys = RegTableKeys
-    static Values: {[id: number]: string} = {};
-    static InitValues() {
-        Object.keys(RegTable.Keys).forEach(key => {
-            let val = RegTable.Keys[key];
-            RegTable.Values[val] = key;
+    static Keys = PldTableKeys
+    static Names: {[id: number]: string} = {};
+    static InitNames() {
+        Object.keys(PldTable.Keys).forEach(key => {
+            let val = PldTable.Keys[key];
+            PldTable.Names[val] = key;
         })
     }
     
@@ -132,13 +133,13 @@ export class RegTable implements IRegTable {
             if (key >=0 && key <= 0xFFFF) {            
                 buf.push(key & 0xff);
                 buf.push((key >> 8) & 0xff);
-                if (key >= RegTable.StrMinNum && key <= RegTable.StrMaxNum ||
-                    key >= RegTable.BytesMinNum && key <= RegTable.BytesMaxNum
+                if (key >= PldTable.StrMinNum && key <= PldTable.StrMaxNum ||
+                    key >= PldTable.BytesMinNum && key <= PldTable.BytesMaxNum
                     ) {
                         let value = this.tables[key] as any;
 
-                        if (key >= RegTable.StrMinNum && key <= RegTable.StrMaxNum) {
-                            value = Buffer.from(value.toString());
+                        if (key >= PldTable.StrMinNum && key <= PldTable.StrMaxNum) {
+                            value = Buffer.from((value || "").toString());
                         } else {
                             if (!Buffer.isBuffer(value) && Array.isArray(value.data)) {
                                 value = Buffer.from(value.data);
@@ -167,14 +168,14 @@ export class RegTable implements IRegTable {
         let idx = 0;
         while (idx < buf.length) {
             let key: number = buf[idx++] + (buf[idx++] << 8);
-            if (key >= RegTable.StrMinNum && key <= RegTable.StrMaxNum ||
-                key >= RegTable.BytesMinNum && key <= RegTable.BytesMaxNum
+            if (key >= PldTable.StrMinNum && key <= PldTable.StrMaxNum ||
+                key >= PldTable.BytesMinNum && key <= PldTable.BytesMaxNum
                 ) {
                 let len = buf[idx++] + (buf[idx++] << 8);
                 if (len > 0) {
                     let value = buf.subarray(idx, idx + len);
                     idx = idx + len;                    
-                    if (key >= RegTable.StrMinNum && key <= RegTable.StrMaxNum)
+                    if (key >= PldTable.StrMinNum && key <= PldTable.StrMaxNum)
                         this.tables[key] = value.toString();
                     else
                         this.tables[key] = value;
@@ -186,8 +187,11 @@ export class RegTable implements IRegTable {
         }        
     }
 
+    reset(){
+        this.tables = {};
+    };
 
 }
 
 
-RegTable.InitValues();
+PldTable.InitNames();

@@ -1,6 +1,6 @@
 import EventEmitter = require("events")
 import { IBase, Base} from "../common/base";
-import { IHead } from "./amd/nd-device/cmd";
+import { IHead } from "./amd/coders/dev-bin-json/head";
 
 export {IBase, Base}
 
@@ -141,7 +141,7 @@ export interface IDeviceBusDataPayloadHd extends IHead {
         id?: string
     },
     entry?: {
-        type: "evt" | "svc"
+        type?: "evt" | "svc"
         id: string,
         name?: string
     },

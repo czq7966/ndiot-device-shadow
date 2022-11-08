@@ -1,17 +1,18 @@
 import { Debuger, DeviceBase } from "../../device-base";
 import { IDeviceBase, IDeviceBusDataPayload, IDeviceBusDataPayloadHd, IDeviceBusEventData } from "../../device.dts";
-import { Cmd, ICmd, ICmdHead } from "./cmd";
-import { IPLFCoder, PLFCoder } from "./plf-coder";
+import { Cmd, ICmd } from "../coders/dev-bin-json/cmd";
+import { ICmdHead } from "../coders/dev-bin-json/cmd-head";
+import { IPldTable } from "../coders/dev-bin-json/pld-table";
+import { IPLFCoder, PLFCoder } from "../coders/plf-json-dev/plf-coder";
 
 export interface INDDevice extends IDeviceBase {
-    coder: IPLFCoder
+    plf_coder: IPLFCoder
     recvcmd: ICmd;
     sendcmd: ICmd;
 }
 
 export class NDDevice extends DeviceBase implements INDDevice {
-    static Plf_coder = new PLFCoder();
-    coder: PLFCoder = new PLFCoder();
+    plf_coder: PLFCoder = new PLFCoder();
     recvcmd: Cmd = new Cmd();
     sendcmd: Cmd = new Cmd();
 
@@ -31,8 +32,7 @@ export class NDDevice extends DeviceBase implements INDDevice {
 
         if (!msg.decoded && msg.payload && !this.attrs.pid) {
             if (this.recvcmd.decode(msg.payload)){
-                let payload = this.on_south_input_decode(this.recvcmd.head, this.recvcmd.getPayload());
-                payload.pld = NDDevice.Plf_coder.payload.decode(payload.pld);
+                let payload = this.on_south_input_decode(this.recvcmd.head, this.recvcmd.payload);
                 msg.payload = {
                     hd: payload.hd,
                     pld: payload.pld
@@ -72,9 +72,9 @@ export class NDDevice extends DeviceBase implements INDDevice {
         super.on_child_input(msg);       
     }  
 
-    on_south_input_decode(p_hd: ICmdHead, p_pld: any): IDeviceBusDataPayload {
-        let hd = this.coder.head.decode(p_hd);
-        let pld = this.coder.payload.decode(p_pld);
+    on_south_input_decode(p_hd: ICmdHead, p_pld: IPldTable): IDeviceBusDataPayload {
+        let hd = this.plf_coder.head.decode(p_hd);
+        let pld = this.plf_coder.payload.decode(p_pld);
 
         return {
             hd: hd,
@@ -82,14 +82,15 @@ export class NDDevice extends DeviceBase implements INDDevice {
         }
     }
 
-    on_north_input_encode(p_hd: IDeviceBusDataPayloadHd, p_pld: any): IDeviceBusDataPayload {
-        this.coder.head.reset();
-        this.coder.payload.reset();  
-        let hd = this.coder.head.encode(p_hd);
-        let pld = this.coder.payload.encode(p_pld);
+    on_north_input_encode(p_hd: IDeviceBusDataPayloadHd, p_pld: {}): IDeviceBusDataPayload {
+        this.plf_coder.head.reset();
+        this.plf_coder.payload.reset();  
+        let hd = this.plf_coder.head.encode(p_hd);
+        let pld = this.plf_coder.payload.encode(p_pld);
+
         return {
-            hd: hd,
-            pld: pld
+            hd: hd && hd.head,
+            pld: pld && pld.tables
         }
     }
 }

@@ -1,6 +1,9 @@
 // import { RFIRDeviceACGree } from "../../device/amd/rfir/ac-gree";
 // import { RfirCoder, ISegCoderParam, SegCoderParam } from "../../device/amd/rfir/coder";
 
+import { PntTable } from "../../device/amd/coders/rfir/ac-gree/pnt-table";
+import { Table, TableBits } from "../../device/amd/coders/rfir/ac-gree/table";
+
 // let device = new  RFIRDeviceACGree({
 //     "id" : "ndiot485519666fc5",
 //     "app_id" : "ndiot",
@@ -34,6 +37,16 @@
 // // let bytes = device.coder.payload.decode(Buffer.from(buf));
 // console.log("222", bytes)
 
+
+let table = new PntTable()
+let table1 = new PntTable()
+table.setMode(PntTable.ModeCool)
+table.setPower(true)
+table.table.Light = 0;
+table1.setRaw(table.getRaw());
+
+console.log(table.table, table.getRaw())
+console.log(table1.table, table1.getRaw())
 
 
 

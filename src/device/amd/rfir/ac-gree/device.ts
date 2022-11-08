@@ -1,6 +1,6 @@
 
+import { ISegCoderParam, SegCoderParam } from "../../coders/rfir/rfir-coder";
 import { Debuger } from "../../nd-device";
-import { ISegCoderParam, SegCoderParam } from "../coder";
 import { IRFIRDevice, RFIRDevice } from "../device";
 
 export interface IRFIRDeviceACGree extends IRFIRDevice {}
