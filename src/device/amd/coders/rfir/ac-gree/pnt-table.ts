@@ -5,8 +5,10 @@ export interface IPntTable {
     table: ITable
     model: number
 
-    encode(): Buffer
+    encode(B?: boolean): Buffer
     decode(buf: Buffer): boolean
+    encodeBytess(B?: boolean): number[][]
+    decodeBytess(bytess: number[][]): boolean
     reset();
 
     on();
@@ -52,10 +54,10 @@ export interface IPntTable {
 
 
 
-    getRaw(notFixup?: boolean ): Buffer;
+    getRaw(notFixup?: boolean, B?: boolean): Buffer;
     setRaw(code: Buffer);
-    checksum();
-    fixup();
+    checksum(B?: boolean);
+    getsum(B?: boolean): number;    
 
 }
 
@@ -63,6 +65,9 @@ export class PntTable implements IPntTable {
     static Model_YAW1F = 1;
     static Model_YBOFB = 2;
     
+    static PowerOff = 0;
+    static PowerOn  = 1;
+
     static ModeAuto = 0;
     static ModeCool = 1;
     static ModeDry  = 2;
@@ -106,16 +111,52 @@ export class PntTable implements IPntTable {
 
 
     table: ITable = new Table();
-    model: number = PntTable.Model_YAW1F;
+    model: number = PntTable.Model_YBOFB;
     constructor(){
         this.reset();
     }
-    encode(): Buffer {
-        throw new Error("Method not implemented.");
+    encodeBytess(B?: boolean): number[][] {
+        let bytess = [];
+        let buf = this.encode(B);
+        //前4字节
+        let bytes = [];
+        for (let i = 0; i < 4; i++) {
+            bytes.push(buf[i]);            
+        }
+        bytess.push(bytes);
+
+        // 0b010
+        bytes = [false, true, false];
+        bytess.push(bytes);
+
+        //后4字节
+        bytes = [];
+        for (let i = 4; i < 8; i++) {
+            bytes.push(buf[i]);            
+        }
+        bytess.push(bytes);
+
+        return bytess;
+    }
+    decodeBytess(bytess: number[][]): boolean {
+        if (bytess && bytess.length == 3) {
+            let buf = bytess[0].concat(bytess[2]);
+            return this.decode(Buffer.from(buf))
+        }
+        return false;
+    }
+    encode(B?: boolean): Buffer {
+        return this.getRaw(false, B);
     }
     decode(buf: Buffer): boolean {
-        throw new Error("Method not implemented.");
+        if (buf.length == 8) {
+            this.setRaw(buf);
+            return true;
+        }
+        
+        return false;
     }
+    
     reset() {
         Object.keys(this.table).forEach(key => {
             this.table[key] = 0;
@@ -124,7 +165,6 @@ export class PntTable implements IPntTable {
         this.table.Temp = 9;  
         this.table.Light = 1;  
         this.table.unknown1 = 5; 
-        this.table.unknown2 = 4;        
     }
 
     on() {
@@ -151,10 +191,10 @@ export class PntTable implements IPntTable {
         this.table.UseFahrenheit = fahrenheit as any;
         temp = Math.min(PntTable.TempMaxTempC, temp);
         temp = Math.max(PntTable.TempMinTempC, temp);
-        this.table.Temp = temp;
+        this.table.Temp = temp - PntTable.TempMinTempC;
     }
     getTemp(): number {
-        let temp = this.table.Temp;        
+        let temp = this.table.Temp + PntTable.TempMinTempC;        
         temp = Math.min(PntTable.TempMaxTempC, temp);
         temp = Math.max(PntTable.TempMinTempC, temp);
         return temp;
@@ -180,16 +220,23 @@ export class PntTable implements IPntTable {
 
     };
 
-    getRaw(notFixup?: boolean): Buffer {
+    getRaw(notFixup?: boolean, B?: boolean): Buffer {
         if(!notFixup)
-            this.fixup();
+            this.fixup(B);
+
+        let table = Object.assign({}, this.table);
+        if (B) {
+            table.unknown1 = 7;
+            table.WiFi = 0;
+            table.Other4 = 128;
+        }
 
         let buf = [];
         let nbits = 0;
         let byte = 0;
         Object.keys(TableBits).forEach(key => {
             let pos = nbits % 8;
-            let val = this.table[key] << pos;            
+            let val = table[key] << pos;            
             byte = byte | val;
             let nbit = TableBits[key];
             nbits = nbits + nbit;
@@ -216,12 +263,15 @@ export class PntTable implements IPntTable {
             
         })
     }
-    checksum() {
-        this.table.Sum = Sum.AC_Kelvinator(this.getRaw(true));
+    checksum(B?: boolean) {
+        this.table.Sum = this.getsum(B);
     }
-    fixup() {
+    getsum(B?: boolean): number{
+        return Sum.AC_Kelvinator(this.getRaw(true, B));
+    };
+    fixup(B?: boolean) {
         this.setPower(this.getPower());  
-        this.checksum(); 
+        this.checksum(B); 
     }
 
 }

@@ -28,7 +28,7 @@ export  class RFIRDevice extends NDDevice implements IRFIRDevice {
         if (hd.cmd_id == CmdId.rfir_sniff) {  
             let data = this.recvcmd.payload.tables[PldTable.Keys.rfir_sniff_data] as Buffer;            
             if (data) {
-                pld = this.rfir_coder.decode(data);
+                pld[PldTable.Keys.rfir_sniff_data] = this.rfir_coder.decode(data);
             }
         } 
 
@@ -38,13 +38,16 @@ export  class RFIRDevice extends NDDevice implements IRFIRDevice {
         };
     }
 
-    on_north_input_encode(p_hd: IDeviceBusDataPayloadHd, p_pld: any): IDeviceBusDataPayload {
+    on_north_input_encode(p_hd: IDeviceBusDataPayloadHd, p_pld: {}): IDeviceBusDataPayload {
         let payload = super.on_north_input_encode(p_hd, p_pld);
         let hd = payload.hd;
         let pld = payload.pld;
-        if (hd.cmd_id == CmdId.rfir_send ) {
-            let bytess = pld[PldTable.Keys.rfir_send_data] as number[][] || [];
+
+
+        let bytess = pld && pld[PldTable.Keys.rfir_send_data];
+        if (bytess) {            
             let buf = this.rfir_coder.encode(bytess);
+
             if (buf && buf.length > 0) {
                 pld = {};
                 pld[PldTable.Keys.rfir_send_data] = buf;   

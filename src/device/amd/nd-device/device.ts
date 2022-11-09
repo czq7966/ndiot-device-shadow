@@ -28,7 +28,7 @@ export class NDDevice extends DeviceBase implements INDDevice {
 
     //南向输入
     on_south_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("NDDevice  on_south_input ");
+        Debuger.Debuger.log("NDDevice  on_south_input ", this.attrs.id);
 
         if (!msg.decoded && msg.payload && !this.attrs.pid) {
             if (this.recvcmd.decode(msg.payload)){

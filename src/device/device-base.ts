@@ -131,7 +131,7 @@ export class DeviceBase extends Base implements IDeviceBase {
 
         })
 
-        this.init();        
+        setTimeout(()=>{ this.init();});        
     }
 
 

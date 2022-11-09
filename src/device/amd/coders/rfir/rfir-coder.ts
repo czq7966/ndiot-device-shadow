@@ -112,7 +112,6 @@ export class SegDecoder {
                         this.matchSpace(space, param.zerospace, param.tolerance, param.excess)) {
                 bits.push(false);
             } else {     
-                console.log("5555", bits, mark, space)
                 if (nbits > 0)         
                     return false;  
                 else break;
