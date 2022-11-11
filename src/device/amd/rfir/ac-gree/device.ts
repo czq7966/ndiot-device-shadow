@@ -76,20 +76,28 @@ export  class RFIRDeviceACGree extends RFIRDevice implements IRFIRDeviceACGree {
     }
   
     on_north_input_encode(p_hd: IDeviceBusDataPayloadHd, p_pld: {}): IDeviceBusDataPayload {
-        console.log("1111", p_hd, p_pld);
         let payload = super.on_north_input_encode(p_hd, p_pld);
         let hd = payload.hd;
         let pld = payload.pld || {};
-        console.log("2222", hd,pld);
+
         if (hd.cmd_id == CmdId.set && !pld[PldTable.Keys.rfir_send_data] ) {  
-            let pnttable = this.gree_coder.plf_props.encode(pld);
+            let pnttable = this.gree_coder.plf_props.encode(pld, this.gree_coder.pnt_table);
             
-            let bytess = pnttable.encodeBytess();
-            pld[PldTable.Keys.rfir_send_data] = bytess;
-            console.log("333", hd,pld);
-        }             
+            let bytessA = pnttable.encodeBytess();
+            let bytessB = pnttable.encodeBytess(true);
+            let bufA = this.rfir_coder.encode(bytessA);
+            let bufB = this.rfir_coder.encode(bytessB);
+            let buf = Buffer.concat([bufA, bufB]);
+
+            if (buf && buf.length > 0) {
+                pld[PldTable.Keys.rfir_send_data] = buf;   
+            }
+        }    
         
-        return super.on_north_input_encode(hd, pld);
+        return {
+            hd: hd,
+            pld: pld
+        }
 
     }  
 }

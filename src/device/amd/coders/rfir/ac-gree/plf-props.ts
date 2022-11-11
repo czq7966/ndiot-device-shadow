@@ -52,7 +52,18 @@ export class PlfProps implements IPlfProps {
         else if (props.fanSpeed == "high")
             pnttable.table.Fan = PntTable.FanMax;
             
-            
+         // Light
+        if (props.light == "on")
+            pnttable.table.Light = PntTable.LightOn;
+        else if (props.light == "off")
+            pnttable.table.Light = PntTable.LightOff;
+         
+          // Wifi
+        if (props.wifi == "on")
+            pnttable.table.WiFi = PntTable.WifiOn;
+        else if (props.wifi == "off")
+            pnttable.table.WiFi = PntTable.WifiOff;
+
         return pnttable;
     }
 
@@ -91,6 +102,18 @@ export class PlfProps implements IPlfProps {
         else 
             props.fanSpeed = "high";
  
+         // Light
+        if (pnttable.table.Light == PntTable.LightOn)
+            props.light = "on";
+        else if (pnttable.table.Light == PntTable.LightOff)
+            props.light = "off";
+        
+        // Wifi
+        if (pnttable.table.WiFi == PntTable.WifiOn)
+            props.wifi = "on";
+        else if (pnttable.table.WiFi == PntTable.WifiOff)
+            props.wifi = "off";
+
 
         return props; 
     }

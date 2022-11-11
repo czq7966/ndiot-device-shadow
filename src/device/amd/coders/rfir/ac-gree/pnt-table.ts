@@ -21,12 +21,12 @@ export interface IPntTable {
     getTemp(): number;
     // void setUseFahrenheit(const bool on);
     // bool getUseFahrenheit(void) const;
-    // void setFan(const uint8_t speed);
-    // uint8_t getFan(void) const;
+    setFan(speed: number);
+    getFan(): number;
     setMode(new_mode: number);
     getMode(vod): number;
-    // void setLight(const bool on);
-    // bool getLight(void) const;
+    setLight(on: number);
+    getLight(): number;
     // void setXFan(const bool on);
     // bool getXFan(void) const;
     // void setSleep(const bool on);
@@ -37,8 +37,8 @@ export interface IPntTable {
     // bool getEcono(void) const;
     // void setIFeel(const bool on);
     // bool getIFeel(void) const;
-    // void setWiFi(const bool on);
-    // bool getWiFi(void) const;
+    setWiFi(on: number);
+    getWiFi(): number;
     // void setSwingVertical(const bool automatic, const uint8_t position);
     // bool getSwingVerticalAuto(void) const;
     // uint8_t getSwingVerticalPosition(void) const;
@@ -68,6 +68,12 @@ export class PntTable implements IPntTable {
     static PowerOff = 0;
     static PowerOn  = 1;
 
+    static LightOff = 0;
+    static LightOn  = 1;
+
+    static WifiOff = 0;
+    static WifiOn  = 1;
+
     static ModeAuto = 0;
     static ModeCool = 1;
     static ModeDry  = 2;
@@ -79,7 +85,7 @@ export class PntTable implements IPntTable {
     static FanMed  = 2;
     static FanMax  = 3;
 
-    static TempMinTempC = 16;  // Celsius
+    static TempMinTempC = 17;  // Celsius
     static TempMaxTempC = 30;  // Celsius
     static TempMinTempF = 61;  // Fahrenheit
     static TempMaxTempF = 86;  // Fahrenheit
@@ -165,6 +171,9 @@ export class PntTable implements IPntTable {
         this.table.Temp = 9;  
         this.table.Light = 1;  
         this.table.unknown1 = 5; 
+        if(this.model == PntTable.Model_YAW1F) {
+            this.table.unknown2 = 4;
+        }
     }
 
     on() {
@@ -190,7 +199,7 @@ export class PntTable implements IPntTable {
     setTemp(temp: number, fahrenheit?: boolean) {
         this.table.UseFahrenheit = fahrenheit as any;
         temp = Math.min(PntTable.TempMaxTempC, temp);
-        temp = Math.max(PntTable.TempMinTempC, temp);
+        temp = Math.max(PntTable.TempMinTempC, temp);       
         this.table.Temp = temp - PntTable.TempMinTempC;
     }
     getTemp(): number {
@@ -199,6 +208,14 @@ export class PntTable implements IPntTable {
         temp = Math.max(PntTable.TempMinTempC, temp);
         return temp;
     }
+    setFan(speed: number){
+        let fan = Math.min(PntTable.FanMax, speed);  
+        if (this.getMode() == PntTable.ModeDry) fan = 1;  // DRY mode is always locked to fan 1.
+        this.table.Fan = fan;
+    };
+    getFan(): number{
+        return this.table.Fan;
+    };
 
     setMode(new_mode: number){
         let mode = new_mode;
@@ -206,7 +223,7 @@ export class PntTable implements IPntTable {
           // AUTO is locked to 25C
           case PntTable.ModeAuto: this.setTemp(25); break;
           // DRY always sets the fan to 1.
-        //   case PntTable.ModeDry: this.setFan(1); break;
+          case PntTable.ModeDry: this.setFan(1); break;
           case PntTable.ModeCool:
           case PntTable.ModeFan:
           case PntTable.ModeHeat: break;
@@ -218,6 +235,19 @@ export class PntTable implements IPntTable {
     getMode(): number{
         return this.table.Mode;
 
+    };
+    setLight(on: number){
+        this.table.Light = on;
+    };
+    getLight(): number{
+        return this.table.Light;
+    };
+
+    setWiFi(on: number){
+        this.table.WiFi = on;
+    };
+    getWiFi(): number{
+        return this.table.WiFi;
     };
 
     getRaw(notFixup?: boolean, B?: boolean): Buffer {

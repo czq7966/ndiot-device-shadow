@@ -1,35 +1,47 @@
-import { RfirCoder, SegCoderParam } from "../../device/amd/coders/rfir/rfir-coder";
+// import { RFIRDeviceACGree } from "../../device/amd/rfir/ac-gree";
+// import { RfirCoder, ISegCoderParam, SegCoderParam } from "../../device/amd/rfir/coder";
 
-let coder = new  RfirCoder();
-let param = new SegCoderParam();
+import { RFIRDeviceACMediaND } from "../../device/amd/rfir/ac-media-nd";
+import { IDeviceBusDataPayload } from "../../device/device.dts";
 
 
-param.tolerance = 20;
-param.excess = 0;
-param.atleast = true;                              
-param.MSBfirst = true;
-param.step = 2;
+let device = new  RFIRDeviceACMediaND({
+    "id" : "ndiot485519666fc5",
+    "app_id" : "ndiot",
+    "desc" : "武汉云启/485透传/ndiot485519666fc5",
+    "dom_id" : "yunqi",
+    "model" : "RFIR-PENET",
+    "pid" : null,
+    "type" : "",
+    "vendor" : "ND"    
+});
 
-param.nbits = 6 * 8;
-param.headermark = 4390;
-param.headerspace = 4420;
-param.onemark = 570;
-param.onespace = 1620;
-param.zeromark = 570;
-param.zerospace = 520;
-param.footermark = 570;
-param.footerspace = 5300;
-param.lastspace = 0;
 
-let bytes = [0x11, 0x2, 0x3, 0x4, 0x5, 0x6];
+let payload: IDeviceBusDataPayload = {
+    hd: {
+        entry: {
+            id: "set"
+        }
+    },
+    pld: {
+        power: "on",
+        temperature: 27
+    }
 
-coder.params.push(param);
+}
 
-let codess = coder.encodeBytes([bytes]);
+let msg = {
+    payload: payload
+}
 
-console.log(codess);
+setTimeout(()=>{
+ 
 
-let bytess = coder.decodeBytes(codess)
+    device.on_north_input(msg);
+    // console.log(device.media_coder.pnt_table.table)
 
-console.log(bytess)
+});
+
+
+
 

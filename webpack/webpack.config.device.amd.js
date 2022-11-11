@@ -25,6 +25,9 @@ module.exports = env => {
     entry['ct-dooya-dvq24gf/index'] = path.resolve(srcDir, "ct-dooya-dvq24gf/index.ts");
     entry['tv/tv-hisense-65wr30a/index'] = path.resolve(srcDir, "tv/tv-hisense-65wr30a/index.ts");
     entry['rfir/ac-gree/index'] = path.resolve(srcDir, "rfir/ac-gree/index.ts");
+    entry['rfir/ac-gree-nd/index'] = path.resolve(srcDir, "rfir/ac-gree-nd/index.ts");
+    entry['rfir/ac-media/index'] = path.resolve(srcDir, "rfir/ac-media/index.ts");
+    entry['rfir/ac-media-nd/index'] = path.resolve(srcDir, "rfir/ac-media-nd/index.ts");
     
     optimization['minimizer'] = minimizer;  
 

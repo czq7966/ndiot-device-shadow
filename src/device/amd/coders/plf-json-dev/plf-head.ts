@@ -30,8 +30,9 @@ export class PlfHead implements IPlfHead{
     decode(cmdHd: ICmdHead): IDeviceBusDataPayloadHd {
         let hd: IDeviceBusDataPayloadHd  = {};
         let _hd = this.sids[cmdHd.head.cmd_sid];
-        if (_hd) 
+        if (_hd) {
             hd = _hd;
+        }
         else {             
             hd.entry = {
                 type: "evt",
@@ -40,7 +41,7 @@ export class PlfHead implements IPlfHead{
             hd.sid = this.decode_sid(cmdHd.head.cmd_sid);
         }
         hd.stp = cmdHd.head.cmd_stp as any;
-        delete this.sids[cmdHd.head.cmd_sid];
+        delete this.sids[cmdHd.head.cmd_sid];        
         Object.assign(hd, cmdHd.head);
         return hd;        
     }
@@ -53,8 +54,8 @@ export class PlfHead implements IPlfHead{
         } else {
             result = 0;
             for (let i = 0; i < sid.length; i++) {
-                let j = i % 4;
-                result = result + (sid.charCodeAt(i) << (j * 8));
+                // let j = i % 4;
+                result = result + sid.charCodeAt(i);// << (j * 8));
             }
         }
 
@@ -64,7 +65,9 @@ export class PlfHead implements IPlfHead{
     decode_sid(sid: number): string {        
         if (sid) {
             let hd = this.sids[sid];
-            if (!hd) return hd.sid;       
+            if (hd) { 
+                return hd.sid;  
+            }     
             else return sid.toString();
         }         
         return;
@@ -75,7 +78,7 @@ export class PlfHead implements IPlfHead{
     };
 
     reset(){        
-        this.clear_sids();
+        // this.clear_sids();
         this.penets = [];
     }
 
