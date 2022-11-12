@@ -13,12 +13,12 @@ import { IRFIRDevice, RFIRDevice } from "../device";
 export interface IRFIRDeviceACMedia extends IRFIRDevice {}
 
 export  class RFIRDeviceACMedia extends RFIRDevice implements IRFIRDeviceACMedia {
-    media_coder: ICoder
+    ac_coder: ICoder
 
     //初始化
     init() {
         Debuger.Debuger.log("RFIRDeviceACMedia init", this.attrs.id);
-        this.media_coder = new Coder();        
+        this.ac_coder = new Coder();        
         let param1 = new SegCoderParam();
         param1.tolerance = 20;
         param1.excess = 0;
@@ -49,9 +49,9 @@ export  class RFIRDeviceACMedia extends RFIRDevice implements IRFIRDeviceACMedia
         if (hd.cmd_id == CmdId.rfir_sniff) {  
             let data = pld[PldTable.Keys.rfir_sniff_data];
             if (data) {
-                if (this.media_coder.pnt_table.decodeBytess(data)) {
-                    this.media_coder.plf_props.decode(this.media_coder.pnt_table);
-                    pld = this.media_coder.plf_props.props;
+                if (this.ac_coder.pnt_table.decodeBytess(data)) {
+                    this.ac_coder.plf_props.decode(this.ac_coder.pnt_table);
+                    pld = this.ac_coder.plf_props.props;
                 }
             }
         } 
@@ -68,7 +68,7 @@ export  class RFIRDeviceACMedia extends RFIRDevice implements IRFIRDeviceACMedia
         let pld = payload.pld || {};
 
         if (hd.cmd_id == CmdId.set && !pld[PldTable.Keys.rfir_send_data] ) {  
-            let pnttable = this.media_coder.plf_props.encode(pld);
+            let pnttable = this.ac_coder.plf_props.encode(pld, this.ac_coder.pnt_table);
             pnttable.checksum()
             
             

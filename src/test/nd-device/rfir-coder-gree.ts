@@ -58,24 +58,24 @@ let codesClose2 = [8990,4475,653,1666,643,553,653,552,651,555,654,553,652,552,65
 setTimeout(()=>{
     // device.on_north_input({payload: payload})
     // let bytess = device.rfir_coder.decodeBytes(codesOpen1);
-    // device.gree_coder.pnt_table.decodeBytess(bytess);
-    // console.log("1111", device.gree_coder.pnt_table.table, device.gree_coder.pnt_table.getsum(), 
-    // device.gree_coder.pnt_table.encodeBytess(), device.gree_coder.pnt_table.encodeBytess(true));
+    // device.ac_coder.pnt_table.decodeBytess(bytess);
+    // console.log("1111", device.ac_coder.pnt_table.table, device.ac_coder.pnt_table.getsum(), 
+    // device.ac_coder.pnt_table.encodeBytess(), device.ac_coder.pnt_table.encodeBytess(true));
 
     // bytess = device.rfir_coder.decodeBytes(codesOpen2);
-    // device.gree_coder.pnt_table.decodeBytess(bytess);
-    // console.log("2222", device.gree_coder.pnt_table.table, device.gree_coder.pnt_table.getsum(), 
-    // device.gree_coder.pnt_table.encodeBytess(), device.gree_coder.pnt_table.encodeBytess(true));
+    // device.ac_coder.pnt_table.decodeBytess(bytess);
+    // console.log("2222", device.ac_coder.pnt_table.table, device.ac_coder.pnt_table.getsum(), 
+    // device.ac_coder.pnt_table.encodeBytess(), device.ac_coder.pnt_table.encodeBytess(true));
 
     // bytess = device.rfir_coder.decodeBytes(codesClose1);
-    // device.gree_coder.pnt_table.decodeBytess(bytess);
-    // console.log("3333", device.gree_coder.pnt_table.table, device.gree_coder.pnt_table.getsum(), 
-    // device.gree_coder.pnt_table.encodeBytess(), device.gree_coder.pnt_table.encodeBytess(true));
+    // device.ac_coder.pnt_table.decodeBytess(bytess);
+    // console.log("3333", device.ac_coder.pnt_table.table, device.ac_coder.pnt_table.getsum(), 
+    // device.ac_coder.pnt_table.encodeBytess(), device.ac_coder.pnt_table.encodeBytess(true));
 
     // bytess = device.rfir_coder.decodeBytes(codesClose2);
-    // device.gree_coder.pnt_table.decodeBytess(bytess);
-    // console.log("4444", device.gree_coder.pnt_table.table, device.gree_coder.pnt_table.getsum(), 
-    // device.gree_coder.pnt_table.encodeBytess(), device.gree_coder.pnt_table.encodeBytess(true));
+    // device.ac_coder.pnt_table.decodeBytess(bytess);
+    // console.log("4444", device.ac_coder.pnt_table.table, device.ac_coder.pnt_table.getsum(), 
+    // device.ac_coder.pnt_table.encodeBytess(), device.ac_coder.pnt_table.encodeBytess(true));
 
     // let buf1 = Buffer.from([1,3]);
     // let buf2 = Buffer.from([2,4]);
@@ -84,7 +84,7 @@ setTimeout(()=>{
     // console.log(buf)
 
     device.on_north_input(msg);
-    console.log(device.gree_coder.pnt_table.table)
+    console.log(device.ac_coder.pnt_table.table)
 
 });
 // device.on_north_input({payload: payload})

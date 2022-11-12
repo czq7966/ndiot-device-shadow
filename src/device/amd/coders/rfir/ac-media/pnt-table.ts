@@ -18,9 +18,9 @@ export interface IPntTable {
     setFan(speed: number);
     getFan(): number;
     setMode(new_mode: number);
-    getMode(vod): number;
+    getMode(): number;
 
-    getRaw(notFixup?: boolean): Buffer;
+    getRaw(notFixup?: boolean, notClose?: boolean): Buffer;
     setRaw(code: Buffer);
     checksum();
     fixup()
@@ -128,8 +128,8 @@ export class PntTable implements IPntTable {
     };
 
 
-    getRaw(notFixup?: boolean): Buffer {
-        if (!this.table.Power)
+    getRaw(notFixup?: boolean, notClose?: boolean): Buffer {
+        if (!this.table.Power && !notClose)
             return Buffer.from(TableConst.PowerClose);
 
         if(!notFixup) this.fixup();

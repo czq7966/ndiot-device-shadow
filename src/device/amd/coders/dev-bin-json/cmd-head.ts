@@ -52,7 +52,9 @@ export class CmdHead implements ICmdHead {
             this.head.cmd_id =  buf[idx++];
             this.head.cmd_stp =  buf[idx++];
             this.head.err_no = buf[idx++] + (buf[idx++] << 8);
-            this.head.cmd_sid = buf[idx++] + (buf[idx++] << 8) + (buf[idx++] << 16) + (buf[idx++] << 24);
+            let sid = [buf[idx++], buf[idx++], buf[idx++], buf[idx++]];
+            // this.head.cmd_sid = buf[idx++] + (buf[idx++] << 8) + (buf[idx++] << 16) + (buf[idx++] << 24);
+            this.head.cmd_sid = Buffer.from(sid).readUint32LE();
             this.head.pld_sum = buf[idx++] + (buf[idx++] << 8);
             this.head.pld_len = buf[idx++] + (buf[idx++] << 8);
 

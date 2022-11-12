@@ -25,7 +25,8 @@ let payload: IDeviceBusDataPayload = {
     },
     pld: {
         power: "on",
-        temperature: 27
+        temperature: 22,
+        mode: "cool"
     }
 
 }
@@ -38,9 +39,27 @@ setTimeout(()=>{
  
 
     device.on_north_input(msg);
-    // console.log(device.media_coder.pnt_table.table)
+    let raw = device.ac_coder.pnt_table.getRaw();
+    device.ac_coder.pnt_table.setRaw(raw);
+
+    console.log(device.ac_coder.pnt_table.table, 
+        device.ac_coder.pnt_table.getTemp(),
+        device.ac_coder.pnt_table.getMode())
+
+
 
 });
+
+let buf = [0x84, 0x03, 0x02, 0x81 ]
+
+let v = 0x81020384;
+
+console.log(v)
+let idx = 0
+// v = buf[idx++] + (buf[idx++] << 8) + (buf[idx++] << 16) + (buf[idx++] << 24);
+let sid = [buf[idx++], buf[idx++], buf[idx++], buf[idx++]];
+
+console.log(v, Buffer.from(sid).readUint32BE(), Buffer.from(sid).readUint32LE())
 
 
 

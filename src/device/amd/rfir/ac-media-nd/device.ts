@@ -7,7 +7,15 @@ import { ICoder } from "../../coders/rfir/ac-media/coder";
 import { Debuger } from "../../nd-device";
 import { IRFIRDeviceACMedia, RFIRDeviceACMedia } from "../ac-media/device";
 
-export interface IRFIRDeviceACMediaND extends IRFIRDeviceACMedia {}
+export class ExtraConst {
+    static PowerPin = 13;
+    static RfirCodeSid = 0xFFFFFFFF;
+    static ReportTimeout = 1000 * 60;
+}
+
+export interface IRFIRDeviceACMediaND extends IRFIRDeviceACMedia {
+
+}
 
 export  class RFIRDeviceACMediaND extends RFIRDeviceACMedia implements IRFIRDeviceACMediaND {
 
@@ -15,8 +23,7 @@ export  class RFIRDeviceACMediaND extends RFIRDeviceACMedia implements IRFIRDevi
     init() {
         super.init();
         Debuger.Debuger.log("RFIRDeviceACMediaND init", this.attrs.id); 
-        // setTimeout(() => { this.do_get_req_rfir_code(); }, 1000); 
-        // setTimeout(() => { this.do_get_req_gpio();}, 5000);
+        this.do_report_timeout(1000);
 
     }
 
@@ -31,8 +38,6 @@ export  class RFIRDeviceACMediaND extends RFIRDeviceACMedia implements IRFIRDevi
                 this.on_get_resp(payload.hd, payload.pld);
             if (hd.cmd_id == CmdId.set) 
                 this.on_set_resp(payload.hd, payload.pld);
-            if (hd.cmd_id == CmdId.get_gpio) 
-                this.on_get_gpio_resp(payload.hd, payload.pld);
         }
         
         return payload;     
@@ -42,41 +47,19 @@ export  class RFIRDeviceACMediaND extends RFIRDeviceACMedia implements IRFIRDevi
         return super.on_north_input_encode(p_hd, p_pld);
     }  
 
-
-    _do_get_req_gpio_handler: number = 0;
-    do_get_req_gpio(){
-        clearTimeout(this._do_get_req_gpio_handler);
-        let pld = {};
-        pld[PldTable.Keys.gpio_rw_pin] = 13;
-
-        let payload: IDeviceBusDataPayload = {
-            hd: {
-                cmd_id: CmdId.get_gpio
-            },
-            pld: pld
-        }
-
-        let msg = {payload: payload};
-
-        this.on_north_input(msg);
-
-        //每一分钟，请求上报一次
-        this._do_get_req_gpio_handler = setTimeout(() => {
-            this.do_get_req_gpio();            
-        }, 1000 * 10) as any;
-    }
-
+    //向设备获取射频码
     do_get_req_rfir_code() {
-        let len = this.media_coder.pnt_table.getRaw().length;
+        let len = this.ac_coder.pnt_table.getRaw().length;
         let pld = {};
         for (let i = 0; i < len; i++) {
             pld[i] = 0;            
         }
-
+        pld[PldTable.Keys.gpio_rw_pin] = ExtraConst.PowerPin;
 
         let payload: IDeviceBusDataPayload = {
             hd: {
-                cmd_id: CmdId.get
+                cmd_id: CmdId.get, 
+                cmd_sid: ExtraConst.RfirCodeSid
             },
             pld: pld
         }
@@ -86,8 +69,9 @@ export  class RFIRDeviceACMediaND extends RFIRDeviceACMedia implements IRFIRDevi
         this.on_north_input(msg);
     }
 
+    //向设备设置射频码
     do_config_req_rfir_code() {
-        let raw = this.media_coder.pnt_table.getRaw();
+        let raw = this.ac_coder.pnt_table.getRaw(false, true);
         let pld = {};
         for (let i = 0; i < raw.length; i++) {
             pld[i] = raw[i];
@@ -95,7 +79,8 @@ export  class RFIRDeviceACMediaND extends RFIRDeviceACMedia implements IRFIRDevi
 
         let payload: IDeviceBusDataPayload = {
             hd: {
-                cmd_id: CmdId.config
+                cmd_id: CmdId.config,
+                cmd_sid: ExtraConst.RfirCodeSid
             },
             pld: pld
         }
@@ -105,12 +90,54 @@ export  class RFIRDeviceACMediaND extends RFIRDeviceACMedia implements IRFIRDevi
         this.on_north_input(msg);
     }
 
+    //北向上报状态
+    do_north_report() {
+        let props = this.ac_coder.plf_props.decode(this.ac_coder.pnt_table);
+        let payload: IDeviceBusDataPayload = {
+            hd: {
+                entry: {
+                    type: "evt",
+                    id: "report"
+                }
+            },
+            pld: props
+        }
+        let msg: IDeviceBusEventData = {
+            decoded: true,
+            payload: payload
+        }
+
+        this.events.north.output.emit(msg);   
+
+    }
+
+    //定时获取上报
+    _do_report_timeout: number = 0;
+    do_report_timeout(timeout?: number) {
+        timeout = timeout || ExtraConst.ReportTimeout;
+        
+        clearTimeout(this._do_report_timeout);
+        this._do_report_timeout = setTimeout(() => {
+            //获取射频码
+            this.do_get_req_rfir_code();
+
+            //1分钟后再获取
+            this.do_report_timeout();            
+        }, timeout) as any;
+
+
+    }
+
+    //Get指令响应处理
     on_get_resp(hd: IDeviceBusDataPayloadHd, pld: {} ) {
         this.on_get_resp_rfir_code(hd, pld);
     }
+
+    //Get指令射频码处理
     on_get_resp_rfir_code(hd: IDeviceBusDataPayloadHd, pld: {}) {
-        if (hd.cmd_id == CmdId.get && hd.cmd_stp == 1) {
-            let len = this.media_coder.pnt_table.getRaw().length;
+        if (hd.cmd_id == CmdId.get && hd.cmd_stp == 1 && hd.cmd_sid == ExtraConst.RfirCodeSid) {
+
+            let len = this.ac_coder.pnt_table.getRaw().length;
             let buf = [];
             for (let i = 0; i < len; i++) {
                 if (pld && pld.hasOwnProperty(i.toString())) {
@@ -119,65 +146,44 @@ export  class RFIRDeviceACMediaND extends RFIRDeviceACMedia implements IRFIRDevi
             }
 
             if (buf.length == len) {
-                this.media_coder.pnt_table.setRaw(Buffer.from(buf));
+                this.ac_coder.pnt_table.setRaw(Buffer.from(buf));
             }
+            
+            if (pld.hasOwnProperty(PldTable.Keys.gpio_rw_value)) {
+                let value = pld[PldTable.Keys.gpio_rw_value];
+                this.ac_coder.pnt_table.setPower(value);
+            }
+
+            this.do_north_report();
+
         }
     }
 
+    //Set指令响应处理
     on_set_resp(hd: IDeviceBusDataPayloadHd, pld: {} ) {
         this.on_set_resp_rfir_code(hd, pld);
     }
 
+    //Set指令射频码处理
     on_set_resp_rfir_code(hd: IDeviceBusDataPayloadHd, pld: {}) {
-        if (hd.cmd_id == CmdId.set && hd.cmd_stp == 1 && pld.hasOwnProperty(PldTable.Keys.rfir_send_repeat)) {
+        if (hd.cmd_id == CmdId.set && hd.cmd_stp == 1 ) {
             this.do_config_req_rfir_code();
+
         }
     }
+
+    //Config指令处理
     on_config_resp(hd: IDeviceBusDataPayloadHd, pld: {} ) {
         this.on_config_resp_rfir_code(hd, pld);        
     }
 
+    //Config指令射频码处理
     on_config_resp_rfir_code(hd: IDeviceBusDataPayloadHd, pld: {} ) {
-        if (hd.cmd_id == CmdId.config && hd.cmd_stp == 1) {
+        if (hd.cmd_id == CmdId.config && hd.cmd_stp == 1 && hd.cmd_sid == ExtraConst.RfirCodeSid) {
             this.do_get_req_rfir_code();
-            setTimeout(() => {
-                this.do_get_req_gpio();                
-            });
+            this.do_report_timeout(1000);
         }
     }
 
-
-    on_get_gpio_resp(hd: IDeviceBusDataPayloadHd, pld: {}) {
-        if (hd.cmd_id == CmdId.get_gpio && hd.cmd_stp == 1) {
-            if (pld.hasOwnProperty(PldTable.Keys.gpio_rw_value)) {
-                let value = pld[PldTable.Keys.gpio_rw_value]
-                this.media_coder.pnt_table.setPower(value);
-
-                let props = this.media_coder.plf_props.decode(this.media_coder.pnt_table);
-                let payload: IDeviceBusDataPayload = {
-                    hd: {
-                        entry: {
-                            type: "evt",
-                            id: "report"
-                        }
-                    },
-                    pld: props
-                }
-                let msg: IDeviceBusEventData = {
-                    decoded: true,
-                    payload: payload
-                }
-
-                this.events.north.output.emit(msg);
-
-            }
-        }
-
-    }
-
-
-    on_handshake_req(hd: IDeviceBusDataPayloadHd, pld: {}) {
-        this.do_get_req_rfir_code();
-    }
 
 }

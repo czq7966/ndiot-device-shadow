@@ -11,12 +11,12 @@ import { IRFIRDevice, RFIRDevice } from "../device";
 export interface IRFIRDeviceACGree extends IRFIRDevice {}
 
 export  class RFIRDeviceACGree extends RFIRDevice implements IRFIRDeviceACGree {
-    gree_coder: ICoder
+    ac_coder: ICoder
 
     //初始化
     init() {
         Debuger.Debuger.log("RFIRDeviceACGree init", this.attrs.id);
-        this.gree_coder = new Coder();        
+        this.ac_coder = new Coder();        
         let param1 = new SegCoderParam();
         param1.tolerance = 20;
         param1.excess = 0;
@@ -61,10 +61,10 @@ export  class RFIRDeviceACGree extends RFIRDevice implements IRFIRDeviceACGree {
         if (hd.cmd_id == CmdId.rfir_sniff) {  
             let data = pld[PldTable.Keys.rfir_sniff_data];
             if (data && Array.isArray(data) && data.length == 3) {
-                if (this.gree_coder.pnt_table.decodeBytess(data)) {
-                    this.gree_coder.plf_props.decode(this.gree_coder.pnt_table);
-                    pld = this.gree_coder.plf_props.props;
-                    console.log(this.gree_coder.pnt_table, pld)
+                if (this.ac_coder.pnt_table.decodeBytess(data)) {
+                    this.ac_coder.plf_props.decode(this.ac_coder.pnt_table);
+                    pld = this.ac_coder.plf_props.props;
+                    console.log(this.ac_coder.pnt_table, pld)
                 }
             }
         } 
@@ -81,7 +81,7 @@ export  class RFIRDeviceACGree extends RFIRDevice implements IRFIRDeviceACGree {
         let pld = payload.pld || {};
 
         if (hd.cmd_id == CmdId.set && !pld[PldTable.Keys.rfir_send_data] ) {  
-            let pnttable = this.gree_coder.plf_props.encode(pld, this.gree_coder.pnt_table);
+            let pnttable = this.ac_coder.plf_props.encode(pld, this.ac_coder.pnt_table);
             
             let bytessA = pnttable.encodeBytess();
             let bytessB = pnttable.encodeBytess(true);

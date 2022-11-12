@@ -53,10 +53,11 @@ export class PlfHead implements IPlfHead{
             
         } else {
             result = 0;
-            for (let i = 0; i < sid.length; i++) {
-                // let j = i % 4;
-                result = result + sid.charCodeAt(i);// << (j * 8));
+            let buf = [];
+            for (let i = 0; i < 4; i++) {                
+                buf.push(i < sid.length ? sid.charCodeAt(i) : 0);
             }
+            result = Buffer.from(buf).readUint32LE();
         }
 
         return result;
@@ -78,7 +79,7 @@ export class PlfHead implements IPlfHead{
     };
 
     reset(){        
-        // this.clear_sids();
+        this.clear_sids();
         this.penets = [];
     }
 

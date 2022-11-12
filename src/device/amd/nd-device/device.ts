@@ -53,14 +53,12 @@ export class NDDevice extends DeviceBase implements INDDevice {
     //北向输入
     on_north_input(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("NDDevice  on_north_input");
-        //todo ...
-        console.log(msg.payload);
+
         if (!msg.encoded && msg.payload && !this.attrs.pid) {
             let payload: IDeviceBusDataPayload = this.on_north_input_encode(msg.payload.hd, msg.payload.pld);
             this.sendcmd.reset();
             msg.payload = this.sendcmd.encode(payload.hd, payload.pld);
             msg.encoded = true;
-            console.log(msg.payload);
         }        
         super.on_north_input(msg);
     }    
