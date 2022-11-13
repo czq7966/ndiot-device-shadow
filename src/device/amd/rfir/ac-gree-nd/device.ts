@@ -31,14 +31,16 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
     on_south_input_decode(p_hd: ICmdHead, p_pld: IPldTable): IDeviceBusDataPayload {
         Debuger.Debuger.log("RFIRDeviceACGreeND on_south_input_decode");
         let payload = super.on_south_input_decode(p_hd, p_pld); 
+        if (!payload) return;
+
         let hd = payload.hd;
         if (hd.cmd_stp == 1) {
             if (hd.cmd_id == CmdId.config) 
-                this.on_config_resp(payload.hd, payload.pld);
+                return this.on_config_resp(payload.hd, payload.pld);
             if (hd.cmd_id == CmdId.get) 
-                this.on_get_resp(payload.hd, payload.pld);
+                return this.on_get_resp(payload.hd, payload.pld);
             if (hd.cmd_id == CmdId.set) 
-                this.on_set_resp(payload.hd, payload.pld);
+                return this.on_set_resp(payload.hd, payload.pld);
         }
         
         return payload;  
@@ -46,9 +48,12 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
   
     on_north_input_encode(p_hd: IDeviceBusDataPayloadHd, p_pld: {}): IDeviceBusDataPayload {
         let payload = super.on_north_input_encode(p_hd, p_pld);
+        if (!payload) return;
+
         let hd = payload.hd;
         let pld = payload.pld || {};
 
+        //设置
         if (hd.cmd_id == CmdId.set && pld[PldTable.Keys.rfir_send_data]) {  
             let pnttable = this.ac_coder.plf_props.encode(pld, this.ac_coder.pnt_table);
 
@@ -60,6 +65,14 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
                 pld[PldTable.Keys.rfir_send_data] = buf;   
             }
         }    
+
+        //查询
+        if (hd.cmd_id == CmdId.get && hd.entry && hd.entry.type == "svc" ) {  
+            this.do_north_report(hd);
+            this.do_get_req_rfir_code();
+            return;
+        }
+
         
         return {
             hd: hd,
@@ -92,7 +105,7 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
 
     //向设备设置射频码
     do_config_req_rfir_code() {
-        let raw = this.ac_coder.pnt_table.getRaw();
+        let raw = this.ac_coder.pnt_table.getRaw(false, true);
         let pld = {};
         for (let i = 0; i < raw.length; i++) {
             pld[i] = raw[i];
@@ -111,16 +124,18 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
         this.on_north_input(msg);
     }
 
-    //北向上报状态
-    do_north_report() {
-        let props = this.ac_coder.plf_props.decode(this.ac_coder.pnt_table, {});
+    //北向查询上报状态
+    do_north_report(phd?: IDeviceBusDataPayloadHd) {
+        let hd: IDeviceBusDataPayloadHd;
+        if (phd) {
+             hd = Object.assign({}, phd);
+             hd.stp = 1;
+        }
+        else hd = { entry: { type: "evt", id: "report" }};
+
+        let props = this.ac_coder.plf_props.decode(this.ac_coder.pnt_table);
         let payload: IDeviceBusDataPayload = {
-            hd: {
-                entry: {
-                    type: "evt",
-                    id: "report"
-                }
-            },
+            hd: hd,
             pld: props
         }
         let msg: IDeviceBusEventData = {
@@ -129,6 +144,7 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
         }
 
         this.events.north.output.emit(msg);   
+
     }
 
     //定时获取上报
@@ -149,12 +165,12 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
     }
 
     //Get指令响应处理
-    on_get_resp(hd: IDeviceBusDataPayloadHd, pld: {} ) {
-        this.on_get_resp_rfir_code(hd, pld);
+    on_get_resp(hd: IDeviceBusDataPayloadHd, pld: {} ): IDeviceBusDataPayload {
+        return this.on_get_resp_rfir_code(hd, pld);
     }
 
     //Get指令射频码处理
-    on_get_resp_rfir_code(hd: IDeviceBusDataPayloadHd, pld: {}) {
+    on_get_resp_rfir_code(hd: IDeviceBusDataPayloadHd, pld: {}): IDeviceBusDataPayload {
         if (hd.cmd_id == CmdId.get && hd.cmd_stp == 1 && hd.cmd_sid == ExtraConst.RfirCodeSid) {
 
             let len = this.ac_coder.pnt_table.getRaw().length;
@@ -175,35 +191,39 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
             }
 
             this.do_north_report();
+            return;
 
         }
+
+        return {hd: hd, pld: pld}
     }
 
     //Set指令响应处理
-    on_set_resp(hd: IDeviceBusDataPayloadHd, pld: {} ) {
-        this.on_set_resp_rfir_code(hd, pld);
+    on_set_resp(hd: IDeviceBusDataPayloadHd, pld: {} ): IDeviceBusDataPayload {
+        return this.on_set_resp_rfir_code(hd, pld);
     }
 
     //Set指令射频码处理
-    on_set_resp_rfir_code(hd: IDeviceBusDataPayloadHd, pld: {}) {
+    on_set_resp_rfir_code(hd: IDeviceBusDataPayloadHd, pld: {}): IDeviceBusDataPayload {
         if (hd.cmd_id == CmdId.set && hd.cmd_stp == 1 ) {
             this.do_config_req_rfir_code();
-
         }
+        return {hd: hd, pld: pld }
     }
 
     //Config指令处理
-    on_config_resp(hd: IDeviceBusDataPayloadHd, pld: {} ) {
-        this.on_config_resp_rfir_code(hd, pld);        
+    on_config_resp(hd: IDeviceBusDataPayloadHd, pld: {} ): IDeviceBusDataPayload {
+        return this.on_config_resp_rfir_code(hd, pld);        
     }
 
     //Config指令射频码处理
-    on_config_resp_rfir_code(hd: IDeviceBusDataPayloadHd, pld: {} ) {
+    on_config_resp_rfir_code(hd: IDeviceBusDataPayloadHd, pld: {} ): IDeviceBusDataPayload {
         if (hd.cmd_id == CmdId.config && hd.cmd_stp == 1 && hd.cmd_sid == ExtraConst.RfirCodeSid) {
             this.do_get_req_rfir_code();
             this.do_report_timeout(1000);
         }
-    }
 
+        return ;
+    }
 
 }

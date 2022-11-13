@@ -43,6 +43,7 @@ export  class RFIRDeviceACMedia extends RFIRDevice implements IRFIRDeviceACMedia
     on_south_input_decode(p_hd: ICmdHead, p_pld: IPldTable): IDeviceBusDataPayload {
         Debuger.Debuger.log("RFIRDeviceACMedia on_south_input_decode");
         let payload = super.on_south_input_decode(p_hd, p_pld);
+        if (!payload) return;
 
         let hd = payload.hd;
         let pld = payload.pld;
@@ -64,6 +65,7 @@ export  class RFIRDeviceACMedia extends RFIRDevice implements IRFIRDeviceACMedia
   
     on_north_input_encode(p_hd: IDeviceBusDataPayloadHd, p_pld: {}): IDeviceBusDataPayload {
         let payload = super.on_north_input_encode(p_hd, p_pld);
+        if (!payload) return;
         let hd = payload.hd;
         let pld = payload.pld || {};
 

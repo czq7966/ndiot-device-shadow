@@ -33,6 +33,8 @@ export class NDDevice extends DeviceBase implements INDDevice {
         if (!msg.decoded && msg.payload && !this.attrs.pid) {
             if (this.recvcmd.decode(msg.payload)){
                 let payload = this.on_south_input_decode(this.recvcmd.head, this.recvcmd.payload);
+                if (!payload) return;
+
                 msg.payload = {
                     hd: payload.hd,
                     pld: payload.pld
@@ -56,6 +58,7 @@ export class NDDevice extends DeviceBase implements INDDevice {
 
         if (!msg.encoded && msg.payload && !this.attrs.pid) {
             let payload: IDeviceBusDataPayload = this.on_north_input_encode(msg.payload.hd, msg.payload.pld);
+            if (!payload) return;
             this.sendcmd.reset();
             msg.payload = this.sendcmd.encode(payload.hd, payload.pld);
             msg.encoded = true;
