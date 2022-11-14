@@ -4,6 +4,7 @@ import { CmdId } from "../../coders/dev-bin-json/cmd";
 import { ICmdHead } from "../../coders/dev-bin-json/cmd-head";
 import { IPldTable, PldTable } from "../../coders/dev-bin-json/pld-table";
 import { ICoder } from "../../coders/rfir/ac-media/coder";
+import { PntTable } from "../../coders/rfir/ac-media/pnt-table";
 import { Debuger } from "../../nd-device";
 import { IRFIRDeviceACMedia, RFIRDeviceACMedia } from "../ac-media/device";
 
@@ -111,7 +112,7 @@ export  class RFIRDeviceACMediaND extends RFIRDeviceACMedia implements IRFIRDevi
         }
         else hd = { entry: { type: "evt", id: "report" }};
 
-        let props = this.ac_coder.plf_props.decode(this.ac_coder.pnt_table);
+        let props = this.ac_coder.plf_props.decode(this.ac_coder.pnt_table, {});
         let payload: IDeviceBusDataPayload = {
             hd: hd,
             pld: props
@@ -160,6 +161,15 @@ export  class RFIRDeviceACMediaND extends RFIRDeviceACMedia implements IRFIRDevi
             }
 
             if (buf.length == len) {
+                if (buf.length == len) {
+                    let pnttable = new PntTable();
+                    pnttable.setRaw(Buffer.from(buf));
+    
+                    this.ac_coder.pnt_table.setPower(pnttable.getPower());
+                    this.ac_coder.pnt_table.setMode(pnttable.getMode());
+                    this.ac_coder.pnt_table.setTemp(pnttable.getTemp());
+                    this.ac_coder.pnt_table.setFan(pnttable.getFan());
+                }                
                 this.ac_coder.pnt_table.setRaw(Buffer.from(buf));
             }
             

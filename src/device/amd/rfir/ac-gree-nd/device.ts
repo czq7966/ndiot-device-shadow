@@ -22,7 +22,7 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
     init() {
         super.init();
         Debuger.Debuger.log("RFIRDeviceACGreeND init", this.attrs.id); 
-        this.ac_coder.pnt_table.model = PntTable.Model_YAW1F;
+        this.ac_coder.pnt_table.setModel(PntTable.Model_YAW1F);
         this.ac_coder.pnt_table.reset();
 
         this.do_report_timeout(1000);
@@ -133,7 +133,7 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
         }
         else hd = { entry: { type: "evt", id: "report" }};
 
-        let props = this.ac_coder.plf_props.decode(this.ac_coder.pnt_table);
+        let props = this.ac_coder.plf_props.decode(this.ac_coder.pnt_table,{});
         let payload: IDeviceBusDataPayload = {
             hd: hd,
             pld: props
@@ -182,7 +182,14 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
             }
 
             if (buf.length == len) {
-                this.ac_coder.pnt_table.setRaw(Buffer.from(buf));
+                let pnttable = new PntTable();
+                pnttable.setModel(this.ac_coder.pnt_table.getModel());
+                pnttable.setRaw(Buffer.from(buf));
+
+                this.ac_coder.pnt_table.setPower(pnttable.getPower());
+                this.ac_coder.pnt_table.setMode(pnttable.getMode());
+                this.ac_coder.pnt_table.setTemp(pnttable.getTemp());
+                this.ac_coder.pnt_table.setFan(pnttable.getFan());
             }
             
             if (pld.hasOwnProperty(PldTable.Keys.gpio_rw_value)) {

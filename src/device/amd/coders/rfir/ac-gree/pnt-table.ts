@@ -199,13 +199,15 @@ export class PntTable implements IPntTable {
     setTemp(temp: number, fahrenheit?: boolean) {
         this.table.UseFahrenheit = fahrenheit as any;
         temp = Math.min(PntTable.TempMaxTempC, temp);
-        temp = Math.max(PntTable.TempMinTempC, temp);       
-        this.table.Temp = temp - PntTable.TempMinTempC;
+        let minTemp = this.model == PntTable.Model_YAW1F ? PntTable.TempMinTempC - 1 : PntTable.TempMinTempC;
+        temp = Math.max(minTemp, temp);       
+        this.table.Temp = temp - minTemp;
     }
     getTemp(): number {
-        let temp = this.table.Temp + PntTable.TempMinTempC;        
+        let minTemp = this.model == PntTable.Model_YAW1F ? PntTable.TempMinTempC - 1 : PntTable.TempMinTempC;
+        let temp = this.table.Temp + minTemp;        
         temp = Math.min(PntTable.TempMaxTempC, temp);
-        temp = Math.max(PntTable.TempMinTempC, temp);
+        temp = Math.max(minTemp, temp);
         return temp;
     }
     setFan(speed: number){
