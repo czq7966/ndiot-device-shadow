@@ -1,6 +1,7 @@
 import { Utils } from "../../../../common/utils";
 import { Debuger } from "../../../device-base";
 import { IDeviceBusEventData } from "../../../device.dts";
+import { IModbusRTUTable } from "../../coders/modbus/modbus";
 import { IModbus, Modbus } from "../base/device";
 
 export interface IACPGDTM7000F extends IModbus {}
@@ -54,5 +55,15 @@ export class ACPGDTM7000F extends Modbus implements IACPGDTM7000F {
 
         msg.payload.pld = tables;
         return super.on_svc_set(msg);
+    }
+
+    //查询点表
+    on_svc_get_tables(msg: IDeviceBusEventData): IModbusRTUTable[] {
+        Debuger.Debuger.log("ACPGDTM7000F on_svc_get_tables");
+        
+        let pld = msg.payload.pld;
+        pld = pld && (Object.keys(pld).length > 0) && pld || Object.assign({}, this.tables.names);
+        msg.payload.pld = pld;
+        return super.on_svc_get_tables(msg);
     }
 }

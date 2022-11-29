@@ -145,6 +145,7 @@
 // import "./nd-device/tv-hisense-65wr30a"
 // import "./nd-device/ac-gree-gmv6"
 // import "./nd-device/ac-hisense-hcpc-h2m1c"
-import "./nd-device/rfir-coder-media"
+// import "./nd-device/rfir-coder-media"
 // import "./nd-device/rfir-coder-gree"
 // import "./nd-device/device"
+import "./mqtttest"
