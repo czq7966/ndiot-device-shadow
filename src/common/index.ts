@@ -1,1 +1,2 @@
-export * as Amd from './amd'
+import * as Amd from './amd';
+export {Amd}

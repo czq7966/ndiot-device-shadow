@@ -9,6 +9,7 @@
     "test:clean": "rimraf ./dist/test",
     "test:watch": "npm run test:clean && cross-env NODE_MODULE=test webpack --watch --progress --env cjs2",
     "test": "node ./dist/test/index.js",
+    "test:unit": "nyc test",
     "nr:clean": "rimraf ./dist/node-red",
     "nr:watch": "npm run nr:clean && cross-env NODE_MODULE=node-red webpack --watch --progress --env cjs2",
     "amd:clean": "rimraf ./dist/node-red/amd",
@@ -38,7 +39,7 @@
     "webpack-node-externals": "^3.0.0"
   },
   "devDependencies": {
-    "istanbul": "^0.4.5",
-    "mocha": "^10.1.0"
+    "mocha": "^10.1.0",
+    "nyc": "^15.1.0"
   }
 }
