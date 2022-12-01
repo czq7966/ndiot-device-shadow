@@ -1,0 +1,413 @@
+{
+    "openapi":"3.0.0",
+    "info": {
+      "title":"边缘服务组件",
+      "version":"1.0"
+    },
+    "servers": [
+
+    ],
+    "components": {
+        "schemas": {
+            "nd_iot_edge.v1.msg.id": {
+                "description": "设备ID，设备全局唯一标识符",
+                "type": "string",
+                "minLength": 1
+            },
+            "nd_iot_edge.v1.msg.type": {
+                "description": "消息类型",
+                "type": "string"
+            },
+            "nd_iot_edge.v1.msg.action": {
+                "description": "消息动作",
+                "type": "string"
+            },
+            "nd_iot_edge.v1.msg.topic": {
+                "description": "主题，mqtt的订阅主题",
+                "type": "string"
+
+            },
+            "nd_iot_edge.v1.msg.payload.hd.cmd_id": {
+                "description": "指令",
+                "type": "string"
+            },
+            "nd_iot_edge.v1.msg.payload.hd.cmd_stp": {
+                "description": "请求/响应。0 请求(默认)；1 响应",
+                "type": "integer"
+            },
+            "nd_iot_edge.v1.msg.payload.hd.cmd_sid": {
+                "description": "会话ID。默认0",
+                "type": "integer"
+            },
+            "nd_iot_edge.v1.msg.payload.hd": {
+                "properties": {
+                    "cmd_id": {
+                        "$ref":"#/components/schemas/nd_iot_edge.v1.msg.payload.hd.cmd_id"
+                    },
+                    "cmd_stp": {
+                        "$ref":"#/components/schemas/nd_iot_edge.v1.msg.payload.hd.cmd_stp"
+                    },
+                    "cmd_sid": {
+                        "$ref":"#/components/schemas/nd_iot_edge.v1.msg.payload.hd.cmd_sid"
+                    }
+                }
+            },
+            "nd_iot_edge.v1.msg.payload.pld": {
+                "description": "负载数据，任意类型，具体内容由具体的设备编解码器编解后产生",
+                "type": "object"                
+            },
+
+            "nd_iot_edge.v1.msg.payload": {
+                "description": "负载内容",
+                "properties": {
+                    "hd": {
+                        "$ref":"#/components/schemas/nd_iot_edge.v1.msg.payload.hd"
+                    },
+                    "pld":{
+                        "$ref":"#/components/schemas/nd_iot_edge.v1.msg.payload.pld"
+                    }
+                }
+
+            },
+            "nd_iot_edge.v1.msg": {
+                "properties": {
+                    "id": {
+                        "$ref":"#/components/schemas/nd_iot_edge.v1.msg.id"
+                    },
+                    "topic": {
+                        "$ref":"#/components/schemas/nd_iot_edge.v1.msg.topic"
+                    },
+                    "payload": {
+                        "$ref":"#/components/schemas/nd_iot_edge.v1.msg.payload"
+                    }
+                },
+                "required": [
+                    "id"
+                ]              
+            },
+            "nd_iot_edge.v1.on_south_input_msg": {
+                "description": "南向输入消息体",
+                "properties": {
+                    "id": {
+                        "$ref":"#/components/schemas/nd_iot_edge.v1.msg.id"
+                    },
+                    "topic": {
+                        "$ref":"#/components/schemas/nd_iot_edge.v1.msg.topic"
+                    },
+                    "payload": {
+                        "$ref":"#/components/schemas/nd_iot_edge.v1.msg.payload"
+                    }
+                },
+                "required": [
+                    "id"
+                ]              
+            },
+            "nd_iot_edge.v1.on_south_output_msg":{
+                "description": "南向输出消息体",
+                "$ref": "#/components/schemas/nd_iot_edge.v1.on_south_input_msg"
+            },
+            "nd_iot_edge.v1.on_north_input_msg": {
+                "description": "北向输入消息体",
+                "properties": {
+                    "id": {
+                        "$ref":"#/components/schemas/nd_iot_edge.v1.msg.id"
+                    },
+                    "topic": {
+                        "$ref":"#/components/schemas/nd_iot_edge.v1.msg.topic"
+                    },
+                    "payload": {
+                        "$ref":"#/components/schemas/nd_iot_edge.v1.msg.payload"
+                    }
+                },
+                "required": [
+                    "id"
+                ]              
+            },
+            "nd_iot_edge.v1.on_north_output_msg":{
+                "description": "北向输出消息体",
+                "$ref": "#/components/schemas/nd_iot_edge.v1.on_south_input_msg"
+            },
+                        
+            "nd_iot_edge.v1.on_plugin_input_msg": {
+                "description": "插件管理消息体",
+                "properties": {
+                    "action":{
+                        "description": "管理动作：reg 注册插件，del 删除插件",
+                        "type": "string"
+                    },
+                    "payload": {
+                        "properties": {
+                            "id":{
+                                "description": "插件ID",
+                                "type": "string"
+                            },
+                            "url":{
+                                "description": "插件url地址",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "id"
+                        ]
+                    }
+                },
+                "required": [
+                    "action", "payload"
+                ]              
+            },
+            "nd_iot_edge.v1.on_shadows_input_msg": {
+                "description": "影子设备管理消息体",
+                "properties": {
+                    "action":{
+                        "description": "create 创建设备，remove 移除插件",
+                        "type": "string"
+                    },
+                    "payload": {
+                        "properties": {
+                            "id": {
+                                "description": "设备ID",
+                                "type": "string"                                
+                            },
+                            "pid": {
+                                "description": "设备父ID",
+                                "type": "string"                                
+                            },
+                            "model": {
+                                "description": "设备型号",
+                                "type": "string"                                
+                            },
+                            "app_id": {
+                                "description": "应用ID, 默认值: ndiot",
+                                "type": "string"                                
+                            },
+                            "dom_id": {
+                                "description": "租户ID",
+                                "type": "string"                                
+                            },
+                            "vendor": {
+                                "description": "设备品牌",
+                                "type": "string"                                
+                            },
+                            "type": {
+                                "description": "设备类型",
+                                "type": "string"                                
+                            },
+                            "name": {
+                                "description": "设备名称",
+                                "type": "string"                                
+                            },
+                            "nick": {
+                                "description": "设备别名",
+                                "type": "string"                                
+                            },
+                            "desc": {
+                                "description": "设备描述",
+                                "type": "string"                                
+                            }
+                        },
+                        "required": [
+                            "id","app_id","dom_id","vender","model"
+                        ]
+                    }
+                },
+                "required": [
+                    "action", "payload"
+                ]              
+            }
+        }
+
+
+    },    
+    "paths": {
+        "/on_plugin_input": {
+            "post": {
+                "description": "插件注册与删除",
+                "requestBody":{
+                    "content": {
+                        "application/json":{
+                            "schema":{
+                                "$ref": "#/components/schemas/nd_iot_edge.v1.on_plugin_input_msg"
+                            }
+                        }
+                        
+                    }
+                },
+                
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "插件注册与删除",
+                "tags": ["插件管理"]
+            },
+            "summary": "插件注册与删除"
+        },
+        "/on_plugin_output": {
+            "post": {
+                "description": "插件注册与删除事件输出",
+                "requestBody":{
+                    "content": {
+                        "application/json":{
+                            "schema":{
+                                "$ref": "#/components/schemas/nd_iot_edge.v1.on_plugin_input_msg"
+                            }
+                        }
+                        
+                    }
+                },
+                
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "插件管理事件",
+                "tags": ["插件管理"]
+            },
+            "summary": "插件注册与删除"
+        },        
+        "/on_shadows_input": {
+            "post": {
+                "description": "影子设备创建与删除",
+                "requestBody":{
+                    "content": {
+                        "application/json":{
+                            "schema":{
+                                "$ref": "#/components/schemas/nd_iot_edge.v1.on_shadows_input_msg"
+                            }
+                        }
+                        
+                    }
+                },
+                
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "影子设备创建与删除",
+                "tags": ["影子设备管理"]
+            },
+            "summary": "影子设备创建与删除"
+        },
+        "/on_shadows_output": {
+            "post": {
+                "description": "影子设备创建与删除事件输出",
+                "requestBody":{
+                    "content": {
+                        "application/json":{
+                            "schema":{
+                                "$ref": "#/components/schemas/nd_iot_edge.v1.on_shadows_input_msg"
+                            }
+                        }
+                        
+                    }
+                },
+                
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "影子设备创建与删除",
+                "tags": ["影子设备管理"]
+            },
+            "summary": "影子设备创建与删除"
+        },        
+        "/on_south_input": {
+            "post": {
+                "description": "数据从南向（设备）输入到该组件",
+                "requestBody":{
+                    "content": {
+                        "application/json":{
+                            "schema":{
+                                "$ref": "#/components/schemas/nd_iot_edge.v1.on_south_input_msg"
+                            }
+                        }
+                        
+                    }
+                },
+                
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "南向数据输入",
+                "tags": ["南向输入"]
+            },
+            "summary": "南向输入"
+        },
+        "/on_south_output": {
+            "post": {
+                "description": "数据从该组件往南向输出（到设备）",
+                "requestBody":{
+                    "content": {
+                        "application/json":{
+                            "schema":{
+                                "$ref": "#/components/schemas/nd_iot_edge.v1.on_south_output_msg"
+                            }
+                        }
+                        
+                    }
+                },
+                
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "南向数据输出",                
+                "tags": ["南向输出"]
+            }
+        },
+        "/on_north_input": {
+            "post": {
+                "description": "数据从北向（平台）输入到该组件",
+                "requestBody":{
+                    "content": {
+                        "application/json":{
+                            "schema":{
+                                "$ref": "#/components/schemas/nd_iot_edge.v1.on_north_input_msg"
+                            }
+                        }
+                        
+                    }
+                },
+                
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "北向数据输入",
+                "tags": ["北向输入"]
+            },
+            "summary": "北向输入"
+        },
+        "/on_north_output": {
+            "post": {
+                "description": "数据从该组件往北向输出（到平台）",
+                "requestBody":{
+                    "content": {
+                        "application/json":{
+                            "schema":{
+                                "$ref": "#/components/schemas/nd_iot_edge.v1.on_north_output_msg"
+                            }
+                        }
+                        
+                    }
+                },
+                
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "summary": "北向数据输出",                
+                "tags": ["北向输出"]
+            }
+        }        
+    }
+  }

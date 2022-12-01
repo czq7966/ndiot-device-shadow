@@ -1,0 +1,82 @@
+@startuml
+' actor Actor as User
+' note over User, Route: 创建设备类别.
+User -> Route:创建设备类别
+' activate User
+' activate Route
+' Route->CategoryMng:创建设备类别
+' activate CategoryMng
+' database Database as TSLDB
+' CategoryMng->TSLDB:保存物模型
+' activate TSLDB
+' TSLDB-->CategoryMng:返回
+' deactivate TSLDB
+' CategoryMng-->Route:返回
+' deactivate CategoryMng
+' Route-->User:返回
+' deactivate Route
+' deactivate User
+
+' note over User, Route: 创建物模型.
+' User->Route:创建物模型
+' activate User
+' activate Route
+' Route->TSLMng:创建物模型
+' activate TSLMng
+' TSLMng->TSLDB:保存物模型
+' activate TSLDB
+' TSLDB-->TSLMng:返回
+' deactivate TSLDB
+' TSLMng-->Route:返回
+' deactivate TSLMng
+' Route-->User:返回
+' deactivate Route
+' deactivate User
+
+' note over User, Route: 添加设备.
+' User->Route:添加设备
+' activate User
+' activate Route
+' Route->DeviceService:添加设备
+' activate DeviceService
+' database Database as TSLDB
+' DeviceService->TSLMng:查询物模型
+' activate TSLMng
+' TSLMng-->DeviceService:返回物模型
+' deactivate TSLMng
+' collections DevShadow
+' DeviceService->DevShadow:创建物影子
+' activate DevShadow
+' DevShadow-->DeviceService:返回
+' deactivate DevShadow
+' DeviceService->TSLDB:保存设备
+' activate TSLDB
+' TSLDB-->DeviceService:返回
+' deactivate TSLDB
+' DeviceService->Device:开始监听设备实时状态
+' DeviceService-->Route:返回
+' deactivate DeviceService
+' Route-->User:返回
+' deactivate Route
+' deactivate User
+
+' note over User, Route: 下行控制.
+' User->Route:发送控制请求
+' activate User
+' activate Route
+' Route->DeviceService:发送控制请求
+' activate DeviceService
+' DeviceService->Device:发送控制请求
+' deactivate DeviceService
+' Device->DeviceService:接收结果反馈
+' activate DeviceService
+' DeviceService->DevShadow:更新物影子
+' DeviceService->TSLDB:保存设备状态
+' DeviceService->Route:应答
+' deactivate DeviceService
+' Route-->User:返回
+' deactivate Route
+' deactivate User
+
+@enduml
+
