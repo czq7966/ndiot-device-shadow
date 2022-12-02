@@ -1,0 +1,2111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>ESLint Results</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style type="text/css">
+    body {
+      margin: 0;
+    }
+  
+    .eslint-report {
+      font-family: "Helvetica Neue", sans-serif;
+      font-size: 14px;
+      padding: 20px 40px;
+    }
+  
+    .eslint-report h1 {
+      border-bottom: 1px solid #ddd;
+      line-height: 1;
+      padding-bottom: 12px;
+    }
+  
+    .eslint-report h2 {
+      padding-bottom: 9px;
+      line-height: 1;
+      margin-top: 24px;
+      margin-bottom: 9px;
+    }
+  
+    .eslint-report h3 {
+      line-height: 1;
+      margin-top: 0;
+    }
+  
+    .eslint-report a {
+      text-decoration: none;
+    }
+  
+    .eslint-report table {
+      border-spacing: 0;
+      border-collapse: collapse;
+    }
+  
+    .toggle-all-link {
+      font-size: 14px;
+    }
+  
+    .report-table {
+      font-size: 14px;
+      min-width: 800px;
+      border: 1px solid #e6e6e6;
+      margin: 10px;
+    }
+  
+    .report-table thead {
+      background-color: #eee;
+    }
+  
+    .report-table th {
+      text-align: left;
+      vertical-align: middle;
+    }
+  
+    .report-table th,
+    .report-table td {
+      padding: 4px 9px;
+      border: 1px solid #ccc;
+    }
+  
+    .report-table td {
+      line-height: 1.5;
+      vertical-align: top;
+    }
+  
+    .report-table .error-col {
+      width: 41px;
+    }
+  
+    .report-table .warning-col {
+      width: 63px;
+    }
+  
+    .report-table .toggle-link {
+      display: block;
+    }
+  
+    .report-table .danger td {
+      background-color: rgba(242, 222, 222, 0.8);
+    }
+  
+    .report-table .danger:hover td {
+      background-color: rgba(242, 222, 222, 1);
+    }
+  
+    .report-table .warning td {
+      background-color: rgba(252, 248, 227, 0.8);
+    }
+  
+    .report-table .warning:hover td {
+      background-color: rgba(252, 248, 227, 1);
+    }
+  
+    .report-table .success td {
+      background-color: rgba(223, 240, 216, 0.8);
+    }
+  
+    .report-table .success:hover td {
+      background-color: rgba(223, 240, 216, 1);
+    }
+  
+    .table-wrapper {
+      display: flex;
+      justify-content: flex-start;
+      width: 600px;
+      align-items: flex-end;
+    }
+  
+    .table-wrapper.occurrences {
+      align-items: flex-start;
+    }
+  
+    .table-wrapper.occurrences .table-column {
+      height: 180px;
+      overflow-y: auto;
+    }
+  
+    .table-column {
+      flex: 1;
+      margin: 10px;
+    }
+  
+    .summary-table {
+      width: 100%;
+    }
+  
+    .summary-table a {
+      display: block;
+    }
+  
+    .summary-table td {
+      padding: 4px 0;
+    }
+  
+    .summary-table td:last-child {
+      text-align: right;
+    }
+  
+    .summary-table tfoot td {
+      border-top: 2px solid #666;
+      font-weight: bold;
+    }
+  
+    .details-row.hidden {
+      display: none;
+    }
+  
+    .details-table {
+      font-size: 12px;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+  
+    .details-table td {
+      border: 0;
+      padding: 1px 6px;
+    }
+  
+    .details-table td:first-child {
+      padding-left: 0;
+    }
+  
+    .details-table .location-col {
+      width: 25px;
+    }
+  
+    .details-table .rule-col {
+      white-space: nowrap;
+      width: 100px;
+    }
+  
+    .details-table .rule-col a {
+      display: block;
+    }
+  
+    .details-table .rule-col a:hover {
+      text-decoration: underline;
+    }
+  
+    .details-table .severity-col {
+      width: 45px;
+    }
+  
+    .details-table .msg-danger .severity-col {
+      color: #900;
+    }
+  
+    .details-table .msg-warning .severity-col {
+      color: #f90;
+    }
+  </style>
+
+    <script>
+      // yolo
+      function toggleAllDetails(node) {
+        var rows = document.querySelectorAll("tr.details-row");
+    
+        if (node.innerHTML === "(expand all)") {
+          node.innerHTML = "(collapse all)";
+    
+          for (var x = 0; x < rows.length; x++) {
+            var row = rows[x];
+            row.className = "details-row";
+          }
+        } else {
+          node.innerHTML = "(expand all)";
+    
+          for (var x = 0; x < rows.length; x++) {
+            var row = rows[x];
+            row.className = "details-row hidden";
+          }
+        }
+      }
+    
+      function toggleDetails(node) {
+        var parentRow = node.parentNode.parentNode;
+        var detailsRow = parentRow.nextSibling;
+    
+        if (detailsRow.className === "details-row hidden") {
+          detailsRow.className = "details-row";
+        } else {
+          detailsRow.className = "details-row hidden";
+        }
+      }
+    </script>
+</head>
+<body>
+  <div class="eslint-report">
+    <h1>ESLint Results</h1>
+
+      <h2>Summary</h2>
+      
+      <div class="table-wrapper">
+        <div class="table-column">
+          <table class="summary-table">
+              <tbody>
+                <tr>
+                  <td>Errors</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td>Warnings</td>
+                  <td>227</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td>Total alerts</td>
+                  <td>227</td>
+                </tr>
+              </tfoot>
+          </table>
+        </div>
+        <div class="table-column">
+          <table class="summary-table">
+              <tbody>
+                <tr>
+                  <td>Files with errors</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td>Files with only warnings</td>
+                  <td>37</td>
+                </tr>
+                <tr>
+                  <td>Clean files</td>
+                  <td>60</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td>Total files linted</td>
+                  <td>97</td>
+                </tr>
+              </tfoot>
+          </table>
+        </div>
+      </div>
+
+        <h2>Most-Common Errors and Warnings</h2>
+        
+        <div class="table-wrapper occurrences">
+          <div class="table-column">
+            <h3>Errors</h3>
+        
+              <p>No errors were found!</p>
+          </div>
+          <div class="table-column">
+            <h3>Warnings</h3>
+        
+              <table class="summary-table">
+                <tbody>
+                    <tr class="occurrence row-0">
+                        <td><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+                      <td>135</td>
+                    </tr>
+                    <tr class="occurrence row-1">
+                        <td><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+                      <td>92</td>
+                    </tr>
+                </tbody>
+              </table>
+          </div>
+        </div>
+
+      <h2>File Breakdown
+          <a id="toggle" href="javascript:;" onclick="toggleAllDetails(this)" class="toggle-all-link">(expand all)</a></h2>
+      
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th>File</th>
+            <th class="error-col">Errors</th>
+            <th class="warning-col">Warnings</th>
+          </tr>
+        </thead>
+        <tbody><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\z2m\base\nd-device.ts</a></td>
+              <td>0</td>
+              <td>51</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              105:37
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              145:22
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              146:24
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              161:42
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              285:22
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;v&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              307:24
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              326:28
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              353:24
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;e&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              369:38
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;reject&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              473:37
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              638:22
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              639:38
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;reject&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              641:19
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;v&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              645:20
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;e&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              662:24
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              663:38
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;reject&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              667:19
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;v&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              671:20
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;e&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              680:21
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              681:33
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              684:55
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;reject&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              705:21
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              706:33
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              709:51
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;reject&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              710:60
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;err&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              710:65
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;path&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              818:19
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;v&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              873:38
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;reject&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              876:23
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;v&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              929:16
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;e&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              974:21
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              975:33
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1025:16
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;e&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1160:47
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1161:37
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;file&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1161:43
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;event&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1161:50
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;fpath&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1184:23
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;reqMsg&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1198:15
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;hd&#x27; is assigned a value but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1231:16
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;e&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1241:22
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;code&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1249:28
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;packet&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1258:31
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;packet&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1315:43
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;packet&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1324:59
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1348:59
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1371:59
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1394:59
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1415:22
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1423:59
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1451:59
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\z2m\base\device.ts</a></td>
+              <td>0</td>
+              <td>49</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              101:37
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              141:22
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              142:24
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              157:42
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              281:22
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;v&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              303:24
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              322:28
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              349:24
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;e&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              365:38
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;reject&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              475:37
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              640:22
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              641:38
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;reject&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              643:19
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;v&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              647:20
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;e&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              664:24
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              665:38
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;reject&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              669:19
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;v&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              673:20
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;e&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              682:21
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              683:33
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              686:55
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;reject&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              707:21
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              708:33
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              711:51
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;reject&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              712:60
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;err&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              712:65
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;path&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              820:19
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;v&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              875:38
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;reject&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              878:23
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;v&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              931:16
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;e&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              976:21
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              977:33
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1027:16
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;e&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1148:47
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1149:37
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;file&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1149:43
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;event&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1149:50
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;fpath&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1230:16
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;e&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1240:22
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;code&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1248:28
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;packet&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1257:31
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;packet&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1314:43
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;packet&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1323:59
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1347:59
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1370:59
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1393:59
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1414:22
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1422:59
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              1450:59
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\test\mqtttest.ts</a></td>
+              <td>0</td>
+              <td>20</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              13:6
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              24:32
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;topic&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              24:39
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;message&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              28:35
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;topic&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              28:42
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;message&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              32:28
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;topic&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              32:35
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;message&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              36:30
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;topic&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              36:37
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;message&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              40:30
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;topic&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              40:37
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;message&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              44:32
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;topic&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              44:39
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;message&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              48:38
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;topic&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              48:45
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;message&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              52:38
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;topic&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              52:45
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;message&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              56:34
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;topic&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              56:41
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;message&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              60:7
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;abc&#x27; is assigned a value but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\common\events.ts</a></td>
+              <td>0</td>
+              <td>13</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              8:28
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              9:30
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              10:29
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              11:19
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              23:28
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              29:30
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              35:29
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              38:19
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              47:25
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              48:11
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              53:18
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              97:46
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              97:71
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\modbus\base\device.ts</a></td>
+              <td>0</td>
+              <td>12</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              3:36
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;IModbusCmd&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              3:79
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;IModbusRTU&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              3:108
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;ModbusCmd&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              3:131
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;ModbusRTU&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              5:19
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;DeviceBase&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              6:10
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;IDeviceBase&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              240:85
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              271:85
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              296:68
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              451:35
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              456:20
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;v&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              459:21
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;e&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\node-red\shadow-manager.ts</a></td>
+              <td>0</td>
+              <td>12</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              82:9
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;send&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              83:9
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;done&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              88:9
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;send&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              89:9
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;done&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              94:9
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;send&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              95:9
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;done&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              100:9
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;send&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              101:9
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;done&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              106:9
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;send&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              107:9
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;done&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              112:9
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;send&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              113:9
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;done&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\test\nd-device\rfir-coder-gree.ts</a></td>
+              <td>0</td>
+              <td>8</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              4:10
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;PntTable&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              5:10
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;Table&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              5:17
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;TableBits&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              7:33
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;IDeviceBusEventData&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              38:7
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;codesOpen1&#x27; is assigned a value but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              42:7
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;codesOpen2&#x27; is assigned a value but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              48:7
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;codesClose1&#x27; is assigned a value but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              52:7
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;codesClose2&#x27; is assigned a value but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\coders\rfir\rfir-coder.ts</a></td>
+              <td>0</td>
+              <td>5</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              72:62
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              75:63
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              171:19
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;code&#x27; is assigned a value but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              270:37
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              297:48
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\fire\qtl-tx3016a\datatable.ts</a></td>
+              <td>0</td>
+              <td>4</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              1:10
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;secureHeapUsed&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              468:29
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;data&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              468:43
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;table&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              521:15
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;idx&#x27; is assigned a value but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\modbus\base\ac-device.ts</a></td>
+              <td>0</td>
+              <td>4</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              2:10
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;Debuger&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              12:68
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              16:58
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              29:39
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\manager.ts</a></td>
+              <td>0</td>
+              <td>4</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              1:10
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;Device&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              4:54
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;IDevicePlugin&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              86:21
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;msg&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              103:20
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;error&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\shadow.ts</a></td>
+              <td>0</td>
+              <td>4</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              3:29
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;IDeviceBusEvent&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              175:87
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              209:28
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;msg&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              213:27
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;msg&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\coders\rfir\ac-gree\pnt-table.ts</a></td>
+              <td>0</td>
+              <td>3</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              192:34
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              193:75
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              200:50
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\ct-dooya-dvq24gf\device.ts</a></td>
+              <td>0</td>
+              <td>3</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              2:19
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;DeviceBase&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              3:67
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;IDeviceShadow&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              144:47
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\modbus\ac-pgdtm7000-f\device.ts</a></td>
+              <td>0</td>
+              <td>3</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              29:68
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              33:58
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              47:40
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\rfir\ac-media-nd\device.ts</a></td>
+              <td>0</td>
+              <td>3</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              6:10
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;ICoder&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              139:24
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              206:59
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;pld&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\device.dts.ts</a></td>
+              <td>0</td>
+              <td>3</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              107:29
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              119:15
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              156:11
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\common\amd\requirejs.ts</a></td>
+              <td>0</td>
+              <td>2</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              5:83
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              33:23
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\coders\dev-bin-json\cmd.ts</a></td>
+              <td>0</td>
+              <td>2</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              1:10
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;timeStamp&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              2:10
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;IBaseEvent&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\coders\modbus\modbus.ts</a></td>
+              <td>0</td>
+              <td>2</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              150:48
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              616:33
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\modbus\ps-ise101r5\device.ts</a></td>
+              <td>0</td>
+              <td>2</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              3:10
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;IDeviceBusDataPayload&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              59:23
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;msg&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\rfir\ac-gree-nd\device.ts</a></td>
+              <td>0</td>
+              <td>2</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              162:24
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              227:59
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;pld&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\test\nd-device\ac-hisense-hcpc-h2m1c.ts</a></td>
+              <td>0</td>
+              <td>2</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              1:10
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;ACGREEGMV6&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr><tr class="msg-warning"><td class="location-col">
+                              3:10
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;Modbus&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\ac-gree\device.ts</a></td>
+              <td>0</td>
+              <td>1</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              2:23
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;IDeviceBusEventData&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\coders\dev-bin-json\pld-table.ts</a></td>
+              <td>0</td>
+              <td>1</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              139:57
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\coders\plf-json-dev\plf-head.ts</a></td>
+              <td>0</td>
+              <td>1</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              43:40
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\coders\plf-json-dev\plf-payload.ts</a></td>
+              <td>0</td>
+              <td>1</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              34:23
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\coders\rfir\ac-media\pnt-table.ts</a></td>
+              <td>0</td>
+              <td>1</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              80:34
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">Unexpected any. Specify a different type.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-explicit-any">@typescript-eslint/no-explicit-any</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\modbus\ac-gree-gmv6\device.ts</a></td>
+              <td>0</td>
+              <td>1</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              89:15
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;pld&#x27; is assigned a value but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\modbus\ac-hisense-hcpc-h2m1c\device.ts</a></td>
+              <td>0</td>
+              <td>1</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              5:19
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;Modbus&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\rfir\ac-media\device.ts</a></td>
+              <td>0</td>
+              <td>1</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              9:10
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;ISegCoderParam&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\z2m\com\device.ts</a></td>
+              <td>0</td>
+              <td>1</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              22:22
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;code&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\z2m\mqtt\device.ts</a></td>
+              <td>0</td>
+              <td>1</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              14:22
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;code&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\amd\z2m\tcp\device.ts</a></td>
+              <td>0</td>
+              <td>1</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              19:22
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;code&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\plugins.ts</a></td>
+              <td>0</td>
+              <td>1</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              169:21
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;msg&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\device\shadows.ts</a></td>
+              <td>0</td>
+              <td>1</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              2:61
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;IDeviceShadowEvents&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="warning"><td>            <a class="toggle-link" href="javascript:;" onclick="toggleDetails(this)">E:\data\ndiot-device-shadow\src\test\nd-device\ac-gree-gmv6.ts</a></td>
+              <td>0</td>
+              <td>1</td></tr><tr class="details-row hidden">
+                <td colspan="3">
+                  <table class="details-table">
+                    <tbody><tr class="msg-warning"><td class="location-col">
+                              2:10
+                          </td>
+                          <td class="severity-col">Warning</td>
+                          <td class="message-col">&#x27;Modbus&#x27; is defined but never used.</td>
+                            <td class="rule-col"><a href="http://eslint.org/docs/rules/@typescript-eslint/no-unused-vars">@typescript-eslint/no-unused-vars</a></td>
+      </tr></tbody>
+                  </table>
+                </td>
+              </tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\common\amd\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\common\base.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\common\crc16.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\common\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\common\sum.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\common\utils.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\common\uuid.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\ac-gree\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\coders\dev-bin-json\cmd-head.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\coders\dev-bin-json\head.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\coders\plf-json-dev\plf-coder.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\coders\rfir\ac-gree\coder.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\coders\rfir\ac-gree\plf-props.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\coders\rfir\ac-gree\props.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\coders\rfir\ac-gree\table.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\coders\rfir\ac-media\coder.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\coders\rfir\ac-media\plf-props.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\coders\rfir\ac-media\props.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\coders\rfir\ac-media\table.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\coders\tv\tv-hisense-65wr30a\coder.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\coders\tv\tv-hisense-65wr30a\plf-props.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\coders\tv\tv-hisense-65wr30a\pnt-table.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\coders\tv\tv-hisense-65wr30a\props.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\coders\tv\tv-hisense-65wr30a\table.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\ct-dooya-dvq24gf\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\device\device.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\device\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\fire\qtl-tx3016a\device.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\fire\qtl-tx3016a\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\modbus\ac-gree-gmv6\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\modbus\ac-hisense-hcpc-h2m1c\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\modbus\ac-pgdtm7000-f\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\modbus\base\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\modbus\ps-ise101r5\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\nd-device\device.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\nd-device\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\rfir\ac-gree-nd\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\rfir\ac-gree\device.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\rfir\ac-gree\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\rfir\ac-media-nd\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\rfir\ac-media\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\rfir\device.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\rfir\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\tv\tv-hisense-65wr30a\device.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\tv\tv-hisense-65wr30a\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\z2m\base\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\z2m\com\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\z2m\mqtt\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\amd\z2m\tcp\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\device-base.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\device\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\node-red\nd-device-shadow.js</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\test\index.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\test\mongodb.js</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\test\nd-device\cmd.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\test\nd-device\coder.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\test\nd-device\device.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\test\nd-device\regtable.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\test\nd-device\rfir-coder-media.ts</td>
+              <td>0</td>
+              <td>0</td></tr><tr class="success"><td>E:\data\ndiot-device-shadow\src\test\nd-device\tv-hisense-65wr30a.ts</td>
+              <td>0</td>
+              <td>0</td></tr></tbody>
+      </table>
+
+  </div>
+</body>
+</html>
