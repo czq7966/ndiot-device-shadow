@@ -4,7 +4,7 @@ import { IDeviceBusEventData } from "../../../device.dts";
 import { ACDevice } from "../base/ac-device";
 import { IModbus, Modbus } from "../base/device";
 
-export interface IACHisenseHCPCH2M1C extends IModbus {}
+export type IACHisenseHCPCH2M1C = IModbus
 
 export class ACHisenseHCPCH2M1C extends ACDevice implements IACHisenseHCPCH2M1C {
 
@@ -14,7 +14,7 @@ export class ACHisenseHCPCH2M1C extends ACDevice implements IACHisenseHCPCH2M1C 
         Debuger.Debuger.log("ACHisenseHCPCH2M1C init");
         this.slave = 0x32;
         this.tables.plcbase = 100000;
-        let regPlcbase = EModbusPLCType.EReadHoldingRegisters * this.tables.plcbase + 1;
+        const regPlcbase = EModbusPLCType.EReadHoldingRegisters * this.tables.plcbase + 1;
         this.tables.names = {
             power: regPlcbase + 40078,
             mode: regPlcbase + 40079,

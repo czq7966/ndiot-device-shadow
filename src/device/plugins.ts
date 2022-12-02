@@ -23,14 +23,14 @@ export class DevicePlugins extends Base implements IDevicePlugins {
     
 
     regPlugin(attrs: IDevicePluginAttr): IDevicePlugin {
-        let plugin: IDevicePlugin = this.plugins[attrs.id] || { attrs: attrs };
+        const plugin: IDevicePlugin = this.plugins[attrs.id] || { attrs: attrs };
         plugin.attrs = attrs;
         this.plugins[attrs.id] = plugin;
         return this.getPlugin(attrs.id);
     }
 
     getPlugin(id: string): IDevicePlugin {
-        let plugin =  this.plugins[id];
+        const plugin =  this.plugins[id];
         if (plugin && !plugin.Plugin)
             plugin.Plugin = this.getUrlPlugin(plugin.attrs.url);
         return plugin;
@@ -55,8 +55,8 @@ export class DevicePlugins extends Base implements IDevicePlugins {
                 if (plugin.Plugin) 
                     resolve(plugin);
                 else {       
-                    let url = this.getPluginUrl(id);
-                    let promise = reload ? this.reloadUrlPlugin(url) : this.loadUrlPlugin(url);
+                    const url = this.getPluginUrl(id);
+                    const promise = reload ? this.reloadUrlPlugin(url) : this.loadUrlPlugin(url);
                     promise
                     .then( _Plugin => {
                         plugin.Plugin = _Plugin;
@@ -71,8 +71,8 @@ export class DevicePlugins extends Base implements IDevicePlugins {
     }
 
     getPluginUrl(id: string): string {
-        let _getUrl = (_id) => {
-            let _plugin = this.getPlugin(_id);
+        const _getUrl = (_id) => {
+            const _plugin = this.getPlugin(_id);
             return _plugin ? _plugin.attrs.url : "";
         }        
 
@@ -87,8 +87,8 @@ export class DevicePlugins extends Base implements IDevicePlugins {
 
     reloadPlugin(name: string): Promise<IDevicePlugin> {
         return new Promise((resolve, reject) => {
-            let plugin = this.getPlugin(name);
-            let url = this.getPluginUrl(name);
+            const plugin = this.getPlugin(name);
+            const url = this.getPluginUrl(name);
             if (plugin && url) {
                     this.reloadUrlPlugin(url)
                     .then((_plugin) => {
@@ -110,14 +110,14 @@ export class DevicePlugins extends Base implements IDevicePlugins {
     }    
 
     getUrlPlugin(url: string): IDeviceClass {
-        let urlPlugin =this.urlPlugins[url];
+        const urlPlugin =this.urlPlugins[url];
         if (urlPlugin)
             return urlPlugin.Plugin;
         return null;
     }
 
     loadUrlPlugin(url: string): Promise<IDeviceClass> {
-        let urlPlugin =this.urlPlugins[url];
+        const urlPlugin =this.urlPlugins[url];
         if (urlPlugin) {
             if (urlPlugin.Plugin) 
                 return Promise.resolve(urlPlugin.Plugin);
@@ -134,17 +134,17 @@ export class DevicePlugins extends Base implements IDevicePlugins {
 
     reloadUrlPlugin(url: string): Promise<IDeviceClass> {     
         Debuger.Debuger.log("reloadUrlPlugin",url)
-        let urlPlugin = this.urlPlugins[url] || {url: url};
+        const urlPlugin = this.urlPlugins[url] || {url: url};
         this.urlPlugins[url]= urlPlugin;
-        let promise = new Promise<IDeviceClass>((resolve, reject) => {
+        const promise = new Promise<IDeviceClass>((resolve, reject) => {
             Common.Amd.requirejs(url, [])
             .then((modules: {}) => {
                 urlPlugin.promise = null;
-                let names = Object.keys(modules);
+                const names = Object.keys(modules);
                 if (names.length > 0) {
                     let name = names[0];
                     if (name === "Debuger" && names.length > 1) name = names[1];                    
-                    let plugin = modules[this.defaultPluginName] || modules[name];
+                    const plugin = modules[this.defaultPluginName] || modules[name];
                     urlPlugin.Plugin = plugin;
 
                     if (name != "Debuger" && modules["Debuger"])
@@ -167,6 +167,6 @@ export class DevicePlugins extends Base implements IDevicePlugins {
     }    
 
     on_events_input(msg: IDeviceBusEventData) {
-
+        return;
     }
 }

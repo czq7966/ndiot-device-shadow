@@ -84,17 +84,17 @@ export class ACGREEGMV6 extends Modbus implements IACGREEGMV6 {
     //获取查询点表
     on_svc_get_tables(msg: IDeviceBusEventData): IModbusRTUTable[] {
         Debuger.Debuger.log("ACGREEGMV6  on_child_input");
-        let tables = [];
-        let payload = msg.payload as IDeviceBusDataPayload
-        let pld = payload.pld;
+        const tables = [];
+        const payload = msg.payload as IDeviceBusDataPayload
+        const pld = payload.pld;
 
         if (msg.id == this.attrs.id) {//网关查询
             //16系统状态, 128内机状态
             [this.pointTables.states.system, this.pointTables.states.internal]
             .forEach(state => {
-                let keys = Object.keys(state);
-                let addr = parseInt(keys[0]);
-                let table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
+                const keys = Object.keys(state);
+                const addr = parseInt(keys[0]);
+                const table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
                 table.slave = this.slave;
                 table.address = addr;
                 table.func = EModbusType.EReadCoils;
@@ -103,12 +103,12 @@ export class ACGREEGMV6 extends Modbus implements IACGREEGMV6 {
             })
 
         } else {    //内机模拟量查询
-            let siid = msg.id.substring(this.attrs.id.lastIndexOf("_") + 1);
-            let iid = parseInt(siid) || 0;
+            const siid = msg.id.substring(this.attrs.id.lastIndexOf("_") + 1);
+            const iid = parseInt(siid) || 0;
             if (iid) {
-                let keys = Object.keys(this.pointTables.analogs.internal);
-                let addr = parseInt(keys[0]);
-                let table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
+                const keys = Object.keys(this.pointTables.analogs.internal);
+                const addr = parseInt(keys[0]);
+                const table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
                 table.slave = this.slave;
                 table.address = addr + 25 * (iid - 1);
                 table.func = EModbusType.EReadHoldingRegisters;
@@ -122,22 +122,22 @@ export class ACGREEGMV6 extends Modbus implements IACGREEGMV6 {
 
     //获取设置点表
     on_svc_set_tables(msg: IDeviceBusEventData): IModbusRTUTable[] {
-        let tables = [];
+        const tables = [];
 
         if (msg.id == this.attrs.id) {//网关设置
 
         } else {    //内机模拟量设置
-            let payload = msg.payload as IDeviceBusDataPayload
-            let values = payload.pld;
-            let names = Object.keys(values);
-            let siid = msg.id.substring(this.attrs.id.lastIndexOf("_") + 1);
-            let iid = parseInt(siid) || 0;
+            const payload = msg.payload as IDeviceBusDataPayload
+            const values = payload.pld;
+            const names = Object.keys(values);
+            const siid = msg.id.substring(this.attrs.id.lastIndexOf("_") + 1);
+            const iid = parseInt(siid) || 0;
             if (iid) {
                 names.forEach(name => {
-                    let value = values[name];
+                    const value = values[name];
                     let plcaddr = this.tables.names[name];
                     if (plcaddr) {                        
-                        let table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
+                        const table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
                         table.slave = this.slave;
                         table.setPLCAddress(plcaddr);
                         table.address = table.address + 25 * (iid - 1);

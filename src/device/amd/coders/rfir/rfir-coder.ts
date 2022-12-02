@@ -29,24 +29,24 @@ export interface ISegCoder {
 
 export class SegCoderParam implements ISegCoderParam {
     
-    headermark: number = 0;
-    headerspace: number = 0;
-    onemark: number = 0;
-    onespace: number = 0;
-    zeromark: number = 0;
-    zerospace: number = 0;
-    footermark: number = 0;
-    footerspace: number = 0;
+    headermark = 0;
+    headerspace = 0;
+    onemark = 0;
+    onespace = 0;
+    zeromark = 0;
+    zerospace = 0;
+    footermark = 0;
+    footerspace = 0;
 
-    nbits: number = 0;
-    MSBfirst: boolean = false;
-    step: number = 2;
-    lastspace: number = 0;
-    tolerance: number = 30;
-    excess: number = 0;
-    atleast: boolean = false;
+    nbits = 0;
+    MSBfirst = false;
+    step = 2;
+    lastspace = 0;
+    tolerance = 30;
+    excess = 0;
+    atleast = false;
 
-    expectlastspace: boolean = false;
+    expectlastspace = false;
 }
 
 export class SegEncoder {
@@ -97,13 +97,14 @@ export class SegDecoder {
     }
 
     static matchData(codes: number[], offset: number, param: ISegCoderParam, bits: boolean[]): boolean {
-        let nbits = param.expectlastspace ? param.nbits : param.nbits - 1;
+        const nbits = param.expectlastspace ? param.nbits : param.nbits - 1;
 
         let i = 0;  
-        while(true) {         
+        const x = true;
+        while(x) {         
             
-            let mark = codes[offset++];
-            let space = codes[offset++];
+            const mark = codes[offset++];
+            const space = codes[offset++];
             
             if (this.matchMark(mark, param.onemark, param.tolerance, param.excess) &&
                 this.matchSpace(space, param.onespace, param.tolerance, param.excess)) {
@@ -156,7 +157,7 @@ export class SegDecoder {
             return 0;
 
         // Data
-        let bits = [];
+        const bits = [];
         if (!this.matchData(codes, offset, param, bits))
             return 0;
          
@@ -167,7 +168,7 @@ export class SegDecoder {
             return 0;
 
         if (param.footerspace) {      
-            let code = codes[offset]       
+            const code = codes[offset]       
             if (offset >= codes.length)
                 return 0;
             if (param.atleast) {
@@ -206,9 +207,9 @@ export class SegsCoder implements ISegsCoder {
         let result = [];
         if (bitss.length == this.params.length) {
             for (let i = 0; i < bitss.length; i++) {
-                let bits = bitss[i];
-                let param = this.params[i];
-                let codes = [];
+                const bits = bitss[i];
+                const param = this.params[i];
+                const codes = [];
                 SegEncoder.encode(bits, param, codes);
                 result = result.concat(codes);                
             }
@@ -216,14 +217,14 @@ export class SegsCoder implements ISegsCoder {
         return result;        
     }
     decodeBits(codes: number[]): boolean[][] {
-        let result = [];
+        const result = [];
         let offset = 0;
         for (let i = 0; i < this.params.length; i++) {
-            let param = this.params[i];
+            const param = this.params[i];
             while (codes.length - offset >= param.nbits * param.step) {
-                let segCodes = codes.slice(offset);
-                let bits = [];
-                let count = SegDecoder.decode(segCodes, param, bits);
+                const segCodes = codes.slice(offset);
+                const bits = [];
+                const count = SegDecoder.decode(segCodes, param, bits);
 
                 if (count) {
                     offset = offset + count;
@@ -257,20 +258,20 @@ export class SegsCoder implements ISegsCoder {
     }
 
     encodeBytes(bytess: number[][]): number[] {
-        let bitss = [];        
+        const bitss = [];        
         if (bytess.length == this.params.length) {
             for (let i = 0; i < bytess.length; i++) {
                 let bits: boolean[] = [];
-                let bytes = bytess[i];                
-                let param = this.params[i]; 
-                let mask = param.MSBfirst ? 0b10000000 : 0b00000001;      
+                const bytes = bytess[i];                
+                const param = this.params[i]; 
+                const mask = param.MSBfirst ? 0b10000000 : 0b00000001;      
 
                 if (param.nbits % 8 != 0) {
                     bits = bytes as any;
                 } else {                
                     bytes.forEach(byte => {                
                         for (let k = 0; k < 8; k++) {
-                            let bitmask = param.MSBfirst ? mask >> k : mask << k;
+                            const bitmask = param.MSBfirst ? mask >> k : mask << k;
                             bits.push(!!(byte & bitmask));                    
                         }
                     });
@@ -282,20 +283,20 @@ export class SegsCoder implements ISegsCoder {
     }
 
     decodeBytes(codes: number[]): number[][] {
-        let bytess = [];
-        let bitss = this.decodeBits(codes);
+        const bytess = [];
+        const bitss = this.decodeBits(codes);
         if (bitss.length == this.params.length) {
             for (let i = 0; i < bitss.length; i++) {
                 let bytes = [];
-                let param = this.params[i]; 
-                let bits = bitss[i];
+                const param = this.params[i]; 
+                const bits = bitss[i];
                 let byte = 0;
 
                 if (bits.length % 8 == 0) {
                     for (let j = 0; j < bits.length; j++) {
-                        let bit = bits[j] as any as number;                    
-                        let idx = j % 8;
-                        let bitmask = param.MSBfirst ? bit << (7 - idx) : bit << idx;
+                        const bit = bits[j] as any as number;                    
+                        const idx = j % 8;
+                        const bitmask = param.MSBfirst ? bit << (7 - idx) : bit << idx;
                         byte = byte | bitmask;
                         if (idx == 7) {
                             bytes.push(byte);
@@ -313,8 +314,8 @@ export class SegsCoder implements ISegsCoder {
     }
     
     encode(bytes: number[][]): Buffer {
-        let codes = this.encodeBytes(bytes);
-        let buf: number[] = [];
+        const codes = this.encodeBytes(bytes);
+        const buf: number[] = [];
         codes.forEach(code => {
             buf.push(code & 0xFF);
             buf.push((code >> 8) & 0xFF);
@@ -324,21 +325,20 @@ export class SegsCoder implements ISegsCoder {
     }
 
     decode(buf: Buffer): number[][] {
-        let codes: number[] = [];
+        const codes: number[] = [];
         let idx = 0;
         while(idx < buf.length) {
-            let code = buf[idx++] + (buf[idx++] << 8);
+            const code = buf[idx++] + (buf[idx++] << 8);
             codes.push(code);
         }
         return this.decodeBytes(codes);
     }
     reset() {
-
-        
+        return;        
     }
 
 }
 
 
-export interface IRfirCoder extends ISegsCoder {}
+export type IRfirCoder = ISegsCoder
 export class RfirCoder extends SegsCoder implements IRfirCoder {}

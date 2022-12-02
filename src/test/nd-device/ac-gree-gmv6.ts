@@ -3,7 +3,7 @@ import { Modbus } from "../../device/amd/modbus/base/device";
 import { IDeviceBusDataPayload, IDeviceBusEventData } from "../../device/device.dts";
 
 
-let device = new ACGREEGMV6({
+const device = new ACGREEGMV6({
     "id" : "ndiot485519666fc5",
     "app_id" : "ndiot",
     "desc" : "武汉云启/485透传/ndiot485519666fc5",
@@ -14,7 +14,7 @@ let device = new ACGREEGMV6({
     "vendor" : "ND"    
 });
 
-let payload : IDeviceBusDataPayload = {
+const payload : IDeviceBusDataPayload = {
     hd: {
         entry: {
             type: "svc",
@@ -23,7 +23,7 @@ let payload : IDeviceBusDataPayload = {
     },
     pld: {}
 }
-let msg: IDeviceBusEventData = {
+const msg: IDeviceBusEventData = {
     id: device.attrs.id,
     payload:  payload
 }

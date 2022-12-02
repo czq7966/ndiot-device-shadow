@@ -10,19 +10,19 @@ export interface IPlfPayload {
 export class PlfPayload implements IPlfPayload{
     encode(pld: {}): IPldTable{
         return PlfPayload.encodeDefault(pld);
-    };
+    }
     decode(pld: IPldTable): {} {
         return PlfPayload.decodeDefault(pld);
-    };
+    }
     static encodeDefault(pld: {}): IPldTable {
         if (pld) {
-            let result = new PldTable();
-            let tables = Object.assign({}, pld);
+            const result = new PldTable();
+            const tables = Object.assign({}, pld);
             result.tables = tables;
 
-            let keys = Object.keys(tables);
+            const keys = Object.keys(tables);
             keys.forEach(key => {
-                let val = tables[key];
+                const val = tables[key];
                 delete tables[key];
                 let keyVal = PldTable.Keys[key];
                 keyVal = keyVal ? keyVal : key;
@@ -35,10 +35,10 @@ export class PlfPayload implements IPlfPayload{
     }
     static decodeDefault(pld: IPldTable): {} {
         if (pld) {
-            let result = Object.assign({}, pld.tables); 
-            let keys = Object.keys(result);
+            const result = Object.assign({}, pld.tables); 
+            const keys = Object.keys(result);
             keys.forEach(key => {
-                let val = result[key];
+                const val = result[key];
                 // delete result[key];
                 let keyVal = PldTable.Names[key];
                 keyVal = keyVal ? keyVal : key;
@@ -50,7 +50,7 @@ export class PlfPayload implements IPlfPayload{
         return pld;
     }
     reset() {
-    
+        return;    
     }
     
 }

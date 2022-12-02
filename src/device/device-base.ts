@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import EventEmitter = require("events");
 import { InspectOptions } from "util";
 import { IBaseEvent, BaseEvent } from "../common/events";
 import { Base, IDeviceBase, IDeviceBaseEvents, IDeviceBusEventData, IDeviceShadow, IDeviceEntryEvent, IDeviceBusEvent, IDeviceBaseAttr } from "./device.dts";
 
 export class DeviceBusEvent implements IDeviceBusEvent {
-    eventName: string = "";
+    eventName = "";
     eventEmitter: EventEmitter = new EventEmitter();
     onDestroy: IBaseEvent = new BaseEvent();
     destroy() {
@@ -69,34 +71,34 @@ export class DeviceBaseEvents extends Base implements IDeviceBaseEvents {
 }
 
 export class DeviceBaseAttr implements IDeviceBaseAttr {
-    id: string = "";
+    id = "";
 }
 
 export class Debuger {
     static Debuger: Console = console;
     static Nothing: Console =  {
-        assert(value?: any, message?: any, ...optionalParams: any[]): void { },
-        clear(): void { },
-        count(label?: any): void { },
-        countReset(label?: any): void { },
-        debug(message?: any, ...optionalParams: any[]): void { },
-        dir(obj?: any, options?: any): void { },
-        dirxml(...data: any[]): void { },
-        error(message?: any, ...optionalParams: any[]): void { },
-        group(...label: any[]): void { },
-        groupCollapsed(...label: any[]): void { },
-        groupEnd(): void { },
-        info(message?: any, ...optionalParams: any[]): void { },
-        log(message?: any, ...optionalParams: any[]): void { },
-        table(tabularData?: any, properties?: any): void { },
-        time(label?: any): void { },
-        timeEnd(label?: any): void { },
-        timeLog(label?: any, ...data: any[]): void { },
-        timeStamp(label?: any): void { },
-        trace(message?: any, ...optionalParams: any[]): void { },
-        warn(message?: any, ...optionalParams: any[]): void { },
-        profile(label?: string): void { },
-        profileEnd(label?: string): void { },
+        assert(value?: any, message?: any, ...optionalParams: any[]): void { return; },
+        clear(): void { return; },
+        count(label?: any): void { return; },
+        countReset(label?: any): void { return; },
+        debug(message?: any, ...optionalParams: any[]): void { return; },
+        dir(obj?: any, options?: any): void { return; },
+        dirxml(...data: any[]): void { return; },
+        error(message?: any, ...optionalParams: any[]): void { return; },
+        group(...label: any[]): void {  return;},
+        groupCollapsed(...label: any[]): void { return; },
+        groupEnd(): void {  return;},
+        info(message?: any, ...optionalParams: any[]): void { return; },
+        log(message?: any, ...optionalParams: any[]): void { return; },
+        table(tabularData?: any, properties?: any): void { return; },
+        time(label?: any): void { return; },
+        timeEnd(label?: any): void {  return;},
+        timeLog(label?: any, ...data: any[]): void {  return;},
+        timeStamp(label?: any): void { return; },
+        trace(message?: any, ...optionalParams: any[]): void {  return;},
+        warn(message?: any, ...optionalParams: any[]): void { return; },
+        profile(label?: string): void { return; },
+        profileEnd(label?: string): void {  return;},
         Console: undefined
     }
 }
@@ -112,12 +114,12 @@ export class DeviceBase extends Base implements IDeviceBase {
         this.events = new DeviceBaseEvents();
         // this.shadow = shadow;
 
-        let on_south_input = (msg) => {this.on_south_input(msg);}
-        let on_north_input = (msg) => {this.on_north_input(msg);}
-        let on_config_input = (msg) => {this.on_config_input(msg);}
-        let on_notify_input = (msg) => {this.on_notify_input(msg);}
-        let on_parent_input = (msg) => {this.on_parent_input(msg);}
-        let on_child_input = (msg) => {this.on_child_input(msg);}
+        const on_south_input = (msg) => {this.on_south_input(msg);}
+        const on_north_input = (msg) => {this.on_north_input(msg);}
+        const on_config_input = (msg) => {this.on_config_input(msg);}
+        const on_notify_input = (msg) => {this.on_notify_input(msg);}
+        const on_parent_input = (msg) => {this.on_parent_input(msg);}
+        const on_child_input = (msg) => {this.on_child_input(msg);}
 
         this.events.south.input.on(on_south_input);
         this.events.north.input.on(on_north_input);

@@ -1,11 +1,11 @@
 import * as mqtt from "mqtt"
 
 
-let client  = mqtt.connect('mqtt://push-access.sdp.101.com:1780', {
+const client  = mqtt.connect('mqtt://push-access.sdp.101.com:1780', {
     username: "60b603a0d9419c00107e378d",
 })
 
-let subscribe = mqtt.MqttClient.prototype.subscribe;
+const subscribe = mqtt.MqttClient.prototype.subscribe;
 mqtt.MqttClient.prototype.subscribe  = function(a, b, c) {
     console.log(1111111, a, b)
     return subscribe.call(this, a,b,c);
@@ -57,7 +57,7 @@ client.on('reconnect', function (topic, message) {
     console.log("on reconnect")
 })  
 
-let abc = -1;
+const abc = -1;
 
 
 

@@ -2,7 +2,6 @@ import * as fs from 'fs'
 import * as net from 'net'
 import * as Mqtt from 'mqtt'
 import * as Notify from 'fs.notify'
-var isUtf8 = import('is-utf8');
 import * as yaml from 'js-yaml'
 import { ChildProcess, spawn, SpawnOptions } from "child_process";
 
@@ -13,7 +12,7 @@ import { UUID } from '../../../../common/uuid';
 import { Utils } from '../../../../common/utils';
 
 
-let defaultConfiguration =  {
+const defaultConfiguration =  {
         homeassistant: false,
         permit_join: false,
         mqtt: {
@@ -249,7 +248,8 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
     buffer: Buffer;
     events: IZ2MTcpServerEvents;
 
-    base64RegExp: RegExp = new RegExp('^[A-Za-z0-9+\/=]*$');
+    // eslint-disable-next-line no-useless-escape
+    base64RegExp = new RegExp('^[A-Za-z0-9+\/=]*$');
     constructor() {
         super();
         this.buffer = Buffer.alloc(0);
@@ -277,7 +277,7 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
             return this.startServer();
     }
     stop(): Promise<void> {
-        let promise = this.stopServer();
+        const promise = this.stopServer();
         promise.then(v => this.status = "killed");
         return promise;
     }
@@ -300,9 +300,7 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
         })
 
         this.server.on("error", (err: Error) => {
-            if((err as any).code === 'EADDRINUSE' ) {
-
-            } else {
+            if((err as any).code === 'EADDRINUSE' ) { /* empty */ } else {
                 this.events.output.error.emit(err);
             }
         })
@@ -318,7 +316,7 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
 
     _startServer(port: number): Promise<number> {        
         return new Promise<number>((resolve, reject) => {
-            let error = (err: Error) => {
+            const error = (err: Error) => {
                 this.server.off("error", error);
                 this.server.off("listening", listening);
                 if((err as any).code === 'EADDRINUSE' ) {
@@ -327,7 +325,7 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
                     resolve(port)
                 }
             };
-            let listening = () => {
+            const listening = () => {
                 this.server.off("error", error);
                 this.server.off("listening", listening);                
                 resolve(port)
@@ -342,7 +340,7 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
     startServer(): Promise<number>{
         return new Promise<number>((resolve, reject) => {
             let port = this.port || this.port_start;
-            let _start = () => {
+            const _start = () => {
                 this._startServer(port)
                 .then(p => {
                     this.port = p;
@@ -374,10 +372,10 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
     }
 
     initSocket() {
-        let socket = this.socket;
+        const socket = this.socket;
         socket.on("data", (data: Buffer) => {
             // this.buffer = Buffer.concat([this.buffer, data], this.buffer.length + data.length);
-            let value = data.toString('base64');
+            const value = data.toString('base64');
             Debuger.Debuger.log("initSocket data", data);
             this.events.output.data.emit(value);
 
@@ -420,7 +418,7 @@ export class Z2MTcpServer extends Base implements IZ2MTcpServer {
                 this.socket.write(msg);
             } else {
                 if (typeof msg === "string") {
-                    let load = msg.replace(/\s+/g,''); 
+                    const load = msg.replace(/\s+/g,''); 
                     if (this.base64RegExp.test(load) && (load.length % 4 === 0) ) {
                         this.socket.write(Buffer.from(load,'base64'));
                     }
@@ -519,7 +517,7 @@ export class Z2MMqtt extends Base implements IZ2MMqtt {
         if (this.mqtt && this.mqtt.connected)
             return;
         this.initConfig(cfg);
-        let ops: Mqtt.IClientOptions = {};
+        const ops: Mqtt.IClientOptions = {};
         this.initOptions(ops);
         this.mqtt = Mqtt.connect(this.config.server, ops);
         this.mqtt.on("connect", (packet: Mqtt.IConnackPacket) => {
@@ -571,13 +569,13 @@ export class Z2MZ2mConfiguration extends Base implements IZ2MZ2mConfiguration {
         this.frontend = {
             port: 0
         }
-    };
+    }
     destroy() {
         delete this.frontend;
         delete this.serial;
         delete this.mqtt;
         super.destroy();        
-    };
+    }
 }
 
 export class Z2MZ2mConfigEvents extends Base implements IZ2MZ2mConfigEvents {
@@ -650,11 +648,11 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
                 resolve(0);
             });
         })
-    };
+    }
 
     fixUpConfig() {
         let configYaml = this.datafiles[this.configfile] || yaml.dump(defaultConfiguration);
-        let config = yaml.load(configYaml) as IZ2MZ2mConfiguration;
+        const config = yaml.load(configYaml) as IZ2MZ2mConfiguration;
         config.mqtt = this.configuration.mqtt;
         config.serial = this.configuration.serial;
         config.frontend = this.configuration.frontend;
@@ -679,14 +677,14 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
             
         })
 
-    };
+    }
 
     load(): Promise<any> {        
-        let promises: Promise<any>[] = [];
+        const promises: Promise<any>[] = [];
         Object.keys(this.datafiles).forEach(key => {
             if (key) {
-                let promise = new Promise((resolve, reject) => {
-                    let fn = this.datadir + "/" + key;
+                const promise = new Promise((resolve, reject) => {
+                    const fn = this.datadir + "/" + key;
                     fs.readFile(fn, (err, data) => {
                         if (!err && data && data.length > 0) {
                             this.datafiles[key] = data.toString();
@@ -707,14 +705,14 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
     }
 
     save(): Promise<any> {
-        let promises: Promise<any>[] = [];
+        const promises: Promise<any>[] = [];
 
         Object.keys(this.datafiles).forEach(key => {
-            let promise = new Promise((resolve, reject) => {
+            const promise = new Promise((resolve, reject) => {
                 fs.mkdir(this.datadir, {recursive: true}, (err, path) => {
-                    let value = this.datafiles[key];
+                    const value = this.datafiles[key];
                     if (value && value.length > 0) {
-                        let fn = this.datadir + "/" + key;
+                        const fn = this.datadir + "/" + key;
                         fs.writeFile(fn, value, err => {
                             if (!err)
                                 resolve(1)
@@ -733,7 +731,7 @@ export class Z2MZ2mConfig extends Base implements IZ2MZ2mConfig {
 
     startWatch() {
         this.stopWatch();
-        let files = [];
+        const files = [];
         Object.keys(this.datafiles).forEach(key => {
             files.push(this.datadir + "/" + key)
         })
@@ -814,7 +812,7 @@ export class Z2MZ2m extends Base implements IZ2MZ2m {
         this.config.configuration.serial.port = cfg.z2m.serial && cfg.z2m.serial.port || ("tcp://127.0.0.1:" + cfg.z2m.tcp.port);
         this.config.configuration.frontend.port = cfg.z2m.tcp.port + 1;
         await this.config.fixUp();
-    };
+    }
 
     start(): Promise<number> {
         return new Promise((resolve, reject) => {
@@ -833,11 +831,12 @@ export class Z2MZ2m extends Base implements IZ2MZ2m {
     }    
 
     async startChild(): Promise<number> {
+        // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve, reject) => {
             await this.config.fixDown();
-            let exec = this.config.exec;
+            const exec = this.config.exec;
             process.env["ZIGBEE2MQTT_DATA"] = this.config.datadir;
-            let child = spawn(exec.cmd, exec.args, exec.options);    
+            const child = spawn(exec.cmd, exec.args, exec.options);    
             this.status = "starting";
             // child.stdout.on("data", (data: any) => {
             //     this.status = "running";
@@ -929,7 +928,7 @@ export class Z2M extends Base implements IZ2M {
     }
     destroy(): void {
         this.stop()
-        .catch(e => {})
+        .catch(e => {/* empty */})
         .finally( () => {
             this.z2m.destroy();
             this.tcp.destroy();
@@ -975,7 +974,7 @@ export class Z2M extends Base implements IZ2M {
     }
 
     stop(): Promise<any> {
-        let promises: Promise<any>[] = [];
+        const promises: Promise<any>[] = [];
         promises.push(this.z2m.stop());
         promises.push(this.tcp.stop());
         return Promise.all(promises);
@@ -1025,7 +1024,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
     //反初始化
     uninit() {
         this.z2m.stop()
-        .catch(e => {})
+        .catch(e => {return;})
         .finally(() => {
             this.z2m.destroy();
         })
@@ -1039,8 +1038,8 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
     on_south_input(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Zigbee2Mqtt  on_south_input ");
 
-        let payload: IDeviceBusDataPayload = msg.payload;
-        let entry = payload.hd.entry;
+        const payload: IDeviceBusDataPayload = msg.payload;
+        const entry = payload.hd.entry;
         //透传
         if (entry.type == "evt" && entry.id == "penet") 
             // -> Tcp输入
@@ -1065,8 +1064,8 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
     _on_child_input_last_cache: {[id: string]: IDeviceBusDataPayload} = {};
     on_child_input(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Zigbee2Mqtt  on_child_input");
-        let pPayload = msg.payload as IDeviceBusDataPayload;
-        let _msg: IDeviceBusEventData = {
+        const pPayload = msg.payload as IDeviceBusDataPayload;
+        const _msg: IDeviceBusEventData = {
             topic: msg.id + "/" + pPayload.hd.entry.id,
             payload: pPayload.pld
         };
@@ -1106,7 +1105,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
 //配置文件相关    
     getConfig() {
-        let msg: IDeviceBusEventData = {
+        const msg: IDeviceBusEventData = {
             action: "get",
         }
         this.events.config.output.emit(msg);
@@ -1114,7 +1113,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
     _on_config_get_responsed: boolean
     on_config_get_response(msg: IDeviceBusEventData) {
         if (msg.payload) {
-            let payload = msg.payload as IZigbee2MqttConfig;
+            const payload = msg.payload as IZigbee2MqttConfig;
             if(payload) {
                 if (payload.overrides) {
                     this.config.overrides = payload.overrides;
@@ -1123,7 +1122,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
                 
                 if (payload.datafiles) {
                     this.config.datafiles = payload.datafiles;
-                    let datafiles = JSON.parse(payload.datafiles || "{}");
+                    const datafiles = JSON.parse(payload.datafiles || "{}");
                     Object.keys(datafiles).forEach(key => {
                         this.z2m.z2m.config.datafiles[key] = datafiles[key];
                     })
@@ -1136,7 +1135,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
     async setConfig() {
         await this.z2m.z2m.config.fixUp();
-        let msg: IDeviceBusEventData = {
+        const msg: IDeviceBusEventData = {
             action: "set",
             payload: {
                 datafiles: JSON.stringify(this.z2m.z2m.config.datafiles),
@@ -1160,7 +1159,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
     do_handshake_req() {
         //todo 超时逻辑
         Debuger.Debuger.log("Zigbee2Mqtt" ,"reqHandshake");
-        let payload: IDeviceBusDataPayload = {
+        const payload: IDeviceBusDataPayload = {
             hd: {
                 entry: {
                     type: "svc",
@@ -1168,7 +1167,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
                 }
             }
         }
-        let msg: IDeviceBusEventData = {
+        const msg: IDeviceBusEventData = {
             payload: payload
         }
         this.events.south.output.emit(msg);        
@@ -1176,15 +1175,15 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
     //握手响应
     do_handshake_resp(reqMsg: IDeviceBusEventData) {
-        let reqPld = reqMsg.payload as IDeviceBusDataPayload;
-        let respPld: IDeviceBusDataPayload  = {
+        const reqPld = reqMsg.payload as IDeviceBusDataPayload;
+        const respPld: IDeviceBusDataPayload  = {
             hd: {
                 entry: reqPld.hd.entry,
                 sid: reqPld.hd.sid,
                 stp: 1
             }
         }
-        let msg: IDeviceBusEventData = {
+        const msg: IDeviceBusEventData = {
             payload: respPld
         }
         this.events.south.output.emit(msg);      
@@ -1193,7 +1192,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
     // 握手请求
     on_handshake_req(msg: IDeviceBusEventData) {        
         this.do_handshake_resp(msg);   
-        let payload = msg.payload as IDeviceBusDataPayload;
+        const payload = msg.payload as IDeviceBusDataPayload;
         if (payload.pld.handshake_count === 0 || this.z2m.z2m.status == "killed") {
             this.do_z2m_z2m_restart();
         }        
@@ -1201,7 +1200,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
     //Tcp输入
     do_z2m_tcp_input_data(msg: IDeviceBusEventData) {        
-        let payload: IDeviceBusDataPayload = msg.payload;
+        const payload: IDeviceBusDataPayload = msg.payload;
         Debuger.Debuger.log("do_z2m_tcp_input_data", payload.pld.raw);
         this.z2m.tcp.events.input.data.emit(payload.pld.raw);
     }
@@ -1209,7 +1208,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
     //Tcp输出 -> 南向输出
     on_z2m_tcp_output_data(data) {
         Debuger.Debuger.log("on_z2m_tcp_output_data", data);
-        let payload: IDeviceBusDataPayload = {
+        const payload: IDeviceBusDataPayload = {
             hd: {
                 entry: {
                     type: "svc",
@@ -1220,7 +1219,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
                 raw: data
             }
         }
-        let msg: IDeviceBusEventData = {
+        const msg: IDeviceBusEventData = {
             payload: payload
         }
         this.events.south.output.emit(msg);
@@ -1228,7 +1227,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
     do_z2m_z2m_restart() {
         this.z2m.stop()
-        .catch(e => {})
+        .catch(e => {return;})
         .finally(() => {
             if (this._on_config_get_responsed)
                 this.z2m.start();
@@ -1267,7 +1266,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 //Mqtt南向输入    
     on_mqtt_south_input(packet: Mqtt.IPublishPacket) {
         Debuger.Debuger.log("Zigbee2Mqtt", "on_mqtt_south_input", packet.topic);
-        let topics = packet.topic.split("/");
+        const topics = packet.topic.split("/");
         if (topics[1] == "bridge")
             this.on_z2m_bridge_events(packet);
         else
@@ -1276,8 +1275,8 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
         //协调器事件 拆解
         on_z2m_bridge_events(packet: Mqtt.IPublishPacket) {
-            let topics = packet.topic.split("/");
-            let type = topics[2];
+            const topics = packet.topic.split("/");
+            const type = topics[2];
             if (type == "state") {  //状态
                 this.on_z2m_bridge_events_state(packet);            
             } else if (type == "event") { //事件
@@ -1289,8 +1288,8 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
         //协调器事件: 在线状态 -> 北向输出
         on_z2m_bridge_events_state(packet: Mqtt.IPublishPacket) {
-            let value = packet.payload.toString();
-            let payload: IDeviceBusDataPayload = {
+            const value = packet.payload.toString();
+            const payload: IDeviceBusDataPayload = {
                 hd: {
                     entry: {
                         type: "evt",
@@ -1321,7 +1320,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
         //协调器事件: 子设备组网事件 -> 北向输出
         on_z2m_bridge_events_event(packet: Mqtt.IPublishPacket) {
-            let pPayload = JSON.parse(packet.payload as any || "{}");
+            const pPayload = JSON.parse(packet.payload as any || "{}");
             if (pPayload.type === "device_joined") {
                 this.on_z2m_bridge_events_event_device_joined(packet);
                 this.on_z2m_z2m_config_events_change(undefined, undefined, undefined);
@@ -1345,8 +1344,8 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
         //协调器事件: 子设备入网事件 -> 北向输出
         on_z2m_bridge_events_event_device_joined(packet: Mqtt.IPublishPacket) {
-            let pPayload = JSON.parse(packet.payload as any || "{}");
-            let payload: IDeviceBusDataPayload = {
+            const pPayload = JSON.parse(packet.payload as any || "{}");
+            const payload: IDeviceBusDataPayload = {
                 hd: {
                     entry: {
                         type: "evt",
@@ -1368,8 +1367,8 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
         //协调器事件: 子设备脱网事件 -> 北向输出
         on_z2m_bridge_events_event_device_leave(packet: Mqtt.IPublishPacket) {
-            let pPayload = JSON.parse(packet.payload as any || "{}");
-            let payload: IDeviceBusDataPayload = {
+            const pPayload = JSON.parse(packet.payload as any || "{}");
+            const payload: IDeviceBusDataPayload = {
                 hd: {
                     entry: {
                         type: "evt",
@@ -1391,9 +1390,9 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
         //协调器事件: 子设备检索事件 -> 北向输出
         on_z2m_bridge_events_event_device_interview(packet: Mqtt.IPublishPacket) {
-            let pPayload = JSON.parse(packet.payload as any || "{}");
+            const pPayload = JSON.parse(packet.payload as any || "{}");
             if (pPayload.data.status === "successful" ) {            
-                let payload: IDeviceBusDataPayload = {
+                const payload: IDeviceBusDataPayload = {
                     hd: {
                         entry: {
                             type: "evt",
@@ -1420,8 +1419,8 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
         //协调器事件: 子设备其它事件 -> 北向输出
         on_z2m_bridge_events_event_else(packet: Mqtt.IPublishPacket) {
-            let pPayload = JSON.parse(packet.payload as any || "{}");
-            let payload: IDeviceBusDataPayload = {
+            const pPayload = JSON.parse(packet.payload as any || "{}");
+            const payload: IDeviceBusDataPayload = {
                 hd: {
                     entry: {
                         type: "evt",
@@ -1438,8 +1437,8 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
         //协调器事件: 响应事件 -> 北向输出
         on_z2m_bridge_events_response(packet: Mqtt.IPublishPacket) {
-            let topics = packet.topic.split("/");
-            let type = topics[3];
+            const topics = packet.topic.split("/");
+            const type = topics[3];
             if (type == "permit_join") {
                 this.on_z2m_bridge_events_response_permit_join(packet);
             }
@@ -1447,9 +1446,9 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
         //协调器事件: 响应事件: 开启/关闭入网 -> 北向输出
         on_z2m_bridge_events_response_permit_join(packet: Mqtt.IPublishPacket) {
-            let topics = packet.topic.split("/");
-            let pPayload = JSON.parse(packet.payload as any || "{}");
-            let payload: IDeviceBusDataPayload = {
+            const topics = packet.topic.split("/");
+            const pPayload = JSON.parse(packet.payload as any || "{}");
+            const payload: IDeviceBusDataPayload = {
                 hd: {
                     entry: {
                         type: "svc",
@@ -1464,7 +1463,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
                 }
             }
 
-            let msg: IDeviceBusEventData = {
+            const msg: IDeviceBusEventData = {
                 payload: payload
             }
             this.events.north.output.emit(msg);
@@ -1472,12 +1471,12 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
         //Mqtt南向输入(子设备事件) -> 父输出 -> 子南向输入
         on_z2m_child_events(packet: Mqtt.IPublishPacket) {
-            let topics = packet.topic.split("/");
-            let cid = topics[1]; //子设备id
+            const topics = packet.topic.split("/");
+            const cid = topics[1]; //子设备id
             
-            let pld =  JSON.parse(packet.payload.toString() || "{}");
+            const pld =  JSON.parse(packet.payload.toString() || "{}");
 
-            let payload: IDeviceBusDataPayload = {
+            const payload: IDeviceBusDataPayload = {
                 hd: {
                     from: {
                         type: "dev",
@@ -1493,7 +1492,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
                 pld: pld                
             }
 
-            let pPayload = this._on_child_input_last_cache[cid];
+            const pPayload = this._on_child_input_last_cache[cid];
             delete this._on_child_input_last_cache[cid];
             if (pPayload && ((new Date().valueOf()) - pPayload.hd.tms < 60 * 1000 )) {
                 payload.hd.sid = pPayload.hd.sid;
@@ -1502,7 +1501,7 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
             }
 
 
-            let msg: IDeviceBusEventData = {
+            const msg: IDeviceBusEventData = {
                 id: cid, 
                 payload: payload
             }
@@ -1517,11 +1516,11 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
 
 //Mqtt北向输入 -> 南向输出
     on_mqtt_north_input(msg: IDeviceBusEventData){
-        let payload: IDeviceBusDataPayload = msg.payload;
+        const payload: IDeviceBusDataPayload = msg.payload;
         if (payload.hd.stp == 0) {
             if (payload.hd.entry.type == "svc") {
                 if (payload.hd.entry.id == "set" && typeof payload.pld == "object") {
-                    if (payload.pld.hasOwnProperty("permit_join"))
+                    if (Object.prototype.hasOwnProperty.call(payload.pld, "permit_join"))
                     this.on_mqtt_north_input_request_permit_join(msg);
                 }
             }
@@ -1529,8 +1528,8 @@ export class Zigbee2Mqtt extends DeviceBase implements IZigbee2Mqtt {
     }
         //允许、关闭入网
         on_mqtt_north_input_request_permit_join(_msg: IDeviceBusEventData){
-            let _payload = (_msg.payload as IDeviceBusDataPayload);
-            let msg: IDeviceBusEventData = {};
+            const _payload = (_msg.payload as IDeviceBusDataPayload);
+            const msg: IDeviceBusEventData = {};
             msg.topic = "bridge/request/permit_join";
             msg.payload = {
                 value: _payload.pld.permit_join,

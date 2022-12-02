@@ -12,5 +12,5 @@ export class Base implements IBase {
     }
     destroy(){
         this.onDestroy.emit(this);
-    }; 
+    } 
 }

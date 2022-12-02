@@ -10,7 +10,7 @@ import { ISegCoderParam, SegCoderParam } from "../../coders/rfir/rfir-coder";
 import { Debuger } from "../../nd-device";
 import { IRFIRDevice, RFIRDevice } from "../device";
 
-export interface IRFIRDeviceACMedia extends IRFIRDevice {}
+export type IRFIRDeviceACMedia = IRFIRDevice
 
 export  class RFIRDeviceACMedia extends RFIRDevice implements IRFIRDeviceACMedia {
     ac_coder: ICoder
@@ -19,7 +19,7 @@ export  class RFIRDeviceACMedia extends RFIRDevice implements IRFIRDeviceACMedia
     init() {
         Debuger.Debuger.log("RFIRDeviceACMedia init", this.attrs.id);
         this.ac_coder = new Coder();        
-        let param1 = new SegCoderParam();
+        const param1 = new SegCoderParam();
         param1.tolerance = 20;
         param1.excess = 0;
         param1.atleast = true;                              
@@ -42,13 +42,13 @@ export  class RFIRDeviceACMedia extends RFIRDevice implements IRFIRDeviceACMedia
 
     on_south_input_decode(p_hd: ICmdHead, p_pld: IPldTable): IDeviceBusDataPayload {
         Debuger.Debuger.log("RFIRDeviceACMedia on_south_input_decode");
-        let payload = super.on_south_input_decode(p_hd, p_pld);
+        const payload = super.on_south_input_decode(p_hd, p_pld);
         if (!payload) return;
 
-        let hd = payload.hd;
+        const hd = payload.hd;
         let pld = payload.pld;
         if (hd.cmd_id == CmdId.rfir_sniff) {  
-            let data = pld[PldTable.Keys.rfir_sniff_data];
+            const data = pld[PldTable.Keys.rfir_sniff_data];
             if (data) {
                 if (this.ac_coder.pnt_table.decodeBytess(data)) {
                     this.ac_coder.plf_props.decode(this.ac_coder.pnt_table);
@@ -64,18 +64,18 @@ export  class RFIRDeviceACMedia extends RFIRDevice implements IRFIRDeviceACMedia
     }
   
     on_north_input_encode(p_hd: IDeviceBusDataPayloadHd, p_pld: {}): IDeviceBusDataPayload {
-        let payload = super.on_north_input_encode(p_hd, p_pld);
+        const payload = super.on_north_input_encode(p_hd, p_pld);
         if (!payload) return;
-        let hd = payload.hd;
-        let pld = payload.pld || {};
+        const hd = payload.hd;
+        const pld = payload.pld || {};
 
         if (hd.cmd_id == CmdId.set && !pld[PldTable.Keys.rfir_send_data] ) {  
-            let pnttable = this.ac_coder.plf_props.encode(pld, this.ac_coder.pnt_table);
+            const pnttable = this.ac_coder.plf_props.encode(pld, this.ac_coder.pnt_table);
             pnttable.checksum()
             
             
-            let bytess = pnttable.encodeBytess();
-            let buf = this.rfir_coder.encode(bytess);
+            const bytess = pnttable.encodeBytess();
+            const buf = this.rfir_coder.encode(bytess);
             
             // buf = Buffer.concat([buf, buf]);
 

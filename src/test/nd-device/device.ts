@@ -1,7 +1,7 @@
 import { NDDevice } from "../../device/amd/nd-device/device";
 import { IDeviceBusDataPayload, IDeviceBusEventData } from "../../device/device.dts";
 
-let device = new NDDevice({
+const device = new NDDevice({
     "id" : "ndiot485519666fc5",
     "app_id" : "ndiot",
     "desc" : "武汉云启/485透传/ndiot485519666fc5",
@@ -22,9 +22,9 @@ let device = new NDDevice({
 //     pld: {}
 // }
 
-let payload : IDeviceBusDataPayload = { hd: { entry: { id: 'get' } }, pld: { ota_update_url: '' } }
+const payload : IDeviceBusDataPayload = { hd: { entry: { id: 'get' } }, pld: { ota_update_url: '' } }
 
-let msg: IDeviceBusEventData = {
+const msg: IDeviceBusEventData = {
     id: device.attrs.id,
     payload:  payload
 }

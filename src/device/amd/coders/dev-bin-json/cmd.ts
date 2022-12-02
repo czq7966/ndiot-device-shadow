@@ -1,10 +1,7 @@
 import { timeStamp } from "console";
 import { IBaseEvent } from "../../../../common/events";
-import { CmdHead, ICmdHead } from "./cmd-head";
+import { CmdHead, HEAD_LEN, ICmdHead } from "./cmd-head";
 import { IPldTable, PldTable } from "./pld-table";
-
-export var PRO_LOGO: number = 0x4E44;
-export var HEAD_LEN: number = 4 * 4;
 
 export class CmdId {
     static config = 1;
@@ -64,7 +61,7 @@ export class Cmd implements ICmd {
     }
 
     destroy(){
-
+        return;
     }
 
     reset() {

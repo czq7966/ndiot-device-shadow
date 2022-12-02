@@ -31,7 +31,7 @@ export class PSISE101R5 extends Modbus implements IPSISE101R5 {
         this.slave = 0x01;
         this.tables.plcbase = 10000;
 
-        let regPlcbase = EModbusPLCType.EReadInputRegisters * this.tables.plcbase + 1;
+        const regPlcbase = EModbusPLCType.EReadInputRegisters * this.tables.plcbase + 1;
         this.tables.names = {
             state: regPlcbase + 0,
             peoples: regPlcbase + 1,
@@ -58,9 +58,9 @@ export class PSISE101R5 extends Modbus implements IPSISE101R5 {
     //获取查询点表
     on_svc_get_tables(msg: IDeviceBusEventData): IModbusRTUTable[] {
         Debuger.Debuger.log("PSISE101R5  on_svc_get_tables");
-        let tables = [];
+        const tables = [];
 
-        let table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
+        const table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
         table.slave = this.slave;
         table.address = 0;
         table.func = EModbusType.EReadInputRegisters;

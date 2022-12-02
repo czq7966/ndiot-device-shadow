@@ -21,13 +21,13 @@ export  class RFIRDevice extends NDDevice implements IRFIRDevice {
     
     on_south_input_decode(p_hd: ICmdHead, p_pld: IPldTable): IDeviceBusDataPayload {
         Debuger.Debuger.log("RFIRDEvice on_south_input_decode");
-        let payload = super.on_south_input_decode(p_hd, p_pld);
+        const payload = super.on_south_input_decode(p_hd, p_pld);
         if (!payload) return;
 
-        let hd = payload.hd;
-        let pld = payload.pld;
+        const hd = payload.hd;
+        const pld = payload.pld;
         if (hd.cmd_id == CmdId.rfir_sniff) {  
-            let data = this.recvcmd.payload.tables[PldTable.Keys.rfir_sniff_data] as Buffer;    
+            const data = this.recvcmd.payload.tables[PldTable.Keys.rfir_sniff_data] as Buffer;    
             if (data) {
                 pld[PldTable.Keys.rfir_sniff_data] = this.rfir_coder.decode(data);
             }
@@ -40,15 +40,15 @@ export  class RFIRDevice extends NDDevice implements IRFIRDevice {
     }
 
     on_north_input_encode(p_hd: IDeviceBusDataPayloadHd, p_pld: {}): IDeviceBusDataPayload {
-        let payload = super.on_north_input_encode(p_hd, p_pld);
+        const payload = super.on_north_input_encode(p_hd, p_pld);
         if (!payload) return;
-        let hd = payload.hd;
+        const hd = payload.hd;
         let pld = payload.pld;
 
 
-        let bytess = pld && pld[PldTable.Keys.rfir_send_data];
+        const bytess = pld && pld[PldTable.Keys.rfir_send_data];
         if (bytess) {            
-            let buf = this.rfir_coder.encode(bytess);
+            const buf = this.rfir_coder.encode(bytess);
 
             if (buf && buf.length > 0) {
                 pld = {};

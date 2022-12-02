@@ -3,9 +3,7 @@ import { IDeviceShadowManager } from "../device/device.dts";
 import { DeviceManager } from "../device/manager";
 
 
-interface INRConfig extends NR.NodeDef {
-    
-}
+type INRConfig = NR.NodeDef
 
 interface INRInputMsg extends NR.NodeMessageInFlow {
     id?: string   

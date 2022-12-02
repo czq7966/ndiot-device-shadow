@@ -122,8 +122,8 @@ export class PntTable implements IPntTable {
         this.reset();
     }
     encodeBytess(B?: boolean): number[][] {
-        let bytess = [];
-        let buf = this.encode(B);
+        const bytess = [];
+        const buf = this.encode(B);
         //前4字节
         let bytes = [];
         for (let i = 0; i < 4; i++) {
@@ -146,7 +146,7 @@ export class PntTable implements IPntTable {
     }
     decodeBytess(bytess: number[][]): boolean {
         if (bytess && bytess.length == 3) {
-            let buf = bytess[0].concat(bytess[2]);
+            const buf = bytess[0].concat(bytess[2]);
             return this.decode(Buffer.from(buf))
         }
         return false;
@@ -199,12 +199,12 @@ export class PntTable implements IPntTable {
     setTemp(temp: number, fahrenheit?: boolean) {
         this.table.UseFahrenheit = fahrenheit as any;
         temp = Math.min(PntTable.TempMaxTempC, temp);
-        let minTemp = this.model == PntTable.Model_YAW1F ? PntTable.TempMinTempC - 1 : PntTable.TempMinTempC;
+        const minTemp = this.model == PntTable.Model_YAW1F ? PntTable.TempMinTempC - 1 : PntTable.TempMinTempC;
         temp = Math.max(minTemp, temp);       
         this.table.Temp = temp - minTemp;
     }
     getTemp(): number {
-        let minTemp = this.model == PntTable.Model_YAW1F ? PntTable.TempMinTempC - 1 : PntTable.TempMinTempC;
+        const minTemp = this.model == PntTable.Model_YAW1F ? PntTable.TempMinTempC - 1 : PntTable.TempMinTempC;
         let temp = this.table.Temp + minTemp;        
         temp = Math.min(PntTable.TempMaxTempC, temp);
         temp = Math.max(minTemp, temp);
@@ -214,10 +214,10 @@ export class PntTable implements IPntTable {
         let fan = Math.min(PntTable.FanMax, speed);  
         if (this.getMode() == PntTable.ModeDry) fan = 1;  // DRY mode is always locked to fan 1.
         this.table.Fan = fan;
-    };
+    }
     getFan(): number{
         return this.table.Fan;
-    };
+    }
 
     setMode(new_mode: number){
         let mode = new_mode;
@@ -233,44 +233,44 @@ export class PntTable implements IPntTable {
           default: mode = PntTable.ModeAuto;
         }
         this.table.Mode = mode;
-    };
+    }
     getMode(): number{
         return this.table.Mode;
 
-    };
+    }
     setLight(on: number){
         this.table.Light = on;
-    };
+    }
     getLight(): number{
         return this.table.Light;
-    };
+    }
 
     setWiFi(on: number){
         this.table.WiFi = on;
-    };
+    }
     getWiFi(): number{
         return this.table.WiFi;
-    };
+    }
 
     getRaw(notFixup?: boolean, B?: boolean): Buffer {
         if(!notFixup)
             this.fixup(B);
 
-        let table = Object.assign({}, this.table);
+        const table = Object.assign({}, this.table);
         if (B) {
             table.unknown1 = 7;
             table.WiFi = 0;
             table.Other4 = 128;
         }
 
-        let buf = [];
+        const buf = [];
         let nbits = 0;
         let byte = 0;
         Object.keys(TableBits).forEach(key => {
-            let pos = nbits % 8;
-            let val = table[key] << pos;            
+            const pos = nbits % 8;
+            const val = table[key] << pos;            
             byte = byte | val;
-            let nbit = TableBits[key];
+            const nbit = TableBits[key];
             nbits = nbits + nbit;
 
             if(nbits % 8 == 0) {
@@ -283,9 +283,9 @@ export class PntTable implements IPntTable {
     setRaw(buf: Buffer) {
         let nbits = 0;
         Object.keys(TableBits).forEach(key => {
-            let nbit = TableBits[key];
+            const nbit = TableBits[key];
             nbits = nbits + nbit;
-            let idx = Math.floor((nbits - 1) / 8);
+            const idx = Math.floor((nbits - 1) / 8);
             let byte = buf[idx];   
             let pos = nbits % 8;
             pos = !pos ? 8 : pos;
@@ -300,7 +300,7 @@ export class PntTable implements IPntTable {
     }
     getsum(B?: boolean): number{
         return Sum.AC_Kelvinator(this.getRaw(true, B));
-    };
+    }
     fixup(B?: boolean) {
         this.setPower(this.getPower());  
         this.checksum(B); 

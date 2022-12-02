@@ -35,12 +35,12 @@ export class DeviceManager extends Base implements IDeviceShadowManager {
         this.events = new DeviceShadowManagerBusEvent();
         this.plugins.defaultPlugin = NDDevice;
 
-        let on_south_input = (msg) => {this.on_south_input(msg);}
-        let on_north_input = (msg) => {this.on_north_input(msg);}
-        let on_config_input = (msg) => {this.on_config_input(msg);}
-        let on_notify_input = (msg) => {this.on_notify_input(msg);}
-        let on_plugins_input = (msg) => {this.on_plugins_input(msg);}
-        let on_shadows_input = (msg) => {this.on_shadows_input(msg);}
+        const on_south_input = (msg) => {this.on_south_input(msg);}
+        const on_north_input = (msg) => {this.on_north_input(msg);}
+        const on_config_input = (msg) => {this.on_config_input(msg);}
+        const on_notify_input = (msg) => {this.on_notify_input(msg);}
+        const on_plugins_input = (msg) => {this.on_plugins_input(msg);}
+        const on_shadows_input = (msg) => {this.on_shadows_input(msg);}
 
 
         this.events.south.input.on(on_south_input);
@@ -69,38 +69,51 @@ export class DeviceManager extends Base implements IDeviceShadowManager {
     }
 
     on_south_input(msg: IDeviceBusEventData) {
-        let shadow = this.shadows.getShadow(msg.id);
+        const shadow = this.shadows.getShadow(msg.id);
         if (shadow) shadow.events.south.input.emit(msg);            
     }
 
     on_north_input(msg: IDeviceBusEventData) {
-        let shadow = this.shadows.getShadow(msg.id);
+        const shadow = this.shadows.getShadow(msg.id);
         if (shadow) shadow.events.north.input.emit(msg);            
     }
     
     on_config_input(msg: IDeviceBusEventData) {
-        let shadow = this.shadows.getShadow(msg.id);
+        const shadow = this.shadows.getShadow(msg.id);
         if (shadow) shadow.events.config.input.emit(msg);            
     }   
 
     on_notify_input(msg: IDeviceBusEventData) {
-       
+        return;       
     }       
 
     on_plugins_input(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("manager on_plugins_input")
         if (msg.action == "reg") {
-            let attrs = msg.payload as IDevicePluginAttr;
+            const attrs = msg.payload as IDevicePluginAttr;
             msg.payload = this.plugins.regPlugin(attrs);
             this.events.plugins.output.emit(msg);            
-        } else {
-
+        } else if (msg.action == "load") { 
+            const attrs = msg.payload as IDevicePluginAttr;
+            this.plugins.loadPlugin(attrs.id)
+            .then(plugin => {
+                msg.payload = plugin;
+                this.events.plugins.output.emit(msg); 
+            })
+            .catch(error => {
+                msg.payload = null;
+                this.events.plugins.output.emit(msg); 
+            })
+        } else if (msg.action == "get") { 
+            const attrs = msg.payload as IDevicePluginAttr;
+            msg.payload = this.plugins.getPlugin(attrs.id);
+            this.events.plugins.output.emit(msg); 
         }
     }   
 
     on_shadows_input(msg: IDeviceBusEventData) {
         if (msg.action == "create") {
-            let attrs = msg.payload as IDeviceBaseAttr;
+            const attrs = msg.payload as IDeviceBaseAttr;
             this.shadows.newShadow(attrs)
             .then(shadow => {
                 msg.payload.shadow = shadow;

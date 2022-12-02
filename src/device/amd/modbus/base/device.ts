@@ -9,9 +9,7 @@ import { PldTable } from "../../coders/dev-bin-json/pld-table";
 import { INDDevice, NDDevice } from "../../nd-device";
 
 
-export interface IModbus extends INDDevice {
-
-}
+export type IModbus = INDDevice
 
 export interface IModbusTableNames {
     [name: string]: number
@@ -30,7 +28,7 @@ export interface IModbusPLCTables {
 }
 
 export class ModbusPLCTables implements IModbusPLCTables {
-    plcbase: number = 10000;
+    plcbase = 10000;
     names: IModbusTableNames = {};
     address: IModbusPLCTableAddress = {};    
     initAddressFromNames() {
@@ -39,13 +37,13 @@ export class ModbusPLCTables implements IModbusPLCTables {
             this.address[this.names[key]] = key;
         })
 
-    };
+    }
     initNamesFromAddress() {
         this.names = {};
         Object.keys(this.address).forEach(key => {
             this.names[this.address[key]] = parseInt(key);
         })
-    };    
+    }    
 }
 
 export class Modbus extends NDDevice implements IModbus {
@@ -60,7 +58,7 @@ export class Modbus extends NDDevice implements IModbus {
         this.cmds = new ModbusCmds();
         this.tables = new ModbusPLCTables();
         if (this.attrs.pid) {
-            let slave = this.attrs.id.substring(this.attrs.id.lastIndexOf("_") + 1);
+            const slave = this.attrs.id.substring(this.attrs.id.lastIndexOf("_") + 1);
             this.slave = parseInt(slave) || 0;
         }
         this.cmds.events.req.on(data => {
@@ -81,8 +79,8 @@ export class Modbus extends NDDevice implements IModbus {
         Debuger.Debuger.log("Modbus  on_south_input ");
         if (!msg.decoded && msg.payload && !this.attrs.pid) {
             if (this.recvcmd.decode(msg.payload)){
-                let hd = this.plf_coder.head.decode(this.recvcmd.head);
-                let pld = this.plf_coder.payload.decode(this.recvcmd.payload);
+                const hd = this.plf_coder.head.decode(this.recvcmd.head);
+                const pld = this.plf_coder.payload.decode(this.recvcmd.payload);
 
                 msg.payload = {
                     hd: hd,
@@ -105,7 +103,7 @@ export class Modbus extends NDDevice implements IModbus {
         Debuger.Debuger.log("Modbus  on_north_input");
         if (!msg.encoded && msg.payload && !this.attrs.pid) {
             this.plf_coder.head.reset();
-            let hd = this.plf_coder.head.encode(msg.payload.hd).head as IDeviceBusDataPayloadHd;
+            const hd = this.plf_coder.head.encode(msg.payload.hd).head as IDeviceBusDataPayloadHd;
 
             if (hd.entry && hd.entry.type == "svc" ) {
                 if (hd.cmd_id == CmdId.get) {
@@ -149,8 +147,8 @@ export class Modbus extends NDDevice implements IModbus {
     //南向透传输入
     on_south_input_evt_penet(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Modbus  on_south_input_evt_penet ", msg);
-        let payload: IDeviceBusDataPayload = msg.payload;
-        let data = payload.pld[PldTable.Keys.penet_data];
+        const payload: IDeviceBusDataPayload = msg.payload;
+        const data = payload.pld[PldTable.Keys.penet_data];
 
         if (data) {
             if (data.length > 4) {
@@ -167,8 +165,8 @@ export class Modbus extends NDDevice implements IModbus {
     //南向透传输入_独立
     on_south_input_evt_penet_alone(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Modbus  on_south_input_evt_penet_alone ", msg);
-        let payload: IDeviceBusDataPayload = msg.payload;
-        let data = payload.pld[PldTable.Keys.penet_data];
+        const payload: IDeviceBusDataPayload = msg.payload;
+        const data = payload.pld[PldTable.Keys.penet_data];
 
         if (data) {
             if (data.length > 4) {
@@ -185,16 +183,16 @@ export class Modbus extends NDDevice implements IModbus {
     //南向透传输入_总线 -> 子设备
     on_south_input_evt_penet_bus(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Modbus  on_south_input_evt_penet_bus ");
-        let payload: IDeviceBusDataPayload = msg.payload;
-        let data = payload.pld[PldTable.Keys.penet_data];
+        const payload: IDeviceBusDataPayload = msg.payload;
+        const data = payload.pld[PldTable.Keys.penet_data];
 
 
         if (data) {
             if (data.length > 4) {
-                let table = GModeBusRTU.decoder.decode_common(data);
+                const table = GModeBusRTU.decoder.decode_common(data);
                 if (table.slave > 0) {
-                    let cid = this.attrs.id + "_" + table.slave;
-                    let payload: IDeviceBusDataPayload = {
+                    const cid = this.attrs.id + "_" + table.slave;
+                    const payload: IDeviceBusDataPayload = {
                         hd: {
                             entry: {
                                 type: "evt",
@@ -205,7 +203,7 @@ export class Modbus extends NDDevice implements IModbus {
                         },
                         pld: data                
                     }
-                    let msg: IDeviceBusEventData = {
+                    const msg: IDeviceBusEventData = {
                         id: cid, 
                         payload: payload
                     }
@@ -226,7 +224,7 @@ export class Modbus extends NDDevice implements IModbus {
         this.sendcmd.head.head.cmd_id = CmdId.penet;
         this.sendcmd.payload.tables[PldTable.Keys.penet_data] = data;
         
-        let msg: IDeviceBusEventData = {
+        const msg: IDeviceBusEventData = {
             payload: this.sendcmd.encode()
         }
         //南向直接输出
@@ -236,14 +234,14 @@ export class Modbus extends NDDevice implements IModbus {
     //北向输入查询空调状态(alone)
     on_north_input_svc_get(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("Modbus  on_north_input_svc_get");
-        let payload = msg.payload as IDeviceBusDataPayload;
+        const payload = msg.payload as IDeviceBusDataPayload;
         this.on_svc_get(msg)
         .then(v => {
-            let _hd:IDeviceBusDataPayloadHd  = Utils.DeepMerge({}, payload.hd) as any;
+            const _hd:IDeviceBusDataPayloadHd  = Utils.DeepMerge({}, payload.hd) as any;
             _hd.stp = 1;
-            let _pld = v;
+            const _pld = v;
 
-            let _msg: IDeviceBusEventData = {
+            const _msg: IDeviceBusEventData = {
                 id: msg.id,
                 decoded: true,
                 payload: {
@@ -267,14 +265,14 @@ export class Modbus extends NDDevice implements IModbus {
 
     //北向输入设备空调状态
     on_north_input_svc_set(msg: IDeviceBusEventData) {        
-        let payload = msg.payload as IDeviceBusDataPayload
+        const payload = msg.payload as IDeviceBusDataPayload
         this.on_svc_set(msg)
         .then(v => {
-            let _hd:IDeviceBusDataPayloadHd  = Utils.DeepMerge({}, payload.hd) as any;
+            const _hd:IDeviceBusDataPayloadHd  = Utils.DeepMerge({}, payload.hd) as any;
             _hd.stp = 1;
-            let _pld = v;
+            const _pld = v;
 
-            let _msg: IDeviceBusEventData = {
+            const _msg: IDeviceBusEventData = {
                 decoded: true,
                 id: msg.id,
                 payload: {
@@ -297,19 +295,19 @@ export class Modbus extends NDDevice implements IModbus {
     //查询
     on_svc_get(msg: IDeviceBusEventData): Promise<{[name: string]: any}> {
         return new Promise((resolve, reject) => {
-            let result = {};
-            let tables = this.on_svc_get_tables(msg);
+            const result = {};
+            const tables = this.on_svc_get_tables(msg);
 
-            let cmd = this.cmds.exec(tables);
+            const cmd = this.cmds.exec(tables);
             cmd.events.then.once((v: IModbusCmdResult) => {
-                let resTables = v.res;
+                const resTables = v.res;
                 resTables.forEach((t => {
-                   let addrs = Object.keys(t.table);
+                   const addrs = Object.keys(t.table);
                    addrs.push(t.address.toString());                    
                    
                    addrs.forEach(addr => {
-                       let plcaddr = t.getPLCAddress(parseInt(addr));
-                       let name = this.tables.address[plcaddr];
+                       const plcaddr = t.getPLCAddress(parseInt(addr));
+                       const name = this.tables.address[plcaddr];
                        result[name] = null;
                        if (!t.error) 
                             result[name] = t.table[addr]; 
@@ -319,14 +317,14 @@ export class Modbus extends NDDevice implements IModbus {
             })
 
             cmd.events.catch.once(e => {
-                let resTables = cmd.resTables;
+                const resTables = cmd.resTables;
                 if (resTables.length > 0) {                    
                     resTables.forEach((t => {
-                        let addrs = Object.keys(t.table);
+                        const addrs = Object.keys(t.table);
                         addrs.push(t.address.toString());
                         addrs.forEach(addr => {
-                            let plcaddr = t.getPLCAddress(parseInt(addr));
-                            let name = this.tables.address[plcaddr];
+                            const plcaddr = t.getPLCAddress(parseInt(addr));
+                            const name = this.tables.address[plcaddr];
                             result[name] = null;
                             if (!t.error) 
                                  result[name] = t.table[addr]; 
@@ -341,14 +339,14 @@ export class Modbus extends NDDevice implements IModbus {
     }
     //获取查询点表
     on_svc_get_tables(msg: IDeviceBusEventData): IModbusRTUTable[] {
-        let tables = [];
-        let payload = msg.payload as IDeviceBusDataPayload
-        let pld = payload.pld;
-        let keys = pld && Object.keys(pld) || [];
+        const tables = [];
+        const payload = msg.payload as IDeviceBusDataPayload
+        const pld = payload.pld;
+        const keys = pld && Object.keys(pld) || [];
         keys.forEach(key => {
-            let plcaddr = this.tables.names[key];
+            const plcaddr = this.tables.names[key];
             if (plcaddr) {
-                let table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
+                const table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
                 table.slave = this.slave;
                 table.setPLCAddress(plcaddr);
                 table.quantity = 1;
@@ -361,24 +359,24 @@ export class Modbus extends NDDevice implements IModbus {
     //设置
     on_svc_set(msg: IDeviceBusEventData): Promise<{[name: string]: number}> {
         return new Promise((resolve, reject) => {
-            let result = {};
-            let tables = this.on_svc_set_tables(msg);
+            const result = {};
+            const tables = this.on_svc_set_tables(msg);
 
-            let cmd = this.cmds.exec(tables);
+            const cmd = this.cmds.exec(tables);
             cmd.events.then.once((v: IModbusCmdResult) => {
-                let resTables = v.res;
+                const resTables = v.res;
                 resTables.forEach((t => {
-                    let name = this.tables.address[t.getPLCAddress()];
+                    const name = this.tables.address[t.getPLCAddress()];
                     result[name] = t.error;
                 }))
                 resolve(result)                        
             })
 
             cmd.events.catch.once(e => {
-                let resTables = cmd.resTables;
+                const resTables = cmd.resTables;
                 if (resTables.length > 0) {
                     resTables.forEach((t => {
-                        let name = this.tables.address[t.getPLCAddress()];
+                        const name = this.tables.address[t.getPLCAddress()];
                         result[name] = t.error;
                     }))
                     resolve(result)                        
@@ -391,16 +389,16 @@ export class Modbus extends NDDevice implements IModbus {
 
     //获取设置点表
     on_svc_set_tables(msg: IDeviceBusEventData): IModbusRTUTable[] {
-        let tables = [];
-        let payload = msg.payload as IDeviceBusDataPayload
-        let values = payload.pld;
-        let names = Object.keys(values);
+        const tables = [];
+        const payload = msg.payload as IDeviceBusDataPayload
+        const values = payload.pld;
+        const names = Object.keys(values);
 
         names.forEach(name => {
-            let value = values[name];
-            let plcaddr = this.tables.names[name];
+            const value = values[name];
+            const plcaddr = this.tables.names[name];
             if (plcaddr) {
-                let table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
+                const table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
                 table.slave = this.slave;
                 table.setPLCAddress(plcaddr, value);
                 table.quantity = 1;
@@ -414,7 +412,7 @@ export class Modbus extends NDDevice implements IModbus {
 
     //上报
     do_evt_report(): Promise<{[name: string]: number}> {
-        let msg: IDeviceBusEventData = {
+        const msg: IDeviceBusEventData = {
             id: this.attrs.id,
             payload: {
                 hd: {
@@ -424,16 +422,16 @@ export class Modbus extends NDDevice implements IModbus {
                 pld: {}
             }
         }
-        let promise = this.on_svc_get(msg);
+        const promise = this.on_svc_get(msg);
         promise
         .then(v => {
-            let hd:IDeviceBusDataPayloadHd = {
+            const hd:IDeviceBusDataPayloadHd = {
                 entry: {type: "evt", id: "report"},
                 stp : 0
             }
-            let pld = v
+            const pld = v
 
-            let msg: IDeviceBusEventData = {
+            const msg: IDeviceBusEventData = {
                 decoded: true,
                 id: this.attrs.id,
                 payload: {

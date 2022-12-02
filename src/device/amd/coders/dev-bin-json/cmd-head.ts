@@ -1,7 +1,8 @@
 import { Head, IHead } from "./head";
 
-export var PRO_LOGO: number = 0x4E44;
-export var HEAD_LEN: number = 4 * 4;
+
+export const PRO_LOGO = 0x4E44;
+export const HEAD_LEN: number = 4 * 4;
 
 
 export interface ICmdHead {
@@ -19,7 +20,7 @@ export class CmdHead implements ICmdHead {
     }
 
     encode(): Buffer {
-        let buf = [];
+        const buf = [];
         buf.push(this.head.pro_logo & 0xff);
         buf.push((this.head.pro_logo >> 8) & 0xff);
 
@@ -52,7 +53,7 @@ export class CmdHead implements ICmdHead {
             this.head.cmd_id =  buf[idx++];
             this.head.cmd_stp =  buf[idx++];
             this.head.err_no = buf[idx++] + (buf[idx++] << 8);
-            let sid = [buf[idx++], buf[idx++], buf[idx++], buf[idx++]];
+            const sid = [buf[idx++], buf[idx++], buf[idx++], buf[idx++]];
             // this.head.cmd_sid = buf[idx++] + (buf[idx++] << 8) + (buf[idx++] << 16) + (buf[idx++] << 24);
             this.head.cmd_sid = Buffer.from(sid).readUint32LE();
             this.head.pld_sum = buf[idx++] + (buf[idx++] << 8);

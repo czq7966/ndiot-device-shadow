@@ -4,25 +4,25 @@ import { BaseEvent, IBaseEvent } from "../../../../common/events";
 import { Utils } from "../../../../common/utils";
 
 export class EModbusType {
-    static EReadCoils: number = 1;
-    static EReadDiscreteInputs: number = 2;
-    static EReadHoldingRegisters: number = 3;
-    static EReadInputRegisters: number = 4;
-    static EWriteSingleCoil: number = 5;
-    static EWriteSingleRegister: number = 6;
-    static EWriteMultipleCoils: number = 15;
-    static EWriteMultipleRegisters: number = 16;
+    static EReadCoils = 1;
+    static EReadDiscreteInputs = 2;
+    static EReadHoldingRegisters = 3;
+    static EReadInputRegisters = 4;
+    static EWriteSingleCoil = 5;
+    static EWriteSingleRegister = 6;
+    static EWriteMultipleCoils = 15;
+    static EWriteMultipleRegisters = 16;
 }
 
 export class EModbusPLCType {
-    static EReadCoils: number = 0;
-    static EReadDiscreteInputs: number = 1;
-    static EReadHoldingRegisters: number = 4;
-    static EReadInputRegisters: number = 3;
-    static EWriteSingleCoil: number = 0;
-    static EWriteSingleRegister: number = 4;
-    static EWriteMultipleCoils: number = 0;
-    static EWriteMultipleRegisters: number = 4;    
+    static EReadCoils = 0;
+    static EReadDiscreteInputs = 1;
+    static EReadHoldingRegisters = 4;
+    static EReadInputRegisters = 3;
+    static EWriteSingleCoil = 0;
+    static EWriteSingleRegister = 4;
+    static EWriteMultipleCoils = 0;
+    static EWriteMultipleRegisters = 4;    
 }
 
 
@@ -84,26 +84,26 @@ export interface IModbusRTU extends IBase {
 }
 
 export class ModbusRTUTable  implements IModbusRTUTable{
-    slave: number = 0;
-    func: number = 0;
-    address: number = 0;
-    quantity: number = 1;
+    slave = 0;
+    func = 0;
+    address = 0;
+    quantity = 1;
     table: { [address: number]: number; } = {};
-    error: number = 0;
-    plcbase: number = 10000
+    error = 0;
+    plcbase = 10000
     constructor(pldbase?: number) {
         this.plcbase = pldbase || this.plcbase;
     }
 
     setPLCAddress(plcAddr: number, value?: number) {
         plcAddr = plcAddr || 0;
-        let address = plcAddr % this.plcbase - 1;
+        const address = plcAddr % this.plcbase - 1;
         if (address < 0)
             return;    
         this.address = address;
 
         if (this.func < EModbusType.EWriteSingleCoil ) {
-            let plctype = Math.floor(plcAddr / this.plcbase);
+            const plctype = Math.floor(plcAddr / this.plcbase);
             switch(plctype) {
                 case EModbusPLCType.EReadCoils :
                     this.func = EModbusType.EReadCoils;
@@ -146,7 +146,7 @@ export class ModbusRTUTable  implements IModbusRTUTable{
     }
 
     clone(): IModbusRTUTable {
-        let table = new ModbusRTUTable();
+        const table = new ModbusRTUTable();
         return Utils.DeepMerge(table, this) as any;        
     }
 }
@@ -206,6 +206,8 @@ export class ModbusRTUEncoder extends Base implements IModbusRTUEncoder {
         super();
     }
     encode(table: IModbusRTUTable): Buffer {
+        const coiles: boolean[] = [];
+        const regs: number[] = [];
         switch (table.func) {
            case EModbusType.EReadCoils:
                return this.readCoils(table.slave, table.address, table.quantity);               
@@ -222,15 +224,13 @@ export class ModbusRTUEncoder extends Base implements IModbusRTUEncoder {
             case EModbusType.EWriteSingleRegister:
                 return this.writeSingleRegister(table.slave, table.address, table.table[table.address]);
                 break;
-            case EModbusType.EWriteMultipleCoils:
-                let coiles: boolean[] = [];
+            case EModbusType.EWriteMultipleCoils:                
                 for (let i = 0; i < table.quantity; i++) {
                     coiles.push(!!table.table[table.address + i]);                    
                 }
                 return this.writeMultipleCoils(table.slave, table.address, coiles);
                 break;
-            case EModbusType.EWriteMultipleRegisters:
-                let regs: number[] = [];
+            case EModbusType.EWriteMultipleRegisters:                
                 for (let i = 0; i < table.quantity; i++) {
                     regs.push(table.table[table.address + i]);                    
                 }
@@ -247,57 +247,57 @@ export class ModbusRTUEncoder extends Base implements IModbusRTUEncoder {
 
     readCoils(slave: number, address: number, quantity?: number): Buffer {
         quantity = quantity || 1;
-        let data = [slave & 0xFF, EModbusType.EReadCoils, (address >> 8) & 0xFF, address & 0xFF, (quantity >> 8) & 0xFF, quantity & 0xFF];
-        let crc = CRC16.Modbus(Buffer.from(data));
+        const data = [slave & 0xFF, EModbusType.EReadCoils, (address >> 8) & 0xFF, address & 0xFF, (quantity >> 8) & 0xFF, quantity & 0xFF];
+        const crc = CRC16.Modbus(Buffer.from(data));
         data.push(crc[0], crc[1]);
         return Buffer.from(data)
     }
 
     readDiscreteInputs(slave: number, address: number, quantity?: number): Buffer {
         quantity = quantity || 1;
-        let data = [slave & 0xFF, EModbusType.EReadDiscreteInputs, (address >> 8) & 0xFF, address & 0xFF, (quantity >> 8) & 0xFF, quantity & 0xFF];
-        let crc = CRC16.Modbus(Buffer.from(data));
+        const data = [slave & 0xFF, EModbusType.EReadDiscreteInputs, (address >> 8) & 0xFF, address & 0xFF, (quantity >> 8) & 0xFF, quantity & 0xFF];
+        const crc = CRC16.Modbus(Buffer.from(data));
         data.push(crc[0], crc[1]);
         return Buffer.from(data)
     }    
 
     readHoldingRegisters(slave: number, address: number, quantity?: number): Buffer {
         quantity = quantity || 1;
-        let data = [slave & 0xFF, EModbusType.EReadHoldingRegisters, (address >> 8) & 0xFF, address & 0xFF, (quantity >> 8) & 0xFF, quantity & 0xFF];
-        let crc = CRC16.Modbus(Buffer.from(data));
+        const data = [slave & 0xFF, EModbusType.EReadHoldingRegisters, (address >> 8) & 0xFF, address & 0xFF, (quantity >> 8) & 0xFF, quantity & 0xFF];
+        const crc = CRC16.Modbus(Buffer.from(data));
         data.push(crc[0], crc[1]);
         return Buffer.from(data)
     }    
 
     readInputRegisters(slave: number, address: number, quantity?: number): Buffer {
         quantity = quantity || 1;
-        let data = [slave & 0xFF, EModbusType.EReadInputRegisters, (address >> 8) & 0xFF, address & 0xFF, (quantity >> 8) & 0xFF, quantity & 0xFF];
-        let crc = CRC16.Modbus(Buffer.from(data));
+        const data = [slave & 0xFF, EModbusType.EReadInputRegisters, (address >> 8) & 0xFF, address & 0xFF, (quantity >> 8) & 0xFF, quantity & 0xFF];
+        const crc = CRC16.Modbus(Buffer.from(data));
         data.push(crc[0], crc[1]);
         return Buffer.from(data)        
     }
 
     writeSingleCoil(slave: number, address: number, value: boolean): Buffer {        
-        let data = [slave & 0xFF, EModbusType.EWriteSingleCoil, (address >> 8) & 0xFF, address & 0xFF, value ? 0xFF: 0x00, 0x00];
-        let crc = CRC16.Modbus(Buffer.from(data));
+        const data = [slave & 0xFF, EModbusType.EWriteSingleCoil, (address >> 8) & 0xFF, address & 0xFF, value ? 0xFF: 0x00, 0x00];
+        const crc = CRC16.Modbus(Buffer.from(data));
         data.push(crc[0], crc[1]);
         return Buffer.from(data)          
     }
     writeSingleRegister(slave: number, address: number, value: number): Buffer {
-        let data = [slave & 0xFF, EModbusType.EWriteSingleRegister, (address >> 8) & 0xFF, address & 0xFF, (value >> 8) & 0xFF, value & 0xFF];
-        let crc = CRC16.Modbus(Buffer.from(data));
+        const data = [slave & 0xFF, EModbusType.EWriteSingleRegister, (address >> 8) & 0xFF, address & 0xFF, (value >> 8) & 0xFF, value & 0xFF];
+        const crc = CRC16.Modbus(Buffer.from(data));
         data.push(crc[0], crc[1]);
         return Buffer.from(data)            
     }
     writeMultipleCoils(slave: number, address: number, values: boolean[]): Buffer {
-        let count = values.length;
-        let bytes = Math.ceil(count / 8);
-        let data = [slave & 0xFF, EModbusType.EWriteMultipleCoils, (address >> 8) & 0xFF, address & 0xFF, (count >> 8) & 0xFF, count & 0xFF];
+        const count = values.length;
+        const bytes = Math.ceil(count / 8);
+        const data = [slave & 0xFF, EModbusType.EWriteMultipleCoils, (address >> 8) & 0xFF, address & 0xFF, (count >> 8) & 0xFF, count & 0xFF];
         data.push(bytes & 0xFF);
         for (let i = 0; i < bytes; i++) {
             let byte = 0;
             for (let j = 0; j < 8; j++) {
-                let idx = i * 8 + j;
+                const idx = i * 8 + j;
                 let v = 0;
                 if (idx < count)
                     v = values[idx] ? 1 : 0;
@@ -307,20 +307,20 @@ export class ModbusRTUEncoder extends Base implements IModbusRTUEncoder {
             data.push(byte && 0xFF);            
         }
 
-        let crc = CRC16.Modbus(Buffer.from(data));
+        const crc = CRC16.Modbus(Buffer.from(data));
         data.push(crc[0], crc[1]);
         return Buffer.from(data);    
     }
     writeMultipleRegisters(slave: number, address: number, values: number[]): Buffer {
-        let count = values.length;
-        let bytes = count * 2;
-        let data = [slave & 0xFF, EModbusType.EWriteMultipleRegisters, (address >> 8) & 0xFF, address & 0xFF, (count >> 8) & 0xFF, count & 0xFF];
+        const count = values.length;
+        const bytes = count * 2;
+        const data = [slave & 0xFF, EModbusType.EWriteMultipleRegisters, (address >> 8) & 0xFF, address & 0xFF, (count >> 8) & 0xFF, count & 0xFF];
         data.push(bytes & 0xFF);
         for (let i = 0; i < count; i++) {
-            let value = values[i];
+            const value = values[i];
             data.push((value >> 8) & 0xFF, value & 0xFF);            
         }
-        let crc = CRC16.Modbus(Buffer.from(data));
+        const crc = CRC16.Modbus(Buffer.from(data));
         data.push(crc[0], crc[1]);
         return Buffer.from(data);  
     }
@@ -353,7 +353,7 @@ export class ModbusRTUDecoder extends Base implements IModbusRTUDecoder {
     }
 
     decode_common(rtu: Buffer): IModbusRTUTable {
-        let table: IModbusRTUTable = new ModbusRTUTable();
+        const table: IModbusRTUTable = new ModbusRTUTable();
         table.slave = rtu[0];
         table.func = rtu[1] & 0x0F;
         table.error = (rtu[1] & 0xF0) == 0x80 ? rtu[2] : 0;
@@ -430,17 +430,17 @@ export class ModbusRTUDecoder extends Base implements IModbusRTUDecoder {
 
 
     decode_read_coils(rtu: Buffer, table: IModbusRTUTable): IModbusRTUTable {        
-        let result = this.decode_common(rtu);
+        const result = this.decode_common(rtu);
         if (!result.error) {
-            let bytes = rtu[2];
+            const bytes = rtu[2];
             result.quantity = table && table.quantity || (bytes * 8);            
             result.address = table && table.address || 0;
             for (let i = 0; i < bytes; i++) {
-                let byte = rtu[3 + i];
+                const byte = rtu[3 + i];
                 for (let j = 0; j < 8; j++) {
-                    let idx = i * 8 + j;
+                    const idx = i * 8 + j;
                     if (idx < result.quantity) {
-                        let v = (byte >> j) & 0x01;
+                        const v = (byte >> j) & 0x01;
                         result.table[result.address + idx] = v;
                     }
                 }                
@@ -455,14 +455,14 @@ export class ModbusRTUDecoder extends Base implements IModbusRTUDecoder {
     }
 
     decode_read_holding_registers(rtu: Buffer, table: IModbusRTUTable): IModbusRTUTable {
-        let result = this.decode_common(rtu);
+        const result = this.decode_common(rtu);
         if (!result.error) {
-            let bytes = rtu[2];
+            const bytes = rtu[2];
             result.quantity = bytes / 2;
             result.address = table.address || 0;
             for (let i = 0; i < result.quantity; i++) {
-                let byteH = rtu[3 + i * 2];
-                let byteL = rtu[3 + i * 2 + 1];
+                const byteH = rtu[3 + i * 2];
+                const byteL = rtu[3 + i * 2 + 1];
                 result.table[result.address + i] =  (byteH << 8) + byteL;        
             }
         }
@@ -474,7 +474,7 @@ export class ModbusRTUDecoder extends Base implements IModbusRTUDecoder {
     }
 
     decode_write_single_coil(rtu: Buffer, table: IModbusRTUTable): IModbusRTUTable {
-        let result = this.decode_common(rtu);
+        const result = this.decode_common(rtu);
         if (!result.error) {
             result.quantity = 1;
             result.address = (rtu[2] << 8) + rtu[3];
@@ -484,7 +484,7 @@ export class ModbusRTUDecoder extends Base implements IModbusRTUDecoder {
     }
 
     decode_write_single_register(rtu: Buffer, table: IModbusRTUTable): IModbusRTUTable {
-        let result = this.decode_common(rtu);
+        const result = this.decode_common(rtu);
         if (!result.error) {
             result.quantity = 1;
             result.address = (rtu[2] << 8) + rtu[3];
@@ -494,7 +494,7 @@ export class ModbusRTUDecoder extends Base implements IModbusRTUDecoder {
     }
 
     decode_write_multiple_coils(rtu: Buffer, table: IModbusRTUTable): IModbusRTUTable {
-        let result = this.decode_common(rtu);
+        const result = this.decode_common(rtu);
         if (!result.error) {            
             result.address = (rtu[2] << 8) + rtu[3];
             result.quantity = (rtu[4] << 8) + rtu[5];
@@ -503,7 +503,7 @@ export class ModbusRTUDecoder extends Base implements IModbusRTUDecoder {
     }
 
     decode_write_multiple_registers(rtu: Buffer, table: IModbusRTUTable): IModbusRTUTable {
-        let result = this.decode_common(rtu);
+        const result = this.decode_common(rtu);
         if (!result.error) {            
             result.address = (rtu[2] << 8) + rtu[3];
             result.quantity = (rtu[4] << 8) + rtu[5];
@@ -530,7 +530,7 @@ export class ModbusRTU extends Base implements IModbusRTU {
     }
 }
 
-let GModeBusRTU = new ModbusRTU();
+const GModeBusRTU = new ModbusRTU();
 export { GModeBusRTU }
 
 export interface IModbusCmdEvents extends IBase {
@@ -611,16 +611,16 @@ export class ModbusCmd extends Base implements IModbusCmd {
             return this.execPromise;
         
         this.execPromise = new Promise((resolve, reject) => {
-            let reqTables = [].concat(this.reqTables);
+            const reqTables = [].concat(this.reqTables);
             let reqTable: IModbusRTUTable;
             let timeoutHandler: any;
-            let execReqTable = () => {
+            const execReqTable = () => {
                 reqTable = reqTables.pop();
                 if (reqTable) {
-                    let reqRtu = GModeBusRTU.encoder.encode(reqTable);
+                    const reqRtu = GModeBusRTU.encoder.encode(reqTable);
                     this.events.req.emit(reqRtu);
                     timeoutHandler = setTimeout(() => {                        
-                        let resTable = reqTable.clone();
+                        const resTable = reqTable.clone();
                         resTable.error = -1;
                         this.resTables.push(resTable);                 
                         reject(-1);                        
@@ -638,7 +638,7 @@ export class ModbusCmd extends Base implements IModbusCmd {
 
             this.events.res.on((resRtu: Buffer) => {
                 clearTimeout(timeoutHandler);
-                let resTable = GModeBusRTU.decoder.decode(resRtu, reqTable);
+                const resTable = GModeBusRTU.decoder.decode(resRtu, reqTable);
                 this.resTables.push(resTable);
                 execReqTable();
             })
@@ -677,7 +677,7 @@ export class ModbusCmds extends Base implements IModbusCmds {
     }
 
     exec(tables: IModbusRTUTable[]): IModbusCmd {
-        let cmd = new ModbusCmd(tables);
+        const cmd = new ModbusCmd(tables);
         cmd.events.req.on(data => {
             this.events.req.emit(data);
         })
@@ -688,7 +688,7 @@ export class ModbusCmds extends Base implements IModbusCmds {
 
     execCmd(): IModbusCmd {
         if (!this.cmd) {
-            let promise = this.execNextCmd();
+            const promise = this.execNextCmd();
             if (promise) {
                 promise
                 .then(v => {
@@ -722,7 +722,7 @@ export class ModbusCmds extends Base implements IModbusCmds {
 
     clear() {
         while(this.cmds.length > 0) {
-            let cmd = this.cmds.pop();
+            const cmd = this.cmds.pop();
             cmd.destroy();
         }
     }

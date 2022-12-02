@@ -7,7 +7,7 @@ export class Desc_DataTable_Control_Cmd {
         2: "发送数据"
     }
     static get(cmd: number): string {
-        let result = this.tables[cmd]
+        const result = this.tables[cmd]
         return result ? result : "其他"
     }
 }
@@ -20,7 +20,7 @@ export class Desc_DataTable_App_Type {
         9: "通信线路上行测试"
     }
     static get(cmd: number): string {
-        let result = this.tables[cmd]
+        const result = this.tables[cmd]
         return result ? result : "预留"
     }
 }
@@ -46,7 +46,7 @@ export class Desc_DataTable_App_Dev_Type {
 
     }
     static get(cmd: number): string {
-        let result = this.tables[cmd]
+        const result = this.tables[cmd]
         return result ? result : "预留"
     }
 }
@@ -172,7 +172,7 @@ export class Desc_DataTable_App_Unit_Type {
 
     }
     static get(cmd: number): string {
-        let result = this.tables[cmd]
+        const result = this.tables[cmd]
         return result ? result : "预留"
     }
 }
@@ -253,7 +253,7 @@ export class Desc_DataTable_App_Unit_Status {
         139: "延时启动",
     }
     static get(cmd: number): string {
-        let result = this.tables[cmd]
+        const result = this.tables[cmd]
         return result ? result : "预留"
     }
 }
@@ -277,7 +277,7 @@ export class Desc_DataTable_App_Op_Type {
         13: "延时启动",
     }
     static get(cmd: number): string {
-        let result = this.tables[cmd]
+        const result = this.tables[cmd]
         return result ? result : "预留"
     }
 }
@@ -397,7 +397,7 @@ export class DataTable implements IDataTable {
     }
     
     destroy() {
-
+        return;
     }
     
     static encode(): Buffer {
@@ -405,11 +405,11 @@ export class DataTable implements IDataTable {
     }
 
     static decode(data: Buffer): IDataTable[] {
-        let result: IDataTable[] = [];
+        const result: IDataTable[] = [];
         let idx = 0;
-        let length = data.length;
+        const length = data.length;
         while (length - idx >= 30) {
-            let table = new DataTable();    
+            const table = new DataTable();    
             if (data[idx++] + (data[idx++] << 8) != table.start) continue;
     
             table.control.sid = data[idx++] + (data[idx++] << 8);
@@ -466,12 +466,12 @@ export class DataTable implements IDataTable {
     }    
    
     static decode_app_cmd_3(data: Buffer, table: IDataTable) {
-     
+        return;     
     }  
     // "上传部件运行状态",
     static decode_app_type_2(data: Buffer, table: IDataTable) {
         let idx = table.control.apppos + 2;
-        let info = new DataTable_App_Info_Status();
+        const info = new DataTable_App_Info_Status();
         info.dev_type = data[idx++];        
         info.dev_type_desc = Desc_DataTable_App_Dev_Type.get(info.dev_type);
         info.dev_addr =  data[idx++];        
@@ -485,14 +485,14 @@ export class DataTable implements IDataTable {
         info.unit_status_desc = Desc_DataTable_App_Unit_Status.get(info.unit_status);
         
         info.unit_mark = "";
-        let unit_mark = [];
+        const unit_mark = [];
         for (let j = 0; j < 32; j++) {
-            let d = data[idx++];
+            const d = data[idx++];
             if (d > 0)
                 unit_mark.push(d);
         }        
         info.unit_mark = iconv.decode(Buffer.from(unit_mark), "GB18030")
-        let sec = data[idx++], min = data[idx++], hour = data[idx++], day = data[idx++], month = data[idx++], year = 2000 + data[idx++];
+        const sec = data[idx++], min = data[idx++], hour = data[idx++], day = data[idx++], month = data[idx++], year = 2000 + data[idx++];
         info.time = year + "-" + month + "-" +day + " " + hour + ":" + min + ":" +sec;  
         
         table.app.infos.push(info);
@@ -503,14 +503,14 @@ export class DataTable implements IDataTable {
     // "上传设备操作信息",
     static decode_app_type_4(data: Buffer, table: IDataTable) {
         let idx = table.control.apppos + 2;
-        let info = new DataTable_App_Info_Op();
+        const info = new DataTable_App_Info_Op();
         info.dev_type = data[idx++];        
         info.dev_type_desc = Desc_DataTable_App_Dev_Type.get(info.dev_type);
         info.dev_addr =  data[idx++];        
         info.op_type = data[idx++];
         info.op_type_desc = Desc_DataTable_App_Op_Type.get(info.op_type);
         info.op_no =  data[idx++];
-        let sec = data[idx++], min = data[idx++], hour = data[idx++], day = data[idx++], month = data[idx++], year = data[idx++];
+        const sec = data[idx++], min = data[idx++], hour = data[idx++], day = data[idx++], month = data[idx++], year = data[idx++];
         info.time = year + "-" + month + "-" +day + " " + hour + ":" + min + ":" +sec;        
         table.app.infos.push(info);
         // console.dir(info)
@@ -518,7 +518,7 @@ export class DataTable implements IDataTable {
 
     // "通信线路上行测试"
     static decode_app_type_9(data: Buffer, table: IDataTable) {
-        let idx = table.control.apppos + 2;
+        const idx = table.control.apppos + 2;
         
     }           
 }

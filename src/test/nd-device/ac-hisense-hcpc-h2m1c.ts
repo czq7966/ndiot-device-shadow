@@ -4,7 +4,7 @@ import { Modbus } from "../../device/amd/modbus/base/device";
 import { IDeviceBusDataPayload, IDeviceBusEventData } from "../../device/device.dts";
 
 
-let device = new ACHisenseHCPCH2M1C({
+const device = new ACHisenseHCPCH2M1C({
     "id" : "ndiot485519666fc5",
     "app_id" : "ndiot",
     "desc" : "武汉云启/485透传/ndiot485519666fc5",
@@ -15,7 +15,7 @@ let device = new ACHisenseHCPCH2M1C({
     "vendor" : "ND"    
 });
 
-let payload : IDeviceBusDataPayload = {
+const payload : IDeviceBusDataPayload = {
     hd: {
         entry: {
             type: "svc",
@@ -27,7 +27,7 @@ let payload : IDeviceBusDataPayload = {
     }
     
 }
-let msg: IDeviceBusEventData = {
+const msg: IDeviceBusEventData = {
     id: device.attrs.id,
     payload:  payload
 }

@@ -6,8 +6,7 @@ import { IPldTable, PldTable } from "../../coders/dev-bin-json/pld-table";
 import { Coder } from "../../coders/tv/tv-hisense-65wr30a/coder";
 import { NDDevice, INDDevice} from "../../nd-device";
 
-export interface ITV_HISENSE_65WR30A extends INDDevice {
-}
+export type ITV_HISENSE_65WR30A = INDDevice
 
 export class TV_HISENSE_65WR30A extends NDDevice implements ITV_HISENSE_65WR30A {
     
@@ -25,12 +24,12 @@ export class TV_HISENSE_65WR30A extends NDDevice implements ITV_HISENSE_65WR30A 
 
 
     on_south_input_decode(p_hd: ICmdHead, p_pld: IPldTable): IDeviceBusDataPayload {
-        let payload = super.on_south_input_decode(p_hd, p_pld);
+        const payload = super.on_south_input_decode(p_hd, p_pld);
 
-        let hd = payload.hd;
+        const hd = payload.hd;
         let pld = payload.pld;
         if (hd.cmd_id == CmdId.penet) {  
-            let s_hd = this.plf_coder.head.penets.pop(); 
+            const s_hd = this.plf_coder.head.penets.pop(); 
             if (s_hd) {
                 hd.entry = s_hd.entry;
                 hd.sid = s_hd.sid;
@@ -41,7 +40,7 @@ export class TV_HISENSE_65WR30A extends NDDevice implements ITV_HISENSE_65WR30A 
                     id: "report"
                 }
             }
-            let data = this.recvcmd.payload.tables[PldTable.Keys.penet_data] as Buffer;
+            const data = this.recvcmd.payload.tables[PldTable.Keys.penet_data] as Buffer;
             this.coder.pnt_table.reset();
             if (data && this.coder.pnt_table.decode(data)) {                
                 pld = this.coder.plf_props.decode(this.coder.pnt_table)
@@ -55,11 +54,11 @@ export class TV_HISENSE_65WR30A extends NDDevice implements ITV_HISENSE_65WR30A 
     }
 
     on_north_input_encode(p_hd: IDeviceBusDataPayloadHd, p_pld: {}): IDeviceBusDataPayload {
-        let payload = super.on_north_input_encode(p_hd, p_pld);
-        let hd = payload.hd;
+        const payload = super.on_north_input_encode(p_hd, p_pld);
+        const hd = payload.hd;
         let pld = payload.pld;
         if ((hd.cmd_id == CmdId.get || hd.cmd_id == CmdId.set) && hd.entry && hd.entry.type == "svc" ) {
-            let pnttable = this.coder.plf_props.encode(hd.cmd_id == CmdId.get ? {} : p_pld);
+            const pnttable = this.coder.plf_props.encode(hd.cmd_id == CmdId.get ? {} : p_pld);
 
             if (pnttable) {
                 hd.cmd_id = CmdId.penet;     

@@ -8,10 +8,10 @@ export interface ITable {
 }
 
 export class Table implements ITable {
-    head: number = 0
-    len: number = 0
-    cmd: number = 0
+    head = 0
+    len = 0
+    cmd = 0
     data: Array<number> = []
-    sum: number = 0
-    end: number = 0    
+    sum = 0
+    end = 0    
 }

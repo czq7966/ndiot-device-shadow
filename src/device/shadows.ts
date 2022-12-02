@@ -27,7 +27,7 @@ export class DeviceShadows extends Base implements IDeviceShadows {
                 .then(plugin => {
                     if (plugin && plugin.Plugin) {
                         shadow = new DeviceShadow(this.manager);
-                        let device = new plugin.Plugin(attrs) as IDeviceBase;
+                        const device = new plugin.Plugin(attrs) as IDeviceBase;
                         shadow.attachDevice(device);
                         this.shadows[attrs.id] = shadow;
                         resolve(shadow);
@@ -42,10 +42,10 @@ export class DeviceShadows extends Base implements IDeviceShadows {
         }
     }
     delShadow(id: string): boolean {
-        let shadow = this.shadows[id];
+        const shadow = this.shadows[id];
         delete this.shadows[id];
         if (shadow) {
-            let device = shadow.device;
+            const device = shadow.device;
             shadow.detachDevice();
             if (device)               
                 device.destroy();

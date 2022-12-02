@@ -32,7 +32,7 @@ export class NDDevice extends DeviceBase implements INDDevice {
 
         if (!msg.decoded && msg.payload && !this.attrs.pid) {
             if (this.recvcmd.decode(msg.payload)){
-                let payload = this.on_south_input_decode(this.recvcmd.head, this.recvcmd.payload);
+                const payload = this.on_south_input_decode(this.recvcmd.head, this.recvcmd.payload);
                 if (!payload) return;
 
                 msg.payload = {
@@ -40,7 +40,7 @@ export class NDDevice extends DeviceBase implements INDDevice {
                     pld: payload.pld
                 }
                 msg.decoded = true;
-            };
+            }
         }
 
         //父设备 todo...
@@ -57,7 +57,7 @@ export class NDDevice extends DeviceBase implements INDDevice {
         Debuger.Debuger.log("NDDevice  on_north_input");
 
         if (!msg.encoded && msg.payload && !this.attrs.pid) {
-            let payload: IDeviceBusDataPayload = this.on_north_input_encode(msg.payload.hd, msg.payload.pld);
+            const payload: IDeviceBusDataPayload = this.on_north_input_encode(msg.payload.hd, msg.payload.pld);
             if (!payload) return;
             this.sendcmd.reset();
             msg.payload = this.sendcmd.encode(payload.hd, payload.pld);
@@ -74,8 +74,8 @@ export class NDDevice extends DeviceBase implements INDDevice {
     }  
 
     on_south_input_decode(p_hd: ICmdHead, p_pld: IPldTable): IDeviceBusDataPayload {
-        let hd = this.plf_coder.head.decode(p_hd);
-        let pld = this.plf_coder.payload.decode(p_pld);
+        const hd = this.plf_coder.head.decode(p_hd);
+        const pld = this.plf_coder.payload.decode(p_pld);
 
         return {
             hd: hd,
@@ -86,8 +86,8 @@ export class NDDevice extends DeviceBase implements INDDevice {
     on_north_input_encode(p_hd: IDeviceBusDataPayloadHd, p_pld: {}): IDeviceBusDataPayload {
         this.plf_coder.head.reset();
         this.plf_coder.payload.reset();  
-        let hd = this.plf_coder.head.encode(p_hd);
-        let pld = this.plf_coder.payload.encode(p_pld);
+        const hd = this.plf_coder.head.encode(p_hd);
+        const pld = this.plf_coder.payload.encode(p_pld);
 
         return {
             hd: hd && hd.head,

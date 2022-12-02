@@ -47,7 +47,7 @@ export interface IDeviceEntryEvent extends IBase  {
     output: IDeviceBusEvent
 }
 
-export interface IDeviceShadowEvents extends IDeviceBaseEvents  {}
+export type IDeviceShadowEvents = IDeviceBaseEvents
 
 export interface IDeviceShadow extends IBase {
     manager: IDeviceShadowManager

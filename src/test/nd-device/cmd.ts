@@ -10,12 +10,12 @@ import { Cmd } from "../../device/amd/coders/dev-bin-json/cmd";
 // console.log(cmd);
 
 
-let msg = {
+const msg = {
     hd: { cmd_id: 7 },
     pld: { '60500': { type: 'Buffer', data: [48, 49, 50, 51, 52] } }
   }
 
-let cmd = new Cmd();
+const cmd = new Cmd();
 let buf = cmd.encode(msg.hd, msg.pld);
 
 

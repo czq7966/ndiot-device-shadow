@@ -3,7 +3,7 @@ import { Debuger, DeviceBase } from "../../device-base";
 import { IDeviceBase, IDeviceBusDataPayload, IDeviceBusEventData, IDeviceShadow } from "../../device.dts";
 import { Device } from "../device";
 
-export interface IDevice extends IDeviceBase {}
+export type IDevice = IDeviceBase
 
 //杜亚窗帘，型号：dvq24gf
 export class CT_DOOYA_DVQ24GF extends Device implements IDevice {
@@ -21,7 +21,7 @@ export class CT_DOOYA_DVQ24GF extends Device implements IDevice {
     //南向输入
     on_south_input(msg: IDeviceBusEventData) {
         Debuger.Debuger.log("CT_DOOYA_DVQ24GF","on_south_input ");
-        let payload: IDeviceBusDataPayload = msg.payload;
+        const payload: IDeviceBusDataPayload = msg.payload;
         if (payload.pld.raw) {
             //需要解码
             this.on_south_input_decode(msg);
@@ -45,10 +45,10 @@ export class CT_DOOYA_DVQ24GF extends Device implements IDevice {
 //具体业务lql
     //透传输入解码
     on_south_input_decode(msg: IDeviceBusEventData) {
-        let raw = msg.payload.pld.raw as String;
-        let buf = Buffer.from(raw,'base64');
-        let crc = CRC16.Modbus(buf, null, buf.length - 2);
-        if (crc[0] == buf[buf.length - 2] && crc[1] == buf[buf.length - 1] || true) { //关闭校验
+        const raw = msg.payload.pld.raw as String;
+        const buf = Buffer.from(raw,'base64');
+        const crc = CRC16.Modbus(buf, null, buf.length - 2);
+        if (crc[0] == buf[buf.length - 2] && crc[1] == buf[buf.length - 1] || (1==1)) { //关闭校验
             if (buf[3] == 0x01 && buf[4] == 0x10) {
                 this.on_south_input_decode_state(msg);
             }
@@ -65,9 +65,9 @@ export class CT_DOOYA_DVQ24GF extends Device implements IDevice {
 
     //当前状态解码->北向输出
     on_south_input_decode_state(msg: IDeviceBusEventData) {
-        let raw = msg.payload.pld.raw as String;
-        let buf = Buffer.from(raw,'base64');
-        let payload: IDeviceBusDataPayload = {
+        const raw = msg.payload.pld.raw as String;
+        const buf = Buffer.from(raw,'base64');
+        const payload: IDeviceBusDataPayload = {
             hd: msg.payload.hd,
             pld: {
                 open: buf[7],
@@ -91,7 +91,7 @@ export class CT_DOOYA_DVQ24GF extends Device implements IDevice {
 
     //控制指令编码
     on_north_input_encode(msg: IDeviceBusEventData) {
-        let open = msg.payload.pld.open;
+        const open = msg.payload.pld.open;
         if (open === null || open == -1) 
             this.on_north_input_encode_get(msg);
         else if (open === 0 || open == 102) {
@@ -116,14 +116,14 @@ export class CT_DOOYA_DVQ24GF extends Device implements IDevice {
             this.on_north_input_encode_travel_down(msg);               
         else if (open === 212)
             this.on_north_input_encode_travel_del(msg);
-        else if (open === 212)
-            this.on_north_input_encode_prompt_none(msg);
-        else if (open === 212)
-            this.on_north_input_encode_prompt_sound(msg);
-        else if (open === 212)
-            this.on_north_input_encode_prompt_turn(msg);
-        else if (open === 212)
-            this.on_north_input_encode_prompt_turn_sound(msg);
+        // else if (open === 212)
+        //     this.on_north_input_encode_prompt_none(msg);
+        // else if (open === 212)
+        //     this.on_north_input_encode_prompt_sound(msg);
+        // else if (open === 212)
+        //     this.on_north_input_encode_prompt_turn(msg);
+        // else if (open === 212)
+        //     this.on_north_input_encode_prompt_turn_sound(msg);
         else super.on_north_input(msg);
     }
 
@@ -137,7 +137,7 @@ export class CT_DOOYA_DVQ24GF extends Device implements IDevice {
 
     //状态查询
     on_north_input_encode_get(msg: IDeviceBusEventData) {
-        let cmd = Buffer.from([0x01, 0x00, 0x10]);
+        const cmd = Buffer.from([0x01, 0x00, 0x10]);
         this.penet(msg, cmd);        
     }
 
@@ -153,92 +153,92 @@ export class CT_DOOYA_DVQ24GF extends Device implements IDevice {
 
     //完全打开
     on_north_input_encode_open(msg: IDeviceBusEventData) {
-        let cmd = Buffer.from([0x03, 0x01]);
+        const cmd = Buffer.from([0x03, 0x01]);
         this.penet(msg, cmd);
     }
 
     //完全关闭
     on_north_input_encode_close(msg: IDeviceBusEventData) {
-        let cmd = Buffer.from([0x03, 0x02]);
+        const cmd = Buffer.from([0x03, 0x02]);
         this.penet(msg, cmd);                        
     }
 
     //停止
     on_north_input_encode_stop(msg: IDeviceBusEventData) {
-        let cmd = Buffer.from([0x03, 0x03]);
+        const cmd = Buffer.from([0x03, 0x03]);
         this.penet(msg, cmd);        
     }
 
     //指定位置
     on_north_input_encode_pos(msg: IDeviceBusEventData) {
-        let pos = msg.payload.pld.open;
-        let cmd = Buffer.from([0x03, 0x04, pos]);
+        const pos = msg.payload.pld.open;
+        const cmd = Buffer.from([0x03, 0x04, pos]);
         this.penet(msg, cmd);        
     } 
     
     //默认方向
     on_north_input_encode_dir_default(msg: IDeviceBusEventData) {
-        let cmd = Buffer.from([0x02, 0x03, 0x01, 0x00]);
+        const cmd = Buffer.from([0x02, 0x03, 0x01, 0x00]);
         this.penet(msg, cmd);        
     }   
     
     //反方向
     on_north_input_encode_dir_revert(msg: IDeviceBusEventData) {
-        let cmd = Buffer.from([0x02, 0x03, 0x01, 0x01]);
+        const cmd = Buffer.from([0x02, 0x03, 0x01, 0x01]);
         this.penet(msg, cmd);        
     }   
     
     //设置上行程
     on_north_input_encode_travel_up(msg: IDeviceBusEventData) {
-        let cmd = Buffer.from([0x03, 0x05, 0x01]);
+        const cmd = Buffer.from([0x03, 0x05, 0x01]);
         this.penet(msg, cmd);        
     }   
     
     //设置下行程
     on_north_input_encode_travel_down(msg: IDeviceBusEventData) {
-        let cmd = Buffer.from([0x03, 0x05, 0x02]);
+        const cmd = Buffer.from([0x03, 0x05, 0x02]);
         this.penet(msg, cmd);        
     }   
     
     //删除行程
     on_north_input_encode_travel_del(msg: IDeviceBusEventData) {
-        let cmd = Buffer.from([0x03, 0x07, 0xFF]);
+        const cmd = Buffer.from([0x03, 0x07, 0xFF]);
         this.penet(msg, cmd);        
     }   
     
     //上电提示-无提示
     on_north_input_encode_prompt_none(msg: IDeviceBusEventData) {
-        let cmd = Buffer.from([0x02, 0x0C, 0x01, 0x00]);
+        const cmd = Buffer.from([0x02, 0x0C, 0x01, 0x00]);
         this.penet(msg, cmd);        
     }   
     
     //上电提示-只有声音
     on_north_input_encode_prompt_sound(msg: IDeviceBusEventData) {
-        let cmd = Buffer.from([0x02, 0x0C, 0x01, 0x01]);
+        const cmd = Buffer.from([0x02, 0x0C, 0x01, 0x01]);
         this.penet(msg, cmd);        
     }   
     
     //上电提示-只有转动
     on_north_input_encode_prompt_turn(msg: IDeviceBusEventData) {
-        let cmd = Buffer.from([0x02, 0x0C, 0x01, 0x02]);
+        const cmd = Buffer.from([0x02, 0x0C, 0x01, 0x02]);
         this.penet(msg, cmd);        
     }   
     
     //上电提示-转动加声音
     on_north_input_encode_prompt_turn_sound(msg: IDeviceBusEventData) {
-        let cmd = Buffer.from([0x02, 0x0C, 0x01, 0x03]);
+        const cmd = Buffer.from([0x02, 0x0C, 0x01, 0x03]);
         this.penet(msg, cmd);        
     }       
 
     penet(msg: IDeviceBusEventData, cmd: Buffer) {
-        let head = Buffer.from([0x55, 0xFE, 0xFE]);
-        let data = Buffer.alloc(head.length + cmd.length + 2);
+        const head = Buffer.from([0x55, 0xFE, 0xFE]);
+        const data = Buffer.alloc(head.length + cmd.length + 2);
         head.copy(data);
         cmd.copy(data, head.length);
-        let sum = CRC16.Modbus(data, null, data.length - 2);
+        const sum = CRC16.Modbus(data, null, data.length - 2);
         sum.copy(data, data.length - 2);
         
-        let payload: IDeviceBusDataPayload = {
+        const payload: IDeviceBusDataPayload = {
             hd: {
                 entry: {
                     type: "svc",

@@ -49,7 +49,7 @@ export class PntTable implements IPntTable {
     static DATA_input_name(data: {}, value: number[]): string {
         let result: string;
         Object.keys(data).forEach(key => {
-            let val = data[key];
+            const val = data[key];
             if (PntTable.DATA_ARRAY_COMP(val, value)) {
                 result = key;
             }
@@ -91,11 +91,11 @@ export class PntTable implements IPntTable {
 
     table: ITable = new Table();
     encode(): Buffer {
-        let buf = [];
+        const buf = [];
         buf.push((this.table.head >> 8) & 0xFF);
         buf.push(this.table.head & 0xFF);        
 
-        let len = this.callen();
+        const len = this.callen();
         buf.push((len >> 8) & 0xFF);
         buf.push(len & 0xFF);
 
@@ -136,7 +136,7 @@ export class PntTable implements IPntTable {
     }
 
     calsum(): number {
-        let len = this.callen()
+        const len = this.callen()
         let sum =   ((len >> 8) & 0xFF) ^
                     ((len >> 0) & 0xFF) ^
                     ((this.table.cmd >> 24) & 0xFF) ^
@@ -165,5 +165,5 @@ export class PntTable implements IPntTable {
             this.table.head = PntTable.TV2PC_head;
             this.table.end = PntTable.TV2PC_end;
         }
-    };
+    }
 }

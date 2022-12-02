@@ -45,12 +45,12 @@ export class DeviceShadow extends Base implements IDeviceShadow {
         this.events = new DeviceShadowEvents();
         this._onDetachDevice = new BaseEvent();
 
-        let on_south_input = (msg) => {this.on_south_input(msg);}
-        let on_north_input = (msg) => {this.on_north_input(msg);}
-        let on_config_input = (msg) => {this.on_config_input(msg);}
-        let on_notify_input = (msg) => {this.on_notify_input(msg);}
-        let on_parent_input = (msg) => {this.on_parent_input(msg);}
-        let on_child_input = (msg) => {this.on_child_input(msg);}
+        const on_south_input = (msg) => {this.on_south_input(msg);}
+        const on_north_input = (msg) => {this.on_north_input(msg);}
+        const on_config_input = (msg) => {this.on_config_input(msg);}
+        const on_notify_input = (msg) => {this.on_notify_input(msg);}
+        const on_parent_input = (msg) => {this.on_parent_input(msg);}
+        const on_child_input = (msg) => {this.on_child_input(msg);}
 
 
         this.events.south.input.on(on_south_input);
@@ -82,12 +82,12 @@ export class DeviceShadow extends Base implements IDeviceShadow {
         this.detachDevice();
         if (device) {
             this.device = device;
-            let on_device_south_output = (msg) => {this.on_device_south_output(msg);}
-            let on_device_north_output = (msg) => {this.on_device_north_output(msg);}
-            let on_device_config_output = (msg) => {this.on_device_config_output(msg);}
-            let on_device_notify_output = (msg) => {this.on_device_notify_output(msg);}
-            let on_device_parent_output = (msg) => {this.on_device_parent_output(msg);}
-            let on_device_child_output = (msg) => {this.on_device_child_output(msg);}
+            const on_device_south_output = (msg) => {this.on_device_south_output(msg);}
+            const on_device_north_output = (msg) => {this.on_device_north_output(msg);}
+            const on_device_config_output = (msg) => {this.on_device_config_output(msg);}
+            const on_device_notify_output = (msg) => {this.on_device_notify_output(msg);}
+            const on_device_parent_output = (msg) => {this.on_device_parent_output(msg);}
+            const on_device_child_output = (msg) => {this.on_device_child_output(msg);}
 
             this.device.events.south.output.on(on_device_south_output);
             this.device.events.north.output.on(on_device_north_output);
@@ -156,7 +156,7 @@ export class DeviceShadow extends Base implements IDeviceShadow {
         msg.id = msg.id || this.device.attrs.id;
         if (this.device.attrs.pid) {
             Debuger.Debuger.log("DeviceShadow parent on_device_south_output");
-            let pshadow = this.manager.shadows.getShadow(this.device.attrs.pid);
+            const pshadow = this.manager.shadows.getShadow(this.device.attrs.pid);
             if (pshadow)
                 pshadow.events.child.input.emit(msg);
             else
@@ -195,7 +195,7 @@ export class DeviceShadow extends Base implements IDeviceShadow {
         Debuger.Debuger.log("DeviceShadow on_device_parent_output");
         //msg.id == child.id
         msg.id = msg.id || this.device.attrs.id;
-        let childShadow = this.manager.shadows.getShadow(msg.id);
+        const childShadow = this.manager.shadows.getShadow(msg.id);
         if (childShadow)
             childShadow.events.parent.input.emit(msg);
     } 

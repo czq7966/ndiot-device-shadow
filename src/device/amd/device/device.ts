@@ -1,7 +1,7 @@
 import { Debuger, DeviceBase } from "../../device-base";
 import { IDeviceBase, IDeviceBusEventData } from "../../device.dts";
 
-export interface IDevice extends IDeviceBase {}
+export type IDevice = IDeviceBase
 
 export class Device extends DeviceBase implements IDevice {
 

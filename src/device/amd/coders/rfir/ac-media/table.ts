@@ -106,17 +106,17 @@ export class TableConst {
 }
 
 export class Table implements ITable {
-    BT0: number = 0;
-    BT1: number = 0;
-    BT2_1: number = 0;
-    Power: number = 0;
-    BT2_2: number = 0;
-    Fan: number = 0;
-    BT3: number = 0;
-    BT4_1: number = 0;
-    Mode: number = 0;
-    Temp: number = 0;
-    BT5: number = 0;
+    BT0 = 0;
+    BT1 = 0;
+    BT2_1 = 0;
+    Power = 0;
+    BT2_2 = 0;
+    Fan = 0;
+    BT3 = 0;
+    BT4_1 = 0;
+    Mode = 0;
+    Temp = 0;
+    BT5 = 0;
 }
 
 

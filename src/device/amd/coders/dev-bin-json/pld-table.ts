@@ -111,15 +111,15 @@ export class PldTableKeys {
 }
 
 export class PldTable implements IPldTable {
-    static StrMinNum: number = 60000;
-    static StrMaxNum: number = 60499;
-    static BytesMinNum: number = 60500;
-    static BytesMaxNum: number = 60999;    
+    static StrMinNum = 60000;
+    static StrMaxNum = 60499;
+    static BytesMinNum = 60500;
+    static BytesMaxNum = 60999;    
     static Keys = PldTableKeys
     static Names: {[id: number]: string} = {};
     static InitNames() {
         Object.keys(PldTable.Keys).forEach(key => {
-            let val = PldTable.Keys[key];
+            const val = PldTable.Keys[key];
             PldTable.Names[val] = key;
         })
     }
@@ -127,9 +127,9 @@ export class PldTable implements IPldTable {
     tables: { [key: number]: Buffer | string | number; } = {};
 
     encode(): Buffer {
-        let buf = [];
+        const buf = [];
         Object.keys(this.tables).forEach(strKey => {            
-            let key = parseInt(strKey);
+            const key = parseInt(strKey);
             if (key >=0 && key <= 0xFFFF) {            
                 buf.push(key & 0xff);
                 buf.push((key >> 8) & 0xff);
@@ -146,14 +146,14 @@ export class PldTable implements IPldTable {
                             }
                         }
 
-                        let len = value.length;
+                        const len = value.length;
                         buf.push(len & 0xff);
                         buf.push((len >> 8) & 0xff); 
                         for (let i = 0; i < len; i++) {
                             buf.push(value[i]);            
                         }
                 } else {
-                        let value: number = this.tables[key] as number;
+                        const value: number = this.tables[key] as number;
                         buf.push(value & 0xff);
                         buf.push((value >> 8) & 0xff);
                 }
@@ -167,13 +167,13 @@ export class PldTable implements IPldTable {
     decode(buf: Buffer) {
         let idx = 0;
         while (idx < buf.length) {
-            let key: number = buf[idx++] + (buf[idx++] << 8);
+            const key: number = buf[idx++] + (buf[idx++] << 8);
             if (key >= PldTable.StrMinNum && key <= PldTable.StrMaxNum ||
                 key >= PldTable.BytesMinNum && key <= PldTable.BytesMaxNum
                 ) {
-                let len = buf[idx++] + (buf[idx++] << 8);
+                const len = buf[idx++] + (buf[idx++] << 8);
                 if (len > 0) {
-                    let value = buf.subarray(idx, idx + len);
+                    const value = buf.subarray(idx, idx + len);
                     idx = idx + len;                    
                     if (key >= PldTable.StrMinNum && key <= PldTable.StrMaxNum)
                         this.tables[key] = value.toString();
@@ -181,7 +181,7 @@ export class PldTable implements IPldTable {
                         this.tables[key] = value;
                 }
             } else {
-                let value: number = buf[idx++] + (buf[idx++] << 8);
+                const value: number = buf[idx++] + (buf[idx++] << 8);
                 this.tables[key] = value;
             }
         }        
@@ -189,7 +189,7 @@ export class PldTable implements IPldTable {
 
     reset(){
         this.tables = {};
-    };
+    }
 
 }
 

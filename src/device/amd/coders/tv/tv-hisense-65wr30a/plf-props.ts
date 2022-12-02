@@ -13,7 +13,7 @@ export class PlfProps implements IPlfProps {
     props: IProps = new Props();
 
     encode(props?: IProps): IPntTable {
-        let pnttable = new PntTable();
+        const pnttable = new PntTable();
         pnttable.reset();
         if (!props || Object.keys(props).length == 0) {
             pnttable.table.cmd = PntTable.CMD_get;
@@ -45,7 +45,7 @@ export class PlfProps implements IPlfProps {
         return pnttable.table.cmd ? pnttable : null;
     }
     decode(pnttable: IPntTable): IProps {
-        let props: IProps = {}
+        const props: IProps = {}
         if (pnttable.table.cmd == PntTable.CMD_power_on) {            
             props.power = pnttable.table.len == 0x0104 ? "up" : "on";
             return props;

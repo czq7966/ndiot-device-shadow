@@ -1,7 +1,7 @@
 import { Debuger, DeviceBase } from "../../../device-base";
 import { IDeviceBase, IDeviceBusEventData } from "../../../device.dts";
 
-export interface IQTL_TX3016A extends IDeviceBase {}
+export type IQTL_TX3016A = IDeviceBase
 
 export class QTL_TX3016A extends DeviceBase implements IQTL_TX3016A {
 

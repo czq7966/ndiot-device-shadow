@@ -32,10 +32,10 @@ export class PntTable implements IPntTable {
         this.reset();
     }
     encodeBytess(): number[][] {
-        let bytess = [];
-        let buf = this.encode();
+        const bytess = [];
+        const buf = this.encode();
 
-        let bytes = [];
+        const bytes = [];
         for (let i = 0; i < buf.length; i++) {
             bytes.push(buf[i]);            
         }
@@ -102,10 +102,10 @@ export class PntTable implements IPntTable {
 
     setFan(speed: number){
         this.table.Fan = speed;
-    };
+    }
     getFan(): number{
         return this.table.Fan;
-    };
+    }
 
     setMode(new_mode: number){
         let mode = new_mode;
@@ -121,11 +121,11 @@ export class PntTable implements IPntTable {
           default: mode = TableConst.ModeAuto;
         }
         this.table.Mode = mode;
-    };
+    }
     getMode(): number{
         return this.table.Mode;
 
-    };
+    }
 
 
     getRaw(notFixup?: boolean, notClose?: boolean): Buffer {
@@ -134,16 +134,16 @@ export class PntTable implements IPntTable {
 
         if(!notFixup) this.fixup();
 
-        let table = Object.assign({}, this.table);
+        const table = Object.assign({}, this.table);
 
-        let buf = [];
+        const buf = [];
         let nbits = 0;
         let byte = 0;
         Object.keys(TableBits).forEach(key => {
-            let pos = nbits % 8;
-            let val = table[key] << pos;            
+            const pos = nbits % 8;
+            const val = table[key] << pos;            
             byte = byte | val;
-            let nbit = TableBits[key];
+            const nbit = TableBits[key];
             nbits = nbits + nbit;
 
             if(nbits % 8 == 0) {
@@ -156,9 +156,9 @@ export class PntTable implements IPntTable {
     setRaw(buf: Buffer) {
         let nbits = 0;
         Object.keys(TableBits).forEach(key => {
-            let nbit = TableBits[key];
+            const nbit = TableBits[key];
             nbits = nbits + nbit;
-            let idx = Math.floor((nbits - 1) / 8);
+            const idx = Math.floor((nbits - 1) / 8);
             let byte = buf[idx];   
             let pos = nbits % 8;
             pos = !pos ? 8 : pos;
@@ -169,7 +169,7 @@ export class PntTable implements IPntTable {
         })
     }
     checksum() {
-        let buf = this.getRaw(true);
+        const buf = this.getRaw(true);
         this.table.BT1 = ~buf[0];
         this.table.BT3 = ~buf[2];
         this.table.BT5 = ~buf[4]; 

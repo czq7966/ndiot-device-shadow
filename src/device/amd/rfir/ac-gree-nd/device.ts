@@ -13,7 +13,7 @@ export class ExtraConst {
     static ReportTimeout = 1000 * 60;
 }
 
-export interface IRFIRDeviceACGreeND extends IRFIRDeviceACGree {}
+export type IRFIRDeviceACGreeND = IRFIRDeviceACGree
 
 export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDeviceACGreeND {
     device_coder: ICoder
@@ -30,10 +30,10 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
 
     on_south_input_decode(p_hd: ICmdHead, p_pld: IPldTable): IDeviceBusDataPayload {
         Debuger.Debuger.log("RFIRDeviceACGreeND on_south_input_decode");
-        let payload = super.on_south_input_decode(p_hd, p_pld); 
+        const payload = super.on_south_input_decode(p_hd, p_pld); 
         if (!payload) return;
 
-        let hd = payload.hd;
+        const hd = payload.hd;
         if (hd.cmd_stp == 1) {
             if (hd.cmd_id == CmdId.config) 
                 return this.on_config_resp(payload.hd, payload.pld);
@@ -47,19 +47,19 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
     }
   
     on_north_input_encode(p_hd: IDeviceBusDataPayloadHd, p_pld: {}): IDeviceBusDataPayload {
-        let payload = super.on_north_input_encode(p_hd, p_pld);
+        const payload = super.on_north_input_encode(p_hd, p_pld);
         if (!payload) return;
 
-        let hd = payload.hd;
-        let pld = payload.pld || {};
+        const hd = payload.hd;
+        const pld = payload.pld || {};
 
         //设置
         if (hd.cmd_id == CmdId.set && pld[PldTable.Keys.rfir_send_data]) {  
-            let pnttable = this.ac_coder.plf_props.encode(pld, this.ac_coder.pnt_table);
+            const pnttable = this.ac_coder.plf_props.encode(pld, this.ac_coder.pnt_table);
 
-            let bytessA = pnttable.encodeBytess();
-            let bufA = this.rfir_coder.encode(bytessA);
-            let buf = bufA;
+            const bytessA = pnttable.encodeBytess();
+            const bufA = this.rfir_coder.encode(bytessA);
+            const buf = bufA;
             if (buf && buf.length > 0) {
                 pld[PldTable.Keys.rfir_send_repeat] = 1;   
                 pld[PldTable.Keys.rfir_send_data] = buf;   
@@ -83,14 +83,14 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
 
     //向设备获取射频码
     do_get_req_rfir_code() {
-        let len = this.ac_coder.pnt_table.getRaw().length;
-        let pld = {};
+        const len = this.ac_coder.pnt_table.getRaw().length;
+        const pld = {};
         for (let i = 0; i < len; i++) {
             pld[i] = 0;            
         }
         pld[PldTable.Keys.gpio_rw_pin] = ExtraConst.PowerPin;
 
-        let payload: IDeviceBusDataPayload = {
+        const payload: IDeviceBusDataPayload = {
             hd: {
                 cmd_id: CmdId.get, 
                 cmd_sid: ExtraConst.RfirCodeSid
@@ -98,20 +98,20 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
             pld: pld
         }
 
-        let msg = {payload: payload};
+        const msg = {payload: payload};
 
         this.on_north_input(msg);
     }
 
     //向设备设置射频码
     do_config_req_rfir_code() {
-        let raw = this.ac_coder.pnt_table.getRaw(false, true);
-        let pld = {};
+        const raw = this.ac_coder.pnt_table.getRaw(false, true);
+        const pld = {};
         for (let i = 0; i < raw.length; i++) {
             pld[i] = raw[i];
         }
 
-        let payload: IDeviceBusDataPayload = {
+        const payload: IDeviceBusDataPayload = {
             hd: {
                 cmd_id: CmdId.config,
                 cmd_sid: ExtraConst.RfirCodeSid
@@ -119,7 +119,7 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
             pld: pld
         }
 
-        let msg = {payload: payload};
+        const msg = {payload: payload};
 
         this.on_north_input(msg);
     }
@@ -133,12 +133,12 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
         }
         else hd = { entry: { type: "evt", id: "report" }};
 
-        let props = this.ac_coder.plf_props.decode(this.ac_coder.pnt_table,{});
-        let payload: IDeviceBusDataPayload = {
+        const props = this.ac_coder.plf_props.decode(this.ac_coder.pnt_table,{});
+        const payload: IDeviceBusDataPayload = {
             hd: hd,
             pld: props
         }
-        let msg: IDeviceBusEventData = {
+        const msg: IDeviceBusEventData = {
             decoded: true,
             payload: payload
         }
@@ -148,7 +148,7 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
     }
 
     //定时获取上报
-    _do_report_timeout: number = 0;
+    _do_report_timeout = 0;
     do_report_timeout(timeout?: number) {
         timeout = timeout || ExtraConst.ReportTimeout;
         
@@ -173,16 +173,16 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
     on_get_resp_rfir_code(hd: IDeviceBusDataPayloadHd, pld: {}): IDeviceBusDataPayload {
         if (hd.cmd_id == CmdId.get && hd.cmd_stp == 1 && hd.cmd_sid == ExtraConst.RfirCodeSid) {
 
-            let len = this.ac_coder.pnt_table.getRaw().length;
-            let buf = [];
+            const len = this.ac_coder.pnt_table.getRaw().length;
+            const buf = [];
             for (let i = 0; i < len; i++) {
-                if (pld && pld.hasOwnProperty(i.toString())) {
+                if (pld && Object.prototype.hasOwnProperty.call(pld, i.toString())) {
                     buf.push(pld[i]);
                 }
             }
 
             if (buf.length == len) {
-                let pnttable = new PntTable();
+                const pnttable = new PntTable();
                 pnttable.setModel(this.ac_coder.pnt_table.getModel());
                 pnttable.setRaw(Buffer.from(buf));
 
@@ -192,8 +192,8 @@ export  class RFIRDeviceACGreeND extends RFIRDeviceACGree implements IRFIRDevice
                 this.ac_coder.pnt_table.setFan(pnttable.getFan());
             }
             
-            if (pld.hasOwnProperty(PldTable.Keys.gpio_rw_value)) {
-                let value = pld[PldTable.Keys.gpio_rw_value];
+            if (Object.prototype.hasOwnProperty.call(pld, PldTable.Keys.gpio_rw_value)) {
+                const value = pld[PldTable.Keys.gpio_rw_value];
                 this.ac_coder.pnt_table.setPower(value);
             }
 

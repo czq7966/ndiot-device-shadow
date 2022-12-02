@@ -12,7 +12,7 @@ export interface IBaseEvent  {
 }
 
 export class BaseEvent implements IBaseEvent {
-    eventName: string = "";
+    eventName = "";
     eventEmitter: EventEmitter;
     constructor() {
         this.eventEmitter = new  EventEmitter();
@@ -41,10 +41,6 @@ export class BaseEvent implements IBaseEvent {
     
 }
 
-export interface ITimeoutEvent {
-
-}
-
 export interface ITimeoutEventHandler {
     handler: string
     timeout: number
@@ -52,7 +48,7 @@ export interface ITimeoutEventHandler {
     args: any[]
 }
 
-export class TimeoutEvent  implements ITimeoutEvent {
+export class TimeoutEvent  {
     eventHandlers: Array<ITimeoutEventHandler>
     currHandler: any;
     constructor() {
@@ -66,8 +62,8 @@ export class TimeoutEvent  implements ITimeoutEvent {
     watchTimeout() {
         clearTimeout(this.currHandler);
         if (this.eventHandlers.length > 0) {
-            let eventHandler = this.eventHandlers[0];
-            let timeout = eventHandler.timeout;
+            const eventHandler = this.eventHandlers[0];
+            const timeout = eventHandler.timeout;
             this.currHandler = setTimeout(() => {
                 this.removeHandler(eventHandler.handler);
                 eventHandler.listener(...eventHandler.args);
@@ -99,7 +95,7 @@ export class TimeoutEvent  implements ITimeoutEvent {
     }
 
     delay(delay: number, listener: (...args: any[]) => void, ...args: any[]): string {
-        let eventHandler: ITimeoutEventHandler = {
+        const eventHandler: ITimeoutEventHandler = {
             handler: UUID.Guid(),
             timeout: delay,
             listener: listener,
@@ -115,5 +111,5 @@ export class TimeoutEvent  implements ITimeoutEvent {
     }
 }
 
-let GTimeoutEvent = new TimeoutEvent();
+const GTimeoutEvent = new TimeoutEvent();
 export { GTimeoutEvent };

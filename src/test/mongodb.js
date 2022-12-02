@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+import { MongoClient } from 'mongodb';
 const url = "mongodb://preproduction_mdb_iot_data:jBZsDUZSnnT0@m3.edu.pre-prod.mongod.sdp:34001/preproduction_mdb_iot_data";
 const client = new MongoClient(url);
 
@@ -25,11 +25,9 @@ async function main() {
       for (let j = 0; j < colls.length; j++) {
         let coll = colls[j]
         try {
-            collection = db.collection(coll + i);
+            let collection = db.collection(coll + i);
             await collection.drop();                    
-        } catch (error) {        
-    
-        }          
+        } catch (error) { /* empty */ }          
       }        
   }
 

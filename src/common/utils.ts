@@ -1,5 +1,6 @@
 
 export class Utils {
+    // eslint-disable-next-line @typescript-eslint/ban-types
     static DeepMerge(toObj: {}, fromObj: {}): {} {
         toObj = toObj || {};
         fromObj = fromObj || {};
@@ -8,11 +9,11 @@ export class Utils {
 
         Object.keys(fromObj).forEach(key => {
             let toValue = toObj[key];
-            let fromValue = fromObj[key];
-            let type = typeof fromValue;
+            const fromValue = fromObj[key];
+            const type = typeof fromValue;
             if (type !== "function") {
                 if (type === "object" && fromValue !== null) {
-                    toValue = (typeof toValue === "object") ? toValue: {}
+                    toValue = (typeof toValue === "object") ? toValue: {};
                     toValue = this.DeepMerge(toValue, fromValue);
                 } else {
                     toValue = fromValue;
