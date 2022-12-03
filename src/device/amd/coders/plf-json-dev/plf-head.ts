@@ -49,16 +49,18 @@ export class PlfHead implements IPlfHead{
     encode_sid(sid: string): number {    
         sid = sid ? sid : "";
         let result = parseInt(sid);
-        if (result >= 0 || result <= 0) { /* empty */ } else {
+
+        if ((result >= 0 || result <= 0) && (sid.length == result.toString().length)) { 
+            return result;
+        } else {
             result = 0;
             const buf = [];
-            for (let i = 0; i < 4; i++) {                
-                buf.push(i < sid.length ? sid.charCodeAt(i) : 0);
+            for (let i = sid.length - 1; i >= 0; i--) { 
+                buf.push(sid.charCodeAt(i));
             }
-            result = Buffer.from(buf).readUint32LE();
-        }
 
-        return result;
+            return Buffer.from(buf.concat([0,0,0,0])).readUint32LE();
+        }
     }
 
     decode_sid(sid: number): string {        

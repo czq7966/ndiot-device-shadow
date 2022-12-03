@@ -48,7 +48,7 @@ describe('边缘组件', function () {
         });    
 
         it('移除影子设备', function () {
-            console.log(UUID.Guid());
+            // console.log(UUID.Guid());
   
         });
 
