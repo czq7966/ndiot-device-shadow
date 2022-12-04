@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for test/mocha.js</title>
+    <title>Code coverage report for src/device/amd/coders/rfir/ac-media/coder.js</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../prettify.css" />
-    <link rel="stylesheet" href="../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../favicon.png" />
+    <link rel="stylesheet" href="../../../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../sort-arrow-sprite.png);
+            background-image: url(../../../../../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,13 +19,13 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../index.html">All files</a> / <a href="index.html">test</a> mocha.js</h1>
+        <h1><a href="../../../../../../index.html">All files</a> / <a href="index.html">src/device/amd/coders/rfir/ac-media</a> coder.js</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>20/20</span>
+                <span class='fraction'>30/30</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>20/20</span>
+                <span class='fraction'>30/30</span>
             </div>
         
             
@@ -96,19 +96,12 @@
 <a name='L31'></a><a href='#L31'>31</a>
 <a name='L32'></a><a href='#L32'>32</a>
 <a name='L33'></a><a href='#L33'>33</a>
-<a name='L34'></a><a href='#L34'>34</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -128,40 +121,50 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">"use strict";
-// const Plugins = require("../out/device/plugins")
-// const plugins = new Plugins.Plugins()
 Object.defineProperty(exports, "__esModule", { value: true });
-// var assert = require('assert');
-// describe('Array', function () {
-//   describe('#indexOf()', function () {
-//     it('should return -1 when the value is not present', function () {
-//       console.log(plugins)
-//       assert.equal([1, 2, 3].indexOf(4), -1);
-//     });
-//   });
-// });
-var mocha_1 = require("mocha");
-var thirdPartyInterface = 'third-party-interface';
-var thirdPartyReporter = 'third-party-reporter';
-// Lazy tests of compatibility between imported and global functions; should be identical
-var _after = mocha_1.after;
-var _after2 = after;
-var _before = mocha_1.before;
-var _before2 = before;
-var _afterEach = mocha_1.afterEach;
-var _afterEach2 = afterEach;
-var _beforeEach = mocha_1.beforeEach;
-var _beforeEach2 = beforeEach;
-var _describe = mocha_1.describe;
-var _describe2 = describe;
-var _xdescribe = mocha_1.xdescribe;
-var _xdescribe2 = xdescribe;
-var _it = mocha_1.it;
-var _it2 = it;
-var _xit = mocha_1.xit;
-var _xit2 = xit;
+exports.Coder = void 0;
+var pnt_table_1 = require("./pnt-table");
+var plf_props_1 = require("./plf-props");
+var rfir_coder_1 = require("../rfir-coder");
+var table_1 = require("./table");
+var Coder = /** @class */ (function () {
+    function Coder() {
+        this.pnt_table = new pnt_table_1.PntTable();
+        this.plf_props = new plf_props_1.PlfProps();
+        this.rfir_coder = new rfir_coder_1.RfirCoder();
+        var param = new rfir_coder_1.SegCoderParam();
+        param.tolerance = 20;
+        param.excess = 0;
+        param.atleast = true;
+        param.MSBfirst = true;
+        param.step = 2;
+        param.nbits = table_1.TableConst.NBits;
+        param.headermark = table_1.TableConst.HeadMark;
+        param.headerspace = table_1.TableConst.HeadSpace;
+        param.onemark = table_1.TableConst.OneMark;
+        param.onespace = table_1.TableConst.OneSpace;
+        param.zeromark = table_1.TableConst.ZeroMark;
+        param.zerospace = table_1.TableConst.ZeroSpace;
+        param.footermark = table_1.TableConst.FooterMark;
+        param.footerspace = table_1.TableConst.FooterSpace;
+        param.lastspace = 0;
+        this.rfir_coder.params.push(param);
+        return;
+    }
+    return Coder;
+}());
+exports.Coder = Coder;
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -171,14 +174,14 @@ var _xit2 = xit;
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
                 at 2022-12-04T16:40:19.118Z
             </div>
-        <script src="../prettify.js"></script>
+        <script src="../../../../../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../sorter.js"></script>
-        <script src="../block-navigation.js"></script>
+        <script src="../../../../../../sorter.js"></script>
+        <script src="../../../../../../block-navigation.js"></script>
     </body>
 </html>
     

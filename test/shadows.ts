@@ -4,7 +4,6 @@ import { DeviceManager } from "../src/device/manager"
 import "./mocha"
 import assert = require('assert');
 import { Debuger } from "../src/device";
-import { UUID } from "../src/common/uuid";
 
 
 const manager = new DeviceManager()
@@ -43,13 +42,13 @@ describe('边缘组件', function () {
         });
 
         it('获取影子设备', function () {
-            manager.shadows.getShadow(device.id)
+            if (!manager.shadows.getShadow(device.id))
+                assert.fail('获取影子设备失败');
  
         });    
 
         it('移除影子设备', function () {
-            // console.log(UUID.Guid());
-  
+            return;  
         });
 
     

@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">39.62% </span>
+                <span class="strong">64.15% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>21/53</span>
+                <span class='fraction'>34/53</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>1/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">60% </span>
+                <span class="strong">80% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>3/5</span>
+                <span class='fraction'>4/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">39.62% </span>
+                <span class="strong">64.15% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>21/53</span>
+                <span class='fraction'>34/53</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -133,7 +133,7 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -156,33 +156,33 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -217,21 +217,21 @@ var CmdHead = /** @class */ (function () {
 <span class="cstat-no" title="statement not covered" >        buf.push((this.head.pld_len &gt;&gt; 8) &amp; 0xff);</span>
 <span class="cstat-no" title="statement not covered" >        return Buffer.from(buf);</span>
     };
-    CmdHead.prototype.decode = <span class="fstat-no" title="function not covered" >fu</span>nction (buf) {
-        var idx = <span class="cstat-no" title="statement not covered" >0;</span>
-<span class="cstat-no" title="statement not covered" >        if (buf.length &gt;= exports.HEAD_LEN) {</span>
-<span class="cstat-no" title="statement not covered" >            this.head.pro_logo = buf[idx++] + (buf[idx++] &lt;&lt; 8);</span>
-<span class="cstat-no" title="statement not covered" >            this.head.pro_ver = buf[idx++];</span>
-<span class="cstat-no" title="statement not covered" >            this.head.dev_id = buf[idx++];</span>
-<span class="cstat-no" title="statement not covered" >            this.head.cmd_id = buf[idx++];</span>
-<span class="cstat-no" title="statement not covered" >            this.head.cmd_stp = buf[idx++];</span>
-<span class="cstat-no" title="statement not covered" >            this.head.err_no = buf[idx++] + (buf[idx++] &lt;&lt; 8);</span>
-            var sid = <span class="cstat-no" title="statement not covered" >[buf[idx++], buf[idx++], buf[idx++], buf[idx++]];</span>
+    CmdHead.prototype.decode = function (buf) {
+        var idx = 0;
+        <span class="missing-if-branch" title="else path not taken" >E</span>if (buf.length &gt;= exports.HEAD_LEN) {
+            this.head.pro_logo = buf[idx++] + (buf[idx++] &lt;&lt; 8);
+            this.head.pro_ver = buf[idx++];
+            this.head.dev_id = buf[idx++];
+            this.head.cmd_id = buf[idx++];
+            this.head.cmd_stp = buf[idx++];
+            this.head.err_no = buf[idx++] + (buf[idx++] &lt;&lt; 8);
+            var sid = [buf[idx++], buf[idx++], buf[idx++], buf[idx++]];
             // this.head.cmd_sid = buf[idx++] + (buf[idx++] &lt;&lt; 8) + (buf[idx++] &lt;&lt; 16) + (buf[idx++] &lt;&lt; 24);
-<span class="cstat-no" title="statement not covered" >            this.head.cmd_sid = Buffer.from(sid).readUint32LE();</span>
-<span class="cstat-no" title="statement not covered" >            this.head.pld_sum = buf[idx++] + (buf[idx++] &lt;&lt; 8);</span>
-<span class="cstat-no" title="statement not covered" >            this.head.pld_len = buf[idx++] + (buf[idx++] &lt;&lt; 8);</span>
-<span class="cstat-no" title="statement not covered" >            return this.head.pro_logo == exports.PRO_LOGO;</span>
+            this.head.cmd_sid = Buffer.from(sid).readUint32LE();
+            this.head.pld_sum = buf[idx++] + (buf[idx++] &lt;&lt; 8);
+            this.head.pld_len = buf[idx++] + (buf[idx++] &lt;&lt; 8);
+            return this.head.pro_logo == exports.PRO_LOGO;
         }
 <span class="cstat-no" title="statement not covered" >        return false;</span>
     };
@@ -256,7 +256,7 @@ exports.CmdHead = CmdHead;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2022-12-02T14:38:59.581Z
+                at 2022-12-04T16:40:19.118Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

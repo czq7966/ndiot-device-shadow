@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">73.91% </span>
+                <span class="strong">81.15% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>102/138</span>
+                <span class='fraction'>112/138</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">28.12% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/32</span>
+                <span class='fraction'>9/32</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">60% </span>
+                <span class="strong">70% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>6/10</span>
+                <span class='fraction'>7/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">74.45% </span>
+                <span class="strong">81.75% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>102/137</span>
+                <span class='fraction'>112/137</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -233,8 +233,7 @@
 <a name='L168'></a><a href='#L168'>168</a>
 <a name='L169'></a><a href='#L169'>169</a>
 <a name='L170'></a><a href='#L170'>170</a>
-<a name='L171'></a><a href='#L171'>171</a>
-<a name='L172'></a><a href='#L172'>172</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L171'></a><a href='#L171'>171</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -326,7 +325,7 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -370,19 +369,19 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -392,8 +391,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -540,20 +538,20 @@ var PldTable = /** @class */ (function () {
         });
 <span class="cstat-no" title="statement not covered" >        return Buffer.from(buf);</span>
     };
-    PldTable.prototype.decode = <span class="fstat-no" title="function not covered" >fu</span>nction (buf) {
-        var idx = <span class="cstat-no" title="statement not covered" >0;</span>
-<span class="cstat-no" title="statement not covered" >        while (idx &lt; buf.length) {</span>
-            var key = <span class="cstat-no" title="statement not covered" >buf[idx++] + (buf[idx++] &lt;&lt; 8);</span>
-<span class="cstat-no" title="statement not covered" >            if (key &gt;= PldTable.StrMinNum &amp;&amp; key &lt;= PldTable.StrMaxNum ||</span>
+    PldTable.prototype.decode = function (buf) {
+        var idx = 0;
+        while (idx &lt; buf.length) {
+            var key = buf[idx++] + (buf[idx++] &lt;&lt; 8);
+            <span class="missing-if-branch" title="else path not taken" >E</span>if (key &gt;= PldTable.StrMinNum &amp;&amp; key &lt;= PldTable.StrMaxNum ||
                 key &gt;= PldTable.BytesMinNum &amp;&amp; key &lt;= PldTable.BytesMaxNum) {
-                var len = <span class="cstat-no" title="statement not covered" >buf[idx++] + (buf[idx++] &lt;&lt; 8);</span>
-<span class="cstat-no" title="statement not covered" >                if (len &gt; 0) {</span>
-                    var value = <span class="cstat-no" title="statement not covered" >buf.subarray(idx, idx + len);</span>
-<span class="cstat-no" title="statement not covered" >                    idx = idx + len;</span>
-<span class="cstat-no" title="statement not covered" >                    if (key &gt;= PldTable.StrMinNum &amp;&amp; key &lt;= PldTable.StrMaxNum)</span>
+                var len = buf[idx++] + (buf[idx++] &lt;&lt; 8);
+                <span class="missing-if-branch" title="else path not taken" >E</span>if (len &gt; 0) {
+                    var value = buf.subarray(idx, idx + len);
+                    idx = idx + len;
+                    <span class="missing-if-branch" title="if path not taken" >I</span>if (key &gt;= PldTable.StrMinNum &amp;&amp; key &lt;= PldTable.StrMaxNum)
 <span class="cstat-no" title="statement not covered" >                        this.tables[key] = value.toString();</span>
                     else
-<span class="cstat-no" title="statement not covered" >                        this.tables[key] = value;</span>
+                        this.tables[key] = value;
                 }
             }
             else {
@@ -565,7 +563,6 @@ var PldTable = /** @class */ (function () {
     PldTable.prototype.reset = function () {
         this.tables = {};
     };
-    ;
     PldTable.StrMinNum = 60000;
     PldTable.StrMaxNum = 60499;
     PldTable.BytesMinNum = 60500;
@@ -583,7 +580,7 @@ PldTable.InitNames();
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2022-12-02T14:38:59.581Z
+                at 2022-12-04T16:40:19.118Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>
