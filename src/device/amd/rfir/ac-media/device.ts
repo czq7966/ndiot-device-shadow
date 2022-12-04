@@ -18,25 +18,26 @@ export  class RFIRDeviceACMedia extends RFIRDevice implements IRFIRDeviceACMedia
     //初始化
     init() {
         Debuger.Debuger.log("RFIRDeviceACMedia init", this.attrs.id);
-        this.ac_coder = new Coder();        
-        const param1 = new SegCoderParam();
-        param1.tolerance = 20;
-        param1.excess = 0;
-        param1.atleast = true;                              
-        param1.MSBfirst = true;
-        param1.step = 2;
+        this.ac_coder = new Coder();    
+        this.rfir_coder = this.ac_coder.rfir_coder;    
+        // const param1 = new SegCoderParam();
+        // param1.tolerance = 20;
+        // param1.excess = 0;
+        // param1.atleast = true;                              
+        // param1.MSBfirst = true;
+        // param1.step = 2;
         
-        param1.nbits = TableConst.NBits;
-        param1.headermark = TableConst.HeadMark;
-        param1.headerspace = TableConst.HeadSpace;
-        param1.onemark = TableConst.OneMark;
-        param1.onespace = TableConst.OneSpace;
-        param1.zeromark = TableConst.ZeroMark;
-        param1.zerospace = TableConst.ZeroSpace;
-        param1.footermark = TableConst.FooterMark;
-        param1.footerspace = TableConst.FooterSpace;
-        param1.lastspace = 0;        
-        this.rfir_coder.params.push(param1);
+        // param1.nbits = TableConst.NBits;
+        // param1.headermark = TableConst.HeadMark;
+        // param1.headerspace = TableConst.HeadSpace;
+        // param1.onemark = TableConst.OneMark;
+        // param1.onespace = TableConst.OneSpace;
+        // param1.zeromark = TableConst.ZeroMark;
+        // param1.zerospace = TableConst.ZeroSpace;
+        // param1.footermark = TableConst.FooterMark;
+        // param1.footerspace = TableConst.FooterSpace;
+        // param1.lastspace = 0;        
+        // this.rfir_coder.params.push(param1);
         
     }
 

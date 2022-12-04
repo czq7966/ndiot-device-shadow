@@ -185,6 +185,49 @@ export class SegDecoder {
 
         return offset;
     }
+
+    //h: head, f: footer, 1: one, 0: zero, _: other
+    static dump(codes: number[], param: ISegCoderParam): (number | string)[] {
+        const result = [];
+        param.expectlastspace = !!(param.lastspace ? 0 : (param.footermark || (param.onespace != param.zerospace)));
+
+        let offset = 0;
+        console.log(param)
+
+        while(offset < codes.length ) {
+            console.log(codes[offset], codes[offset+1])
+            // Header
+            if (this.matchMark(codes[offset], param.headermark, param.tolerance, param.excess) &&
+                this.matchSpace(codes[offset + 1], param.headerspace, param.tolerance, param.excess)) {
+                result.push('h');  
+            } else 
+            // Footer
+            if (this.matchMark(codes[offset], param.footermark, param.tolerance, param.excess) && 
+                this.matchSpace(codes[offset + 1], param.footerspace, param.tolerance, param.excess)){            
+                result.push('f');                
+            } else 
+            // One
+            if (this.matchMark(codes[offset], param.onemark, param.tolerance, param.excess) &&
+                this.matchSpace(codes[offset + 1], param.onespace, param.tolerance, param.excess)) {
+                result.push(1);  
+            } else 
+            // Zero
+            if (this.matchMark(codes[offset], param.zeromark, param.tolerance, param.excess) &&
+                this.matchSpace(codes[offset + 1], param.zerospace, param.tolerance, param.excess)) {
+                result.push(0);  
+            } else 
+            //Other
+            {
+                result.push('_'); 
+            }
+
+
+
+            offset = offset + 2;
+        }
+
+        return result;
+    }
     
 }
 
@@ -199,6 +242,10 @@ export interface ISegsCoder{
 
     encode(bytes: number[][]): Buffer
     decode(buf: Buffer): number[][]
+    decodeCodes(buf: Buffer): number[]
+
+    dumpCodes(codes: number[], print: boolean): (number | string)[];
+    dumpBuf(buf: Buffer, print: boolean): (number | string)[]
 }
 
 export class SegsCoder implements ISegsCoder {
@@ -325,14 +372,43 @@ export class SegsCoder implements ISegsCoder {
     }
 
     decode(buf: Buffer): number[][] {
+        const codes = this.decodeCodes(buf);
+        return this.decodeBytes(codes);
+    }
+
+    decodeCodes(buf: Buffer): number[]{
         const codes: number[] = [];
         let idx = 0;
         while(idx < buf.length) {
             const code = buf[idx++] + (buf[idx++] << 8);
             codes.push(code);
         }
-        return this.decodeBytes(codes);
+        return codes;
     }
+
+    dumpCodes(codes: number[], print: boolean): (number | string)[]{
+        let result = [];
+        if (this.params.length > 0)
+            result = SegDecoder.dump(codes, this.params[0]);
+        if (print) {
+            let str = "";
+            for (let i = 0; i < result.length; i++) {
+                if (i == 0)
+                    str = "" + result[i];
+                else
+                    str = str + ',' + result[i];                               
+            }
+            console.log(str);
+        }
+        return result;        
+    }
+
+    dumpBuf(buf: Buffer, print: boolean): (number | string)[]{
+        const codes = this.decodeCodes(buf);
+        return this.dumpCodes(codes, print);
+    }
+
+
     reset() {
         return;        
     }

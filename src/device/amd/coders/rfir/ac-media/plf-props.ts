@@ -1,6 +1,6 @@
 import { IPntTable, PntTable } from "./pnt-table"
 import { IProps, Props } from "./props"
-import { TableConst } from "./table"
+import { Table, TableConst } from "./table"
 
 export interface IPlfProps  {
     props: IProps
@@ -66,10 +66,10 @@ export class PlfProps implements IPlfProps {
             props.mode = "auto";
         else if (pnttable.table.Mode == TableConst.ModeCool)
             props.mode = "cool";
+        else if (pnttable.table.Mode == TableConst.ModeFan && pnttable.table.Temp >= TableConst.TempNone)
+            props.mode = "fan";
         else if (pnttable.table.Mode == TableConst.ModeDry)
             props.mode = "dry";
-        else if (pnttable.table.Mode == TableConst.ModeFan)
-            props.mode = "fan";
         else if (pnttable.table.Mode == TableConst.ModeHeat)
             props.mode = "heat";
 
