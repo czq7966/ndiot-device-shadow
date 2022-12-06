@@ -2,20 +2,31 @@ import { Debuger } from "./device-base";
 import { Base, IDeviceBase, IDeviceBaseAttr, IDeviceShadow, IDeviceShadowEvents, IDeviceShadowManager, IDeviceShadows } from "./device.dts";
 import { DeviceShadow } from "./shadow";
 
+/**
+ * 设备影子容器
+ */
 export class DeviceShadows extends Base implements IDeviceShadows {
+     /** @ignore */
     manager: IDeviceShadowManager;
+    /** @ignore */
     shadows: { [id: string]: IDeviceShadow; };
 
+    /** @ignore */
     constructor(manager: IDeviceShadowManager) {
         super();
         this.shadows = {};
         this.manager = manager;
     }
+    /** @ignore */
     destroy() {
         this.delAllShadows();        
         super.destroy();
     }
 
+    /**
+     * @param attrs 
+     * @returns 
+     */
     newShadow(attrs: IDeviceBaseAttr): Promise<IDeviceShadow> {
         let shadow = this.shadows[attrs.id];
         if (shadow && shadow.device.attrs.pid === attrs.pid && shadow.device.attrs.model === attrs.model) 
@@ -62,6 +73,10 @@ export class DeviceShadows extends Base implements IDeviceShadows {
         })
         return true;
     }    
+    /**
+     * 获取设备影子
+     * @param id 设备ID
+     */
     getShadow(id: string): IDeviceShadow {
         return this.shadows[id];
     }

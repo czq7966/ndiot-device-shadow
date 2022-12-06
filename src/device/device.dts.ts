@@ -81,7 +81,8 @@ export interface IDeviceShadowManager extends IBase  {
 }
 
 export interface IDeviceBaseAttr {
-    id: string
+    /** 设备ID */
+    id: string     
     pid?: string
     model?: string
     app_id?: string

@@ -18,7 +18,8 @@
     "coverage:txt": "nyc   mocha ./out/test >> ./docs/coverage/coverage.txt",
     "coverage": "npm run coverage:clean && npm run coverage:html && npm run coverage:txt ",
     "eslint:html": "eslint ./src -f node_modules/eslint-html-reporter/reporter.js -o ./docs/eslint/report.html || echo '' ",
-    "eslint": "npm run eslint:html && eslint ./src "
+    "eslint": "npm run eslint:html && eslint ./src ",
+    "typedoc": "typedoc --out docs/typedoc src/device/*.ts "
   },
   "author": "CZQ",
   "license": "ISC",
@@ -51,6 +52,7 @@
     "eslint": "^8.28.0",
     "eslint-plugin-react": "^7.31.11",
     "mocha": "^10.1.0",
-    "nyc": "^15.1.0"
+    "nyc": "^15.1.0",
+    "typedoc": "^0.23.21"
   }
 }
