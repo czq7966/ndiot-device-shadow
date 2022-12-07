@@ -15,7 +15,7 @@
     "test": "rimraf ./out && tsc --outDir ./out && mocha ./out/test ",
     "coverage:clean": "rimraf ./docs/coverage",
     "coverage:html": "nyc --reporter html --reporter text --report-dir ./docs/coverage npm run test ",
-    "coverage:txt": "nyc   mocha ./out/test >> ./docs/coverage/coverage.txt",
+    "coverage:txt": "nyc   mocha ./out/test >> ./docs/coverage/mocha-coverage.txt",
     "coverage": "npm run coverage:clean && npm run coverage:html && npm run coverage:txt ",
     "eslint:html": "eslint ./src -f node_modules/eslint-html-reporter/reporter.js -o ./docs/eslint/report.html || echo '' ",
     "eslint": "npm run eslint:html && eslint ./src ",
