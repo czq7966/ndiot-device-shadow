@@ -41,75 +41,75 @@ export class BaseEvent implements IBaseEvent {
     
 }
 
-export interface ITimeoutEventHandler {
-    handler: string
-    timeout: number
-    listener: (...args: any[]) => void,
-    args: any[]
-}
+// export interface ITimeoutEventHandler {
+//     handler: string
+//     timeout: number
+//     listener: (...args: any[]) => void,
+//     args: any[]
+// }
 
-export class TimeoutEvent  {
-    eventHandlers: Array<ITimeoutEventHandler>
-    currHandler: any;
-    constructor() {
-        this.eventHandlers = [];
-    }
+// export class TimeoutEvent  {
+//     eventHandlers: Array<ITimeoutEventHandler>
+//     currHandler: any;
+//     constructor() {
+//         this.eventHandlers = [];
+//     }
 
-    destroy() {
-        this.eventHandlers = [];
-    }
+//     destroy() {
+//         this.eventHandlers = [];
+//     }
 
-    watchTimeout() {
-        clearTimeout(this.currHandler);
-        if (this.eventHandlers.length > 0) {
-            const eventHandler = this.eventHandlers[0];
-            const timeout = eventHandler.timeout;
-            this.currHandler = setTimeout(() => {
-                this.removeHandler(eventHandler.handler);
-                eventHandler.listener(...eventHandler.args);
-            }, timeout)
-        }        
-    }
+//     watchTimeout() {
+//         clearTimeout(this.currHandler);
+//         if (this.eventHandlers.length > 0) {
+//             const eventHandler = this.eventHandlers[0];
+//             const timeout = eventHandler.timeout;
+//             this.currHandler = setTimeout(() => {
+//                 this.removeHandler(eventHandler.handler);
+//                 eventHandler.listener(...eventHandler.args);
+//             }, timeout)
+//         }        
+//     }
 
-    resortHandler() {
-        this.eventHandlers.sort((a, b) => {
-            return a.timeout < b.timeout ? -1 : 1;
-        });
-        this.watchTimeout();
-    }
+//     resortHandler() {
+//         this.eventHandlers.sort((a, b) => {
+//             return a.timeout < b.timeout ? -1 : 1;
+//         });
+//         this.watchTimeout();
+//     }
 
-    addHandler(eventHandler: ITimeoutEventHandler) {
-        this.eventHandlers.push(eventHandler);
-        this.resortHandler();
-    }
+//     addHandler(eventHandler: ITimeoutEventHandler) {
+//         this.eventHandlers.push(eventHandler);
+//         this.resortHandler();
+//     }
 
-    removeHandler(handler: string) {
-        for (let i = 0; i < this.eventHandlers.length; i++) {
-            if (this.eventHandlers[i].handler === handler) {
-                this.eventHandlers.splice(i, 1);
-                break;
-            }                
-        }
+//     removeHandler(handler: string) {
+//         for (let i = 0; i < this.eventHandlers.length; i++) {
+//             if (this.eventHandlers[i].handler === handler) {
+//                 this.eventHandlers.splice(i, 1);
+//                 break;
+//             }                
+//         }
 
-        this.watchTimeout();        
-    }
+//         this.watchTimeout();        
+//     }
 
-    delay(delay: number, listener: (...args: any[]) => void, ...args: any[]): string {
-        const eventHandler: ITimeoutEventHandler = {
-            handler: UUID.Guid(),
-            timeout: delay,
-            listener: listener,
-            args: args
-        }
-        this.addHandler(eventHandler);
+//     delay(delay: number, listener: (...args: any[]) => void, ...args: any[]): string {
+//         const eventHandler: ITimeoutEventHandler = {
+//             handler: UUID.Guid(),
+//             timeout: delay,
+//             listener: listener,
+//             args: args
+//         }
+//         this.addHandler(eventHandler);
 
-        return eventHandler.handler;        
-    }
+//         return eventHandler.handler;        
+//     }
 
-    off(handler: string) {
-        this.removeHandler(handler);
-    }
-}
+//     off(handler: string) {
+//         this.removeHandler(handler);
+//     }
+// }
 
-const GTimeoutEvent = new TimeoutEvent();
-export { GTimeoutEvent };
+// const GTimeoutEvent = new TimeoutEvent();
+// export { GTimeoutEvent };

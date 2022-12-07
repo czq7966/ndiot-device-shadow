@@ -37,6 +37,8 @@ export class PldTableKeys {
     static penet_data =         60500;
     static rfir_sniff_data =	60501;
     static rfir_send_data = 	60502;
+    static report_penet_data =  60503;
+    static report_reg_data =    60504;
 
     
     //数字
@@ -107,6 +109,12 @@ export class PldTableKeys {
     static rfir_send_repeat =	 61064;
     static rfir_send_frequency = 61065;
     static rfir_send_dutycycle = 61066;
+
+    static report_penet_enable = 61070;
+    static report_penet_timeout= 61071;
+        
+    static report_reg_enable   = 61080;
+    static report_reg_timeout  = 61081;
     
 }
 
