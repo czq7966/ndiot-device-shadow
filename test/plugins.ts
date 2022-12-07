@@ -21,7 +21,7 @@ describe('边缘组件', function () {
         }
 
             
-        it('注册格力空调射频插件', async function () {
+        it('注册格力空调射频插件', function () {
             const msg: IDeviceBusEventData = {
                 action: "reg",
                 payload: attrs

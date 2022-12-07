@@ -48,6 +48,8 @@ describe('边缘组件', function () {
         });    
 
         it('移除影子设备', function () {
+            if (!manager.shadows.delShadow(device.id))
+                assert.fail('获取影子设备失败');
             return;  
         });
 
