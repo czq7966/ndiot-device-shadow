@@ -77,6 +77,13 @@ Nodejs开发、npm独立组件、Node-Red组件封装、提供插件基类供设
 #### 指令编码 ####
 ![设备数据结构](diagrams/protocal_cmdid.png)
 
+#### 字符单元编码 ####
+![字符单元编码](diagrams/protocal_str.png)
+#### 二进制单元编码 ####
+![二进制单元编码](diagrams/protocal_bin.png)
+#### 数字单元编码 ####
+![数字单元编码](diagrams/protocal_bin.png)
+
 ### 接口明细 ###
 详见接口API文件：
 [http://betacs.101.com/v0.1/static/preproduction_content_nd_iot_edg/ndiot-device-shadow/docs/typedoc/index.html](http://betacs.101.com/v0.1/static/preproduction_content_nd_iot_edg/ndiot-device-shadow/docs/typedoc/index.html)
