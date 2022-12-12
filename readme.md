@@ -17,5 +17,6 @@
 
 [API文档](http://betacs.101.com/v0.1/static/preproduction_content_nd_iot_edg/ndiot-device-shadow/docs/typedoc/index.html)
 
+
 # 组件测试 #
 [单元测试报告](docs/coverage/mocha-coverage.txt)
