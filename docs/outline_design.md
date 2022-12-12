@@ -82,7 +82,7 @@ Nodejs开发、npm独立组件、Node-Red组件封装、提供插件基类供设
 #### 二进制单元编码 ####
 ![二进制单元编码](diagrams/protocal_bin.png)
 #### 数字单元编码 ####
-![数字单元编码](diagrams/protocal_bin.png)
+![数字单元编码](diagrams/protocal_int.png)
 
 ### 接口明细 ###
 详见接口API文件：

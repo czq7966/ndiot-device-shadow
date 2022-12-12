@@ -20,3 +20,8 @@
 
 # 组件测试 #
 [单元测试报告](docs/coverage/mocha-coverage.txt)
+
+# 版本发布 #
+[生产环境](https://nd-iot-edge.sdp.ndaeweb.com/edg/)
+
+![生产环境](docs/diagrams/node-red.png)
