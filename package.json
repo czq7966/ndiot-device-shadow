@@ -19,7 +19,8 @@
     "coverage": "npm run coverage:clean && npm run coverage:html && npm run coverage:txt ",
     "eslint:html": "eslint ./src -f node_modules/eslint-html-reporter/reporter.js -o ./docs/eslint/report.html || echo '' ",
     "eslint": "npm run eslint:html && eslint ./src ",
-    "typedoc": "typedoc --out docs/typedoc src/device/*.ts "
+    "typedoc": "typedoc --out docs/typedoc src/device/*.ts ",
+    "demo": "nyc --help"
   },
   "author": "CZQ",
   "license": "ISC",
