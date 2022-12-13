@@ -121,6 +121,7 @@ export interface IDeviceBusEventData {
     device?: IDeviceBase
     decoded?: boolean
     encoded?: boolean
+    prevented?: boolean
 }
 
 export interface IDeviceBusEvent extends IBase {

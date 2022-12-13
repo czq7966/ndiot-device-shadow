@@ -40,6 +40,7 @@ export class NDDevice extends DeviceBase implements INDDevice {
                     pld: payload.pld
                 }
                 msg.decoded = true;
+                this.events.south.input.eventEmitter.emit(payload.hd.cmd_id.toString(), msg);
             }
         }
 
@@ -49,7 +50,8 @@ export class NDDevice extends DeviceBase implements INDDevice {
         //this.events.parent.output.emit(msg); 
 
         //正常 todo...
-        super.on_south_input(msg);
+        if (!msg.prevented)
+            super.on_south_input(msg);
     }
 
     //北向输入
@@ -57,13 +59,16 @@ export class NDDevice extends DeviceBase implements INDDevice {
         Debuger.Debuger.log("NDDevice  on_north_input");
 
         if (!msg.encoded && msg.payload && !this.attrs.pid) {
+            if (msg.payload.hd && msg.payload.hd.entry && msg.payload.hd.entry.id)
+                this.events.north.input.eventEmitter.emit(msg.payload.hd.entry.id, msg);
             const payload: IDeviceBusDataPayload = this.on_north_input_encode(msg.payload.hd, msg.payload.pld);
             if (!payload) return;
             this.sendcmd.reset();
             msg.payload = this.sendcmd.encode(payload.hd, payload.pld);
             msg.encoded = true;
-        }        
-        super.on_north_input(msg);
+        }       
+        if (!msg.prevented)
+            super.on_north_input(msg);
     }    
 
     //子设备输入
