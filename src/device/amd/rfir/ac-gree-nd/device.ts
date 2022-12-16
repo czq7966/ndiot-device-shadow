@@ -168,7 +168,8 @@ export  class RFIRDeviceACGreeND extends RFIRDevice  {
             //北向查询上报
             this.do_north_report(msg.payload.hd);
             //中断旧流程
-            msg.prevented = true;
+            if (Object.prototype.hasOwnProperty.call(msg.payload.pld, PldTable.Keys.gpio_rw_value))
+                msg.prevented = true;
             return;
         }    
 
