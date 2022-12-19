@@ -218,6 +218,9 @@ export class ModbusRTUEncoder extends Base implements IModbusRTUEncoder {
             case EModbusType.EReadHoldingRegisters:
                 return this.readHoldingRegisters(table.slave, table.address, table.quantity);
                 break;
+            case EModbusType.EReadInputRegisters:
+                return this.readInputRegisters(table.slave, table.address, table.quantity);
+                break;
             case EModbusType.EWriteSingleCoil:
                 return this.writeSingleCoil(table.slave, table.address, !!table.table[table.address]);
                 break;
@@ -545,11 +548,13 @@ export interface IModbusCmd extends IBase {
     reqTables: IModbusRTUTable[];
     resTables: IModbusRTUTable[];
     exec(): Promise<IModbusCmdResult>
+    execTimeout: number
 }
 
 export interface IModbusCmds extends IBase {
     events: IModbusCmdEvents
     exec(tables: IModbusRTUTable[]): IModbusCmd
+    cmdTimeout: number
 }
 
 export class ModbusCmdEvents extends Base implements IModbusCmdEvents {
@@ -588,6 +593,7 @@ export class ModbusCmd extends Base implements IModbusCmd {
     reqTables: IModbusRTUTable[];
     resTables: IModbusRTUTable[];
     execPromise: Promise<IModbusCmdResult>
+    execTimeout: number
 
     constructor(tables: IModbusRTUTable[]) {
         super();
@@ -595,6 +601,7 @@ export class ModbusCmd extends Base implements IModbusCmd {
         this.reqTables = [].concat(tables);
         this.resTables = [];
         this.events = new ModbusCmdEvents();
+        this.execTimeout = 5000;
     }
 
 
@@ -624,7 +631,7 @@ export class ModbusCmd extends Base implements IModbusCmd {
                         resTable.error = -1;
                         this.resTables.push(resTable);                 
                         reject(-1);                        
-                    }, 5000);
+                    }, this.execTimeout);
                 }
 
                 if (reqTable) {
@@ -655,6 +662,7 @@ export class ModbusCmds extends Base implements IModbusCmds {
     events: IModbusCmdEvents;
     cmds: IModbusCmd[];
     cmd: IModbusCmd;
+    cmdTimeout: number
 
 
     constructor() {
@@ -665,6 +673,7 @@ export class ModbusCmds extends Base implements IModbusCmds {
             if (this.cmd)
                 this.cmd.events.res.emit(data);
         })
+        this.cmdTimeout = 5000;
     }
 
 
@@ -678,6 +687,7 @@ export class ModbusCmds extends Base implements IModbusCmds {
 
     exec(tables: IModbusRTUTable[]): IModbusCmd {
         const cmd = new ModbusCmd(tables);
+        cmd.execTimeout = this.cmdTimeout;
         cmd.events.req.on(data => {
             this.events.req.emit(data);
         })
