@@ -92,6 +92,7 @@ export interface IDeviceBaseAttr {
     name?: string
     nick?: string
     desc?: string
+    sub_pref?: string //子设备前缀
 }
 
 export interface IDeviceBaseEvents extends IBase {

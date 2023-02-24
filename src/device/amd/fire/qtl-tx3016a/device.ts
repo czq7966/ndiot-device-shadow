@@ -1,9 +1,14 @@
-import { Debuger, DeviceBase } from "../../../device-base";
-import { IDeviceBase, IDeviceBusEventData } from "../../../device.dts";
+import { Debuger } from "../../../device-base";
+import { IDeviceBase, IDeviceBaseAttr, IDeviceBusDataPayload, IDeviceBusEventData } from "../../../device.dts";
+import { CmdId } from "../../coders/dev-bin-json/cmd";
+import { ICmdHead } from "../../coders/dev-bin-json/cmd-head";
+import { IPldTable, PldTable } from "../../coders/dev-bin-json/pld-table";
+import { INDDevice, NDDevice } from "../../nd-device/device";
+import { DataTable, IDataTable_App_Info_Status } from "./datatable";
 
-export type IQTL_TX3016A = IDeviceBase
+export type IQTL_TX3016A = INDDevice
 
-export class QTL_TX3016A extends DeviceBase implements IQTL_TX3016A {
+export class QTL_TX3016A extends NDDevice implements IQTL_TX3016A {
 
     //初始化
     init() {
@@ -15,30 +20,55 @@ export class QTL_TX3016A extends DeviceBase implements IQTL_TX3016A {
         Debuger.Debuger.log("QTL_TX3016A uninit");
      }
 
-    //南向输入
-    on_south_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("QTL_TX3016A  on_south_input ");
+    on_south_input_decode(p_hd: ICmdHead, p_pld: IPldTable): IDeviceBusDataPayload {
+        const payload = super.on_south_input_decode(p_hd, p_pld);
+        if (!payload) return;
+        const hd = payload.hd;
+        let pld = payload.pld;
+        if (hd.cmd_id == CmdId.penet) {  
+            const data = pld[PldTable.Keys.penet_data];
+            const dataTable = DataTable.decode(data);
+            pld = {data: dataTable };     
 
-        //父设备 todo...
-        //父设备输出给子设备，msg.id = child.id
-        //msg.id = child.id
-        //this.events.parent.output.emit(msg); 
+            //这里检查是否部件运行状态上报：control.cmd=2(发送数据), app.type=2(上传部件运行状态)，然后单独上报部件状态;
+            dataTable.forEach(value => {
+                if (value && value.control && value.control.cmd == 2) {
+                    if (value.app && value.app.type == 2 && value.app.infos) {
+                        value.app.infos.forEach(info  => {
+                            info = (info as IDataTable_App_Info_Status);
+                            if (info.unit_addr) {
+                                const sub_pref = this.attrs.sub_pref ? this.attrs.sub_pref: "";
+                                const id = sub_pref + info.unit_addr;
+                                const device: IDeviceBaseAttr = Object.assign({}, this.attrs);
+                                device.id = id;
+                                device.pid = this.attrs.id;
+                                device.model = this.attrs.model + "-UNIT";
+                                device.name = (info.unit_mark ? info.unit_mark : "") + (info.unit_addr_desc ? info.unit_addr_desc : "");
+                                device.nick = device.name;
+                                device.desc = device.name;
 
-        //正常 todo...
-        super.on_south_input(msg);
-    }
+                                
+                                const msg: IDeviceBusEventData = {
+                                    id: sub_pref + info.unit_addr,
+                                    payload: {
+                                        hd: hd,
+                                        pld: info,
+                                        device: device,
+                                    },
+                                    
+                                }
+                                this.events.north.output.emit(msg);
+                            }
+                        })
+                    }
+                }                
+            })
+        } 
 
-    //北向输入
-    on_north_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("QTL_TX3016A  on_north_input");
-        //todo ...
-        super.on_north_input(msg);
-    }    
+        return {
+            hd: hd,
+            pld: pld
+        };
+    }     
 
-    //子设备输入
-    on_child_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("QTL_TX3016A  on_child_input");
-        //todo...
-        super.on_child_input(msg);       
-    }  
 }

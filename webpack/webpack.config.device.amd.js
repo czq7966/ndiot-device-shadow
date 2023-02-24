@@ -22,12 +22,14 @@ module.exports = env => {
     entry['z2m/tcp/index'] = path.resolve(srcDir, "z2m/tcp/index.ts");
     entry['modbus/ac-pgdtm7000-f/index'] = path.resolve(srcDir, "modbus/ac-pgdtm7000-f/index.ts");
     entry['modbus/ac-hisense-hcpc-h2m1c/index'] = path.resolve(srcDir, "modbus/ac-hisense-hcpc-h2m1c/index.ts");
+    entry['modbus/ps-ise101r5/index'] = path.resolve(srcDir, "modbus/ps-ise101r5/index.ts");
     entry['ct-dooya-dvq24gf/index'] = path.resolve(srcDir, "ct-dooya-dvq24gf/index.ts");
     entry['tv/tv-hisense-65wr30a/index'] = path.resolve(srcDir, "tv/tv-hisense-65wr30a/index.ts");
     entry['rfir/ac-gree/index'] = path.resolve(srcDir, "rfir/ac-gree/index.ts");
     entry['rfir/ac-gree-nd/index'] = path.resolve(srcDir, "rfir/ac-gree-nd/index.ts");
     entry['rfir/ac-media/index'] = path.resolve(srcDir, "rfir/ac-media/index.ts");
     entry['rfir/ac-media-nd/index'] = path.resolve(srcDir, "rfir/ac-media-nd/index.ts");
+    entry['fire/qtl-tx3016a/index'] = path.resolve(srcDir, "fire/qtl-tx3016a/index.ts");
     
     optimization['minimizer'] = minimizer;  
 
