@@ -524,7 +524,6 @@ export class DataTable implements IDataTable {
         info.time = year + "-" + month + "-" +day + " " + hour + ":" + min + ":" +sec;  
         
         table.app.infos.push(info);
-        console.dir(info)
         
     }           
  
@@ -541,7 +540,6 @@ export class DataTable implements IDataTable {
         const sec = data[idx++], min = data[idx++], hour = data[idx++], day = data[idx++], month = data[idx++], year = data[idx++];
         info.time = year + "-" + month + "-" +day + " " + hour + ":" + min + ":" +sec;        
         table.app.infos.push(info);
-        // console.dir(info)
     }   
 
     // "通信线路上行测试"
