@@ -55,7 +55,9 @@ export class QTL_TX3016A extends NDDevice implements IQTL_TX3016A {
                                 payload: {
                                     hd: hd,
                                     pld: info,
-                                    device: device,
+                                    device: {
+                                        attrs: device
+                                    },
                                 },
                                 
                             }
