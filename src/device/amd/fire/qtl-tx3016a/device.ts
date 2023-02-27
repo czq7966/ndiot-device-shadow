@@ -1,6 +1,6 @@
 import { Debuger } from "../../../device-base";
-import { IDeviceBaseAttr, IDeviceBusEventData } from "../../../device.dts";
-import { CmdId } from "../../coders/dev-bin-json/cmd";
+import { IDeviceBaseAttr, IDeviceBusDataPayloadHd, IDeviceBusEventData } from "../../../device.dts";
+import { Cmd, CmdId } from "../../coders/dev-bin-json/cmd";
 import { PldTable } from "../../coders/dev-bin-json/pld-table";
 import { INDDevice, NDDevice } from "../../nd-device/device";
 import { DataTable, IDataTable_App_Info_Status } from "./datatable";
@@ -25,11 +25,13 @@ export class QTL_TX3016A extends NDDevice implements IQTL_TX3016A {
      }
 
     on_south_input_cmd_penet(msg: IDeviceBusEventData){
-        const hd = msg.payload.hd;
+        const hd = msg.payload.hd as IDeviceBusDataPayloadHd;
         const pld = msg.payload.pld;
 
         const data = pld[PldTable.Keys.penet_data];
         const dataTable = DataTable.decode(data);
+
+        hd.entry.id = CmdId.Names[CmdId.report];
   
 
         //这里检查是否部件运行状态上报：control.cmd=2(发送数据), app.type=2(上传部件运行状态)，然后单独上报部件状态;
