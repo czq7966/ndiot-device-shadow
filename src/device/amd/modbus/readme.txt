@@ -25,7 +25,6 @@ PLC点表配置： 名称 = 地址
 {
     hd:{
         entry:{
-            type: "svc",
             id: "get"
         }
     },
@@ -40,7 +39,6 @@ PLC点表配置： 名称 = 地址
 {
     hd:{
         entry:{
-            type: "svc",
             id: "get"
         },
         sid: "...",
@@ -58,7 +56,6 @@ PLC点表配置： 名称 = 地址
 {
     hd:{
         entry:{
-            type: "svc",
             id: "set"
         }
     },
@@ -72,7 +69,6 @@ PLC点表配置： 名称 = 地址
 {
     hd:{
         entry:{
-            type: "svc",
             id: "set"
         },
         sid: "...",

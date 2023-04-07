@@ -61,9 +61,35 @@ export class Modbus extends NDDevice implements IModbus {
             const slave = this.attrs.id.substring(this.attrs.id.lastIndexOf("_") + 1);
             this.slave = parseInt(slave) || 0;
         }
-        this.cmds.events.req.on(data => {
-            this.on_cmds_events_req_penet(data);
-        })
+
+        //北向输入
+            //查询请求
+            this.events.north.input.eventEmitter.on(CmdId.Names[CmdId.get], (msg: IDeviceBusEventData) => {
+                this.on_north_cmd_get(msg);
+                msg.prevented = true;
+                return;
+            })
+
+            //设置请求
+            this.events.north.input.eventEmitter.on(CmdId.Names[CmdId.set], (msg: IDeviceBusEventData) => {
+                this.on_north_cmd_set(msg);
+                msg.prevented = true;
+                return;
+            })
+
+        //指令执行器
+            //modbus指令执行器请求透传
+            this.cmds.events.req.on(data => {
+                this.on_cmds_events_req_penet(data);
+            })
+
+
+            //南向透传输入->modbus指令执行器处理响应
+            this.events.south.input.eventEmitter.on(CmdId.penet.toString(), (msg: IDeviceBusEventData)=> {
+                this.on_south_input_evt_penet(msg);
+                msg.prevented = true;
+                return;
+            })
     }
      
     //反初始化
@@ -74,93 +100,314 @@ export class Modbus extends NDDevice implements IModbus {
         Debuger.Debuger.log("Modbus uninit");
      }
 
-    //南向输入
-    on_south_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("Modbus  on_south_input ");
-        if (!msg.decoded && msg.payload && !this.attrs.pid) {
-            if (this.recvcmd.decode(msg.payload)){
-                const hd = this.plf_coder.head.decode(this.recvcmd.head);
-                const pld = this.plf_coder.payload.decode(this.recvcmd.payload);
+    //北向处理
+         //北向查询
+        on_north_cmd_get(msg: IDeviceBusEventData) {
+            console.log("on_north_cmd_get", msg)
+            //获取查询点表
+            const payload = msg.payload as IDeviceBusDataPayload;
+            const tables = this.do_svc_get_tables(payload.pld);
+            //执行查询
+            this.do_svc_get(tables)
+            .then(v => {
+                const _hd:IDeviceBusDataPayloadHd  = Utils.DeepMerge({}, payload.hd) as any;
+                _hd.stp = 1;
+                const _pld = v;
+    
+                const _msg: IDeviceBusEventData = {
+                    id: msg.id,
+                    decoded: true,
+                    payload: {
+                        hd: _hd,
+                        pld: _pld
+                    }
+                }
+                
+                if (_msg.id == this.attrs.id)
+                    //独立设备，直接北向输出
+                    this.events.north.output.emit(_msg);
+                else 
+                    //作为父设备输出给子设备
+                    this.events.parent.output.emit(_msg);
+            })
+            .catch(e => {
+                Debuger.Debuger.log("Modbus  do_svc_get error: ", e);
+            })
 
-                msg.payload = {
-                    hd: hd,
-                    pld: pld
+
+            return;
+        }
+        
+        //北向设置
+        on_north_cmd_set(msg: IDeviceBusEventData) {
+            console.log("on_north_cmd_get", msg)
+            //获取设置点表
+            const payload = msg.payload as IDeviceBusDataPayload;
+            const tables = this.do_svc_set_tables(payload.pld);
+            //执行查询
+            this.do_svc_set(tables)
+            .then(v => {
+                const _hd:IDeviceBusDataPayloadHd  = Utils.DeepMerge({}, payload.hd) as any;
+                _hd.stp = 1;
+                const _pld = v;
+    
+                const _msg: IDeviceBusEventData = {
+                    decoded: true,
+                    id: msg.id,
+                    payload: {
+                        hd: _hd,
+                        pld: _pld
+                    }
                 }
 
-                msg.decoded = true;            
+                if (_msg.id == this.attrs.id)
+                    //独立设备，直接北向输出
+                    this.events.north.output.emit(_msg);
+                else 
+                    //作为父设备输出给子设备
+                    this.events.parent.output.emit(_msg);
+    
+            })
+            .catch(e => {
+                Debuger.Debuger.log("Modbus  on_north_input_svc_set error: ", e);
+            })
+            return;
+        }
 
-                // -> 透传输入
-                if (hd.cmd_id == CmdId.penet)                      
-                    return this.on_south_input_evt_penet(msg);
-            } 
-        }  
-        // -> 父类转北向输出
-        super.on_south_input(msg);
-    }
+        //获取查询点表
+        do_svc_get_tables(pld: {}): IModbusRTUTable[] {
+            const tables = [];
+            const keys = pld && Object.keys(pld) || [];
+            keys.forEach(key => {
+                const plcaddr = this.tables.names[key];
+                if (plcaddr) {
+                    const table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
+                    table.slave = this.slave;
+                    table.setPLCAddress(plcaddr);
+                    table.quantity = 1;
+                    tables.push(table);                
+                }
+            })        
+            return tables;
+        }
+
+        //执行点表查询
+        do_svc_get(tables: IModbusRTUTable[]): Promise<{[name: string]: any}> {
+            return new Promise((resolve, reject) => {
+                const result = {};
+                console.log(tables)
+
+                const cmd = this.cmds.exec(tables);
+                cmd.events.then.once((v: IModbusCmdResult) => {
+                    const resTables = v.res;
+                    resTables.forEach((t => {
+                    const addrs = Object.keys(t.table);
+                    addrs.push(t.address.toString());                    
+                    
+                    addrs.forEach(addr => {
+                        const plcaddr = t.getPLCAddress(parseInt(addr));
+                        const name = this.tables.address[plcaddr];
+                        result[name] = null;
+                        if (!t.error) 
+                                result[name] = t.table[addr]; 
+                    })                       
+                    }))
+                    resolve(result)                        
+                })
+
+                cmd.events.catch.once(e => {
+                    const resTables = cmd.resTables;
+                    if (resTables.length > 0) {                    
+                        resTables.forEach((t => {
+                            const addrs = Object.keys(t.table);
+                            addrs.push(t.address.toString());
+                            addrs.forEach(addr => {
+                                const plcaddr = t.getPLCAddress(parseInt(addr));
+                                const name = this.tables.address[plcaddr];
+                                result[name] = null;
+                                if (!t.error) 
+                                    result[name] = t.table[addr]; 
+                            })                       
+                        }))
+                        resolve(result)                        
+                    } else {
+                        reject(e)
+                    }
+                })
+            })
+        }
+
+        //获取设置点表
+        do_svc_set_tables(pld: {}): IModbusRTUTable[] {
+            const tables = [];
+            const values = pld || {};
+            const names = Object.keys(values);
+    
+            names.forEach(name => {
+                const value = values[name];
+                const plcaddr = this.tables.names[name];
+                if (plcaddr) {
+                    const table: IModbusRTUTable = new ModbusRTUTable(this.tables.plcbase);
+                    table.slave = this.slave;
+                    table.setPLCAddress(plcaddr, value);
+                    table.quantity = 1;
+                    table.func = plcaddr < table.plcbase ? EModbusType.EWriteSingleCoil : EModbusType.EWriteSingleRegister;
+                    tables.push(table);          
+                }
+            })
+    
+            return tables;
+        }
+
+        //执行点表设置
+        do_svc_set(tables: IModbusRTUTable[]): Promise<{[name: string]: any}> {
+            return new Promise((resolve, reject) => {
+                const result = {};
+                const cmd = this.cmds.exec(tables);
+                cmd.events.then.once((v: IModbusCmdResult) => {
+                    const resTables = v.res;
+                    resTables.forEach((t => {
+                        const name = this.tables.address[t.getPLCAddress()];
+                        result[name] = t.error;
+                    }))
+                    resolve(result)                        
+                })
+    
+                cmd.events.catch.once(e => {
+                    const resTables = cmd.resTables;
+                    if (resTables.length > 0) {
+                        resTables.forEach((t => {
+                            const name = this.tables.address[t.getPLCAddress()];
+                            result[name] = t.error;
+                        }))
+                        resolve(result)                        
+                    } else {
+                        reject(e)
+                    }
+                })
+            })
+        }
+
+    //Modbus指令执行器
+        //Modbus指令透传请求
+        on_cmds_events_req_penet(data: Buffer) {          
+            this.sendcmd.reset();
+            this.sendcmd.head.head.cmd_id = CmdId.penet;
+            this.sendcmd.payload.tables[PldTable.Keys.penet_data] = data;
+            const msg: IDeviceBusEventData = {
+                payload: this.sendcmd.encode()
+            }
+            //南向直接输出
+            this.events.south.output.emit(msg);   
+        }
+
+        //南向透传输入->modbus指令执行器处理响应
+        on_south_input_evt_penet(msg: IDeviceBusEventData) {
+            Debuger.Debuger.log("Modbus  on_south_input_evt_penet ", msg);
+            const payload: IDeviceBusDataPayload = msg.payload;
+            const data = payload.pld[PldTable.Keys.penet_data];
+
+            if (data) {
+                if (data.length > 4) {
+                    //Modbus指令执行器处理响应
+                    this.cmds.events.res.emit(data);
+                    return;
+                } else {
+                    Debuger.Debuger.log("on_south_input_evt_penet raw < 5 ,", data);
+                }
+            } else {
+                Debuger.Debuger.log("on_south_input_evt_penet no penet data");
+            }            
+        }    
+
+
+    // //南向输入
+    // on_south_input(msg: IDeviceBusEventData) {
+    //     Debuger.Debuger.log("Modbus  on_south_input ");
+    //     if (!msg.decoded && msg.payload && !this.attrs.pid) {
+    //         if (this.recvcmd.decode(msg.payload)){
+    //             const hd = this.plf_coder.head.decode(this.recvcmd.head);
+    //             const pld = this.plf_coder.payload.decode(this.recvcmd.payload);
+
+    //             msg.payload = {
+    //                 hd: hd,
+    //                 pld: pld
+    //             }
+
+    //             msg.decoded = true;            
+
+    //             // -> 透传输入
+    //             if (hd.cmd_id == CmdId.penet)                      
+    //                 return this.on_south_input_evt_penet(msg);
+    //         } 
+    //     }  
+    //     // -> 父类转北向输出
+    //     super.on_south_input(msg);
+    // }
 
     //北向输入
-    on_north_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("Modbus  on_north_input");
-        if (!msg.encoded && msg.payload && !this.attrs.pid) {
-            this.plf_coder.head.reset();
-            const hd = this.plf_coder.head.encode(msg.payload.hd).head as IDeviceBusDataPayloadHd;
+    // on_north_input(msg: IDeviceBusEventData) {
+    //     Debuger.Debuger.log("Modbus  on_north_input");
+    //     if (!msg.encoded && msg.payload && !this.attrs.pid) {
+    //         this.plf_coder.head.reset();
+    //         const hd = this.plf_coder.head.encode(msg.payload.hd).head as IDeviceBusDataPayloadHd;
 
-            if (hd.entry && hd.entry.type == "svc" ) {
-                if (hd.cmd_id == CmdId.get) {
-                    return this.on_north_input_svc_get(msg);                
-                } 
+    //         if (hd.entry && hd.entry.type == "svc" ) {
+    //             if (hd.cmd_id == CmdId.get) {
+    //                 return this.on_north_input_svc_get(msg);                
+    //             } 
 
-                if (hd.cmd_id == CmdId.set) {
-                    return this.on_north_input_svc_set(msg);
-                }
+    //             if (hd.cmd_id == CmdId.set) {
+    //                 return this.on_north_input_svc_set(msg);
+    //             }
 
-            }
-        }
-        super.on_north_input(msg);
-    }    
+    //         }
+    //     }
+    //     super.on_north_input(msg);
+    // }    
 
     //子设备输入
-    on_child_input(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("Modbus  on_child_input");
-        let hd: IDeviceBusDataPayloadHd; 
+    // on_child_input(msg: IDeviceBusEventData) {
+    //     Debuger.Debuger.log("Modbus  on_child_input");
+    //     let hd: IDeviceBusDataPayloadHd; 
 
-        if (!msg.encoded && msg.payload ) {
-            this.plf_coder.head.reset();
-            hd = this.plf_coder.head.encode(msg.payload.hd).head;
-        } else 
-            hd = msg.payload.hd;
+    //     if (!msg.encoded && msg.payload ) {
+    //         this.plf_coder.head.reset();
+    //         hd = this.plf_coder.head.encode(msg.payload.hd).head;
+    //     } else 
+    //         hd = msg.payload.hd;
 
-        if (hd && hd.entry && hd.entry.type == "svc" ) {
-            if (hd.cmd_id == CmdId.get) {
-                return this.on_north_input_svc_get(msg);                
-            } 
+    //     if (hd && hd.entry && hd.entry.type == "svc" ) {
+    //         if (hd.cmd_id == CmdId.get) {
+    //             return this.on_north_input_svc_get(msg);                
+    //         } 
 
-            if (hd.cmd_id == CmdId.set) {
-                return this.on_north_input_svc_set(msg);
-            }
-        }
+    //         if (hd.cmd_id == CmdId.set) {
+    //             return this.on_north_input_svc_set(msg);
+    //         }
+    //     }
 
-        super.on_child_input(msg);        
-    }  
+    //     super.on_child_input(msg);        
+    // }  
 
-//业务逻辑
-    //南向透传输入
-    on_south_input_evt_penet(msg: IDeviceBusEventData) {
-        Debuger.Debuger.log("Modbus  on_south_input_evt_penet ", msg);
-        const payload: IDeviceBusDataPayload = msg.payload;
-        const data = payload.pld[PldTable.Keys.penet_data];
+// //业务逻辑
+//     //南向透传输入->modbus指令执行器处理响应
+//     on_south_input_evt_penet(msg: IDeviceBusEventData) {
+//         Debuger.Debuger.log("Modbus  on_south_input_evt_penet ", msg);
+//         const payload: IDeviceBusDataPayload = msg.payload;
+//         const data = payload.pld[PldTable.Keys.penet_data];
 
-        if (data) {
-            if (data.length > 4) {
-                this.cmds.events.res.emit(data);
-                return;
-            } else {
-                Debuger.Debuger.log("on_south_input_evt_penet raw < 5 ,", data);
-            }
-        }        
+//         if (data) {
+//             if (data.length > 4) {
+//                 this.cmds.events.res.emit(data);
+//                 return;
+//             } else {
+//                 Debuger.Debuger.log("on_south_input_evt_penet raw < 5 ,", data);
+//             }
+//         }        
 
-        super.on_south_input(msg);
-    }
+//         super.on_south_input(msg);
+//     }
 
     //南向透传输入_独立
     on_south_input_evt_penet_alone(msg: IDeviceBusEventData) {
@@ -218,18 +465,18 @@ export class Modbus extends NDDevice implements IModbus {
         super.on_south_input(msg);
     }
 
-    //指令透传请求
-    on_cmds_events_req_penet(data: Buffer) {
-        this.sendcmd.reset();
-        this.sendcmd.head.head.cmd_id = CmdId.penet;
-        this.sendcmd.payload.tables[PldTable.Keys.penet_data] = data;
+    // //指令透传请求
+    // on_cmds_events_req_penet(data: Buffer) {
+    //     this.sendcmd.reset();
+    //     this.sendcmd.head.head.cmd_id = CmdId.penet;
+    //     this.sendcmd.payload.tables[PldTable.Keys.penet_data] = data;
         
-        const msg: IDeviceBusEventData = {
-            payload: this.sendcmd.encode()
-        }
-        //南向直接输出
-        this.events.south.output.emit(msg);   
-    }
+    //     const msg: IDeviceBusEventData = {
+    //         payload: this.sendcmd.encode()
+    //     }
+    //     //南向直接输出
+    //     this.events.south.output.emit(msg);   
+    // }
 
     //北向输入查询空调状态(alone)
     on_north_input_svc_get(msg: IDeviceBusEventData) {

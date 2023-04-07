@@ -17,7 +17,7 @@ describe('边缘组件', function () {
     describe('插件管理', function () {
         const attrs = {
             id:"RFIR-AC-GREE",
-            url:"http://betacs.101.com/v0.1/static/preproduction_content_nd_iot_edg/ndiot-device-shadow/node-red/amd/rfir/ac-gree/index.js"
+            url:"http://betacs.101.com/v0.1/static/preproduction_content_nd_iot_edg/ndiot-device-shadow/dist/node-red/amd/rfir/ac-gree/index.js"
         }
 
             

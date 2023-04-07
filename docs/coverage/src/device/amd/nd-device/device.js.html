@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">78.46% </span>
+                <span class="strong">77.14% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>51/65</span>
+                <span class='fraction'>54/70</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">60.52% </span>
+                <span class="strong">59.57% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>23/38</span>
+                <span class='fraction'>28/47</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">80.95% </span>
+                <span class="strong">79.41% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>51/63</span>
+                <span class='fraction'>54/68</span>
             </div>
         
             
@@ -163,7 +163,12 @@
 <a name='L98'></a><a href='#L98'>98</a>
 <a name='L99'></a><a href='#L99'>99</a>
 <a name='L100'></a><a href='#L100'>100</a>
-<a name='L101'></a><a href='#L101'>101</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -214,6 +219,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -222,9 +228,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -232,8 +238,12 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -314,6 +324,7 @@ var NDDevice = /** @class */ (function (_super) {
                     pld: payload.pld
                 };
 <span class="cstat-no" title="statement not covered" >                msg.decoded = true;</span>
+<span class="cstat-no" title="statement not covered" >                this.events.south.input.eventEmitter.emit(payload.hd.cmd_id.toString(), msg);</span>
             }
         }
         //父设备 todo...
@@ -321,12 +332,15 @@ var NDDevice = /** @class */ (function (_super) {
         //msg.id = child.id
         //this.events.parent.output.emit(msg); 
         //正常 todo...
-        _super.prototype.on_south_input.call(this, msg);
+        <span class="missing-if-branch" title="else path not taken" >E</span>if (!msg.prevented)
+            _super.prototype.on_south_input.call(this, msg);
     };
     //北向输入
     NDDevice.prototype.on_north_input = function (msg) {
         device_base_1.Debuger.Debuger.log("NDDevice  on_north_input");
         <span class="missing-if-branch" title="else path not taken" >E</span>if (!msg.encoded &amp;&amp; msg.payload &amp;&amp; !this.attrs.pid) {
+            <span class="missing-if-branch" title="if path not taken" >I</span>if (msg.payload.hd &amp;&amp; msg.payload.hd.entry &amp;&amp; <span class="branch-2 cbranch-no" title="branch not covered" >msg.payload.hd.entry.id)</span>
+<span class="cstat-no" title="statement not covered" >                this.events.north.input.eventEmitter.emit(msg.payload.hd.entry.id, msg);</span>
             var payload = this.on_north_input_encode(msg.payload.hd, msg.payload.pld);
             <span class="missing-if-branch" title="if path not taken" >I</span>if (!payload)
 <span class="cstat-no" title="statement not covered" >                return;</span>
@@ -334,7 +348,8 @@ var NDDevice = /** @class */ (function (_super) {
             msg.payload = this.sendcmd.encode(payload.hd, payload.pld);
             msg.encoded = true;
         }
-        _super.prototype.on_north_input.call(this, msg);
+        <span class="missing-if-branch" title="else path not taken" >E</span>if (!msg.prevented)
+            _super.prototype.on_north_input.call(this, msg);
     };
     //子设备输入
     NDDevice.prototype.on_child_input = function (msg) {
@@ -370,7 +385,7 @@ exports.NDDevice = NDDevice;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2022-12-07T13:51:50.228Z
+                at 2022-12-19T12:52:16.036Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
