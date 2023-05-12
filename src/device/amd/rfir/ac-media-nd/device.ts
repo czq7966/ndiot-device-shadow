@@ -10,7 +10,9 @@ import { RFIRDevice } from "../device";
 export class ExtraConst {
     static PowerPin = 13;
     static RfirCodeSid = 0xFFFFFFFF;
-    static ReportTimeout = 1000 * 60;
+    static ReportTimeout = 60;  //定时上报，60秒
+    static MinVersion = 29; //最小版本，否则升级
+    static RebootInterval = 12 * 60 + 1; //定时重启12小时1分钟
 }
 
 
@@ -80,7 +82,11 @@ export  class RFIRDeviceACMediaND extends RFIRDevice {
         //设备上线
         on_south_cmd_online(msg: IDeviceBusEventData) {
             //配置定时上报
-            this.do_south_cmd_report_reg()
+            this.do_south_cmd_report_reg();
+            //配置定时重启(12小时1分钟)
+            this.do_south_cmd_config_reboot_interval(true, ExtraConst.RebootInterval);
+            //检查升级
+            this.do_south_cmd_update_check(msg, ExtraConst.MinVersion);
             return;
         }   
 

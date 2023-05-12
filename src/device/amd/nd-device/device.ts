@@ -1,8 +1,8 @@
 import { Debuger, DeviceBase } from "../../device-base";
 import { IDeviceBase, IDeviceBusDataPayload, IDeviceBusDataPayloadHd, IDeviceBusEventData } from "../../device.dts";
-import { Cmd, ICmd } from "../coders/dev-bin-json/cmd";
+import { Cmd, CmdId, ICmd } from "../coders/dev-bin-json/cmd";
 import { ICmdHead } from "../coders/dev-bin-json/cmd-head";
-import { IPldTable } from "../coders/dev-bin-json/pld-table";
+import { IPldTable, PldTable } from "../coders/dev-bin-json/pld-table";
 import { IPLFCoder, PLFCoder } from "../coders/plf-json-dev/plf-coder";
 
 export interface INDDevice extends IDeviceBase {
@@ -99,4 +99,57 @@ export class NDDevice extends DeviceBase implements INDDevice {
             pld: pld && pld.tables
         }
     }
+
+    //配置定时重启
+    do_south_cmd_config_reboot_interval(enable: boolean, timeoutMin: number ) {
+        const pld = {};
+        pld[PldTable.Keys.reboot_interval_enable] = enable ? 1 : 0;   //是否定时重启
+        pld[PldTable.Keys.reboot_interval_timeout] = timeoutMin;  //间隔时间，分钟
+
+        const payload: IDeviceBusDataPayload = {
+            hd: {
+                cmd_id: CmdId.config
+            },
+            pld: pld
+        }
+
+        const msg = {payload: payload};
+
+        this.on_north_input(msg);
+        
+        
+        return;
+    }
+
+    //上线升级检查
+    do_south_cmd_update_check(msg: IDeviceBusEventData, minVersion: number ) {
+        const payload = msg.payload as IDeviceBusDataPayload;
+        let   pld = payload.pld;
+        const version = pld[PldTable.Keys.ota_version] as number;  
+        if (version && (version < minVersion)){
+            this.do_south_cmd_update();
+        }
+        
+        return;
+    }
+ 
+    //升级
+    do_south_cmd_update() {        
+        const pld = {};
+        const payload: IDeviceBusDataPayload = {
+            hd: {
+                cmd_id: CmdId.update
+            },
+            pld: pld
+        }
+
+        const msg = {payload: payload};
+
+        this.on_north_input(msg);
+        
+        
+        return;
+    }
+    
+    
 }

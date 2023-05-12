@@ -115,7 +115,9 @@ export class PldTableKeys {
         
     static report_reg_enable   = 61080;
     static report_reg_timeout  = 61081;
-    
+ 
+    static reboot_interval_enable   = 61085;
+    static reboot_interval_timeout  = 61086;
 }
 
 export class PldTable implements IPldTable {
