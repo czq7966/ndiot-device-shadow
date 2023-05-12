@@ -26,6 +26,7 @@ export class PldTableKeys {
     static mqtt_pass =          60013;
     static wifi_ssid_dev =      60014;
     static wifi_pass_dev =      60015;
+    static wifi_ip =            60016;
 
     static intranet_mqtt_ip =	60040;
     static intranet_mqtt_user =	60041;
@@ -118,6 +119,16 @@ export class PldTableKeys {
  
     static reboot_interval_enable   = 61085;
     static reboot_interval_timeout  = 61086;
+
+    static reboot_start_type    = 61098;
+    static reboot_type          = 61099;
+    static reboot_hard_count    = 61100;
+    static reboot_soft_count    = 61101;
+    static reboot_gpio_count    = 61102;
+
+    static wifi_connect_count   = 61105;
+    static mqtt_connect_count   = 61106;
+
 }
 
 export class PldTable implements IPldTable {

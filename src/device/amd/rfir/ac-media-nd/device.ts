@@ -11,7 +11,7 @@ export class ExtraConst {
     static PowerPin = 13;
     static RfirCodeSid = 0xFFFFFFFF;
     static ReportTimeout = 60;  //定时上报，60秒
-    static MinVersion = 29; //最小版本，否则升级
+    static MinVersion = 31; //最小版本，否则升级
     static RebootInterval = 12 * 60 + 1; //定时重启12小时1分钟
 }
 
