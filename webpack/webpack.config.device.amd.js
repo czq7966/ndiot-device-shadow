@@ -30,6 +30,7 @@ module.exports = env => {
     entry['rfir/ac-media/index'] = path.resolve(srcDir, "rfir/ac-media/index.ts");
     entry['rfir/ac-media-nd/index'] = path.resolve(srcDir, "rfir/ac-media-nd/index.ts");
     entry['fire/qtl-tx3016a/index'] = path.resolve(srcDir, "fire/qtl-tx3016a/index.ts");
+    entry['allybot/index'] = path.resolve(srcDir, "allybot/index.ts");
     
     optimization['minimizer'] = minimizer;  
 
@@ -73,6 +74,7 @@ module.exports = env => {
                 'path': 'path',
                 'http': 'http',
                 'https': 'https',
+                'ws': 'ws',
                 'zlib': 'zlib',
                 'events': 'events',
                 'net': 'net',
