@@ -1,0 +1,36 @@
+{
+    "id": "035d02acabe467785967e01747caca90", //设备ID
+    "sn": "202237CNY002D0013", //设备SN
+    "online": "在线", //在线或离线
+    "type": "清洁机器人", //设备类型
+    "name": "亚太1/2/3楼洗地机", //设备名称
+    "avatar": "robotqingjie.png", //设备图标链接
+    "battery": 79, //剩余电量
+    "work_status": "工作中", //工作状态：工作中或充电中
+    "robotStatus": 2,
+    "unreadQuantity": 2,
+    "freshWater": null,  //清水量(默认: 高)
+    "sewageWater": null, //污水量(默认: 低)
+    "navStatus": 2,
+    "location": false,
+    "haveTaskRunning": true, //是否有清洁任务正在执行
+    "total": {
+        "area": 35833.25,  //累计清洁面积(平方米)
+        "hour": 200.33, //使用时间(小时)
+        "count": 298 //清洁次数
+    },
+   "clean": {  //当前清洁任务
+        "title": "亚太2楼", //任务名称
+        "percent": 27, //完成率
+        "area": 162, //完成面积
+        "use_hour": 52, //使用时间
+        "left_hour": 141, //剩余时间
+        "start": "22:39:59", //开始时间
+        "end": "", //结束时间
+        "repeat": 12, //重复次数
+        "date_type": "0", //0=执行1次，1=每日，2=自定义， 3=法定工作日
+        "date": "", //自定义任务日期
+        "task_mode": "洗地.标准", 
+        "mode_type": null  //0=静音, 1=标准，2=强力
+    }
+}

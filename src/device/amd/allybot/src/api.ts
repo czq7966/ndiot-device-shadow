@@ -72,15 +72,7 @@ export class Api {
         return promsie; 
     }
 
-    //机器使用状态
-    static async usestatus(robotId?: string){
-        let path = "/fleetapi/device/usestatus";
-        let body = `token=${User.model.token}&robotId=${robotId}&openid=${User.model.openid}`;
-        let promsie = this._httpRequest(this._getHttpOptions("POST", path, body.length), body);
-        promsie.then(data => console.log("usestatus", data));
-        promsie.catch(err => console.log("usestatus", err));
-        return promsie; 
-    }
+
 
     static async msgCnf(msgType: string, turnedOn: boolean){
         let path = "/fleetapi/user/msgCnf";
@@ -145,7 +137,7 @@ export class Api {
     }
 
     //设备消息列表 type: 0=系统通知， 1=设备更新，  2=操作日记， 3=异常报警
-    static async newdevicelist(type: string){
+    static async newDeviceList(type: string){
         let path = "/fleetapi/message/newdevicelist";
         let body = `token=${User.model.token}&type=${type}&openid=${User.model.openid}`;
         let options = this._getHttpOptions("POST", path, body.length);
@@ -156,29 +148,88 @@ export class Api {
 
     }
 
+    //机器使用状态
+    static async deviceUsestatus(robotId?: string){
+        let path = "/fleetapi/device/usestatus";
+        let body = `token=${User.model.token}&robotId=${robotId}&openid=${User.model.openid}`;
+        let promsie = this._httpRequest(this._getHttpOptions("POST", path, body.length), body);
+        promsie.then(data => console.log("deviceUsestatus", data));
+        promsie.catch(err => console.log("deviceUsestatus", err));
+        return promsie; 
+    }
+
     //机器使用地图
-    static async usemap(robotId: string){
+    static async deviceUsemap(robotId: string){
         let path = "/fleetapi/device/usemap";
         let body = `token=${User.model.token}&id=${robotId}&openid=${User.model.openid}`;
         let options = this._getHttpOptions("POST", path, body.length);
         let promsie = this._httpRequest(options, body);
-        promsie.then(data => console.log("usemap", data));
-        promsie.catch(err => console.log("usemap", err));
+        promsie.then(data => console.log("deviceUsemap", data));
+        promsie.catch(err => console.log("deviceUsemap", err));
         return promsie;        
 
     }
 
     //机器操作日记
-    static async operationlog(robotId: string, page: number){
+    static async deviceOperationlog(robotId: string, page: number = 1){
         let path = "/fleetapi/message/operationlog";
-        let body = `token=${User.model.token}&id=${robotId}&openid=${User.model.openid}&page=${page}&pageSize=20`;
+        let body = `token=${User.model.token}&type=0&id=${robotId}&openid=${User.model.openid}&page=${page}&pageSize=20`;
 
         let options = this._getHttpOptions("POST", path, body.length);
         let promsie = this._httpRequest(options, body);
-        promsie.then(data => console.log("operationlog", data));
-        promsie.catch(err => console.log("operationlog", err));
-        return promsie;        
-
+        promsie.then(data => console.log("deviceOperationlog", data));
+        promsie.catch(err => console.log("deviceOperationlog", err));
+        return promsie; 
     }
+
+    //机器异常报警
+    static async deviceWarnlog(robotId: string, page: number = 1){
+        let path = "/fleetapi/message/warnlog";
+        let body = `token=${User.model.token}&type=0&id=${robotId}&openid=${User.model.openid}&page=${page}&pageSize=20`;
+
+        let options = this._getHttpOptions("POST", path, body.length);
+        let promsie = this._httpRequest(options, body);
+        promsie.then(data => console.log("deviceWarnlog", data));
+        promsie.catch(err => console.log("deviceWarnlog", err));
+        return promsie; 
+    }
+
+    //机器基础信息
+    static async deviceInfo(robotId: string){
+        let path = "/fleetapi/device/info";
+        let body = `token=${User.model.token}&id=${robotId}&openid=${User.model.openid}`;
+
+        let options = this._getHttpOptions("POST", path, body.length);
+        let promsie = this._httpRequest(options, body);
+        promsie.then(data => console.log("deviceInfo", data));
+        promsie.catch(err => console.log("deviceInfo", err));
+        return promsie; 
+    }
+
+    //机器清洁任务
+    static async deviceCleanList(robotId: string, page: number = 1){
+        let path = "/fleetapi/clean/list";
+        let body = `token=${User.model.token}&type=0&id=${robotId}&openid=${User.model.openid}&page=${page}&pageSize=200`;
+
+        let options = this._getHttpOptions("POST", path, body.length);
+        let promsie = this._httpRequest(options, body);
+        promsie.then(data => console.log("deviceCleanList", data));
+        promsie.catch(err => console.log("deviceCleanList", err));
+        return promsie; 
+    }
+
+    //机器清洁日记
+    static async deviceCleanLogsList(robotId: string, page: number = 1){
+        let path = "/fleetapi/clean/logslist";
+        let body = `token=${User.model.token}&id=${robotId}&openid=${User.model.openid}&page=${page}&pageSize=1`;
+
+        let options = this._getHttpOptions("POST", path, body.length);
+        let promsie = this._httpRequest(options, body);
+        promsie.then(data => console.log("deviceCleanLogsList", JSON.stringify(data)));
+        promsie.catch(err => console.log("deviceCleanLogsList", err));
+        return promsie; 
+    }
+    
+
 
 }

@@ -75,7 +75,9 @@ export class Channel {
 
 
             ws.on('message', (data) => {
+                console.log("111111111111", data);
                 let msg: IChannelMessage = JSON.parse(data.toString());
+
                 if (msg.type != "ping") {
                     this.events.emit(this.Events.onMessge, msg);
                 }

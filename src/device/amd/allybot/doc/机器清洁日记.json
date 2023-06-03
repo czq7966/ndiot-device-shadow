@@ -1,0 +1,28 @@
+{
+    "id": "3e45d94be6668032445f29dc24c5a987", //设备ID
+    "data": [{
+        "name": "东门4楼", //清洁名称
+        "status": "完成",  //清洁状态
+        "time": "2023-05-23 20:51-22:04",  //清洁时间
+        "percent": "100.0", //完成率
+        "mode": "洗地", //清洁模式
+        "author": "airborne", //执行人
+        "plan_area": "389.65", //计划清洁面积
+        "cleanedArea": "235.95", //累计清洁面积
+        "coveredArea": "235.95", //已覆盖面积
+        "uncoveredArea": "153.70", //未覆盖面积
+        "startTime": 1684846274000, //开始时间戳
+        "endTime": 1684850658000, //结束时间戳
+        "totalCircle": 1, //总次数
+        "executedCircle": 1, //执行次数
+        "over_area": "235.95", //已覆盖面积
+        "over_percent": "61.82", //已覆盖率
+        "left_area": "145.69", //未覆盖面积
+        "left_percent": "39", //未覆盖率
+        "effect": "193.75", //清洁效率
+        "ele_consumer": "0.31793", //电量消耗（kwh）
+        "ele_percent": "33.2", 
+        "water_percent": "0",
+        "water_comsumer": "3940.00" //水量消耗（毫升）
+    }]
+}

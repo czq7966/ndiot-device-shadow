@@ -1,0 +1,21 @@
+{
+    "mapinfo": {
+        "id": "b091b2541ecf61fdab61e5b013973b4d", //设备ID
+        "avatar": "http: //116.205.178.152:28080/resource/map/20220924140303/map.png", //地图图片链接
+        "name": "D5梯控", //地图名称
+        "floor": "5", //楼层
+        "is_add": true,
+        "is_navback": false, //是否回充
+        "is_use": true, //是否正在使用
+        "resolution": 0.05,
+        "original": {
+            "x": -90.8,
+            "y": -15.56,
+            "z": 0.0
+        }
+    },
+    "organ_name": "福建天晴数码有限公司",
+    "image_url": "http: //116.205.178.152:28080/resource/map/20220924140303/map.png",
+    "robot_name": "企业号尾楼洗地机",
+    "usestatus": "0"
+}

@@ -1,0 +1,23 @@
+{
+    "avatar": "http ://116.205.178.152:28080/resource/img/app/robotqingjie.png", //机器图标
+     "type": "清洁机器人",  //机器类型
+     "hardware": {
+         "model": "C44P2DV2",  //机器型号
+         "size": "503mm(L)x503mm(W)x629mm(H)",  //尺寸
+         "weight": "40KG", //整机重量
+         "worktemp": "0°C~40°C", //工作环境温度
+         "protect": "IP33", //防护等级
+         "power": "240W", //额定功率
+         "battery": "25.6V 36Ah", //电池容量
+         "charge": "直充(3h充满)" //充电方式
+     },
+     "software": {
+         "id": "035d02acabe467785967e01747caca90", //设备ID
+         "sn": "202237CNY002D0013", //设备SN
+         "name": "亚太1/2/3楼洗地机", //设备名称
+         "protversion": "",
+         "autoversion": null,
+         "backendversion": null,
+         "frontendversion": null
+     }
+ }

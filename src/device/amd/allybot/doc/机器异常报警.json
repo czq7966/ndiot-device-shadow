@@ -1,0 +1,12 @@
+{
+    "id": "2154722c8f91f98fb81dbcc5dbde8337",  //设备ID
+    "data": [
+        {
+            "type": 2,
+            "msg": "请检查清水箱是否正确安装", //报警信息
+            "id": "be127d370040f8398faa6bcc28c77c9f", //信息ID
+            "timestamp": "1684166074", //时间戳
+            "icon": "http://xxxxxx/warnmsgicon2.png" //图标http链接
+        }
+    ]
+}

@@ -23,12 +23,14 @@ export class User  {
             if (data.code == 200) {
                 User.model = data.data;
                 Channel.connect();
-                Api.version();
-                Api.usestatus();
-                Api.msgCnf("1", true);    
-                Api.newlist();       
-                Api.projects();  
-                Api.deviceList();
+                // Api.version();
+                // Api.deviceUsestatus("035d02acabe467785967e01747caca90");
+                // Api.msgCnf("1", true);    
+                // Api.newlist();       
+                // Api.projects();  
+                // Api.deviceList();
+                // Api.deviceCleanList("035d02acabe467785967e01747caca90");
+                Api.deviceCleanLogsList("035d02acabe467785967e01747caca90");
 
                 console.log(User.model);
             } else {
