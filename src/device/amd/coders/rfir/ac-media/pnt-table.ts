@@ -84,10 +84,12 @@ export class PntTable implements IPntTable {
     }
 
     setTemp(temp: number) {
-        temp = Math.max(temp, TableConst.TempMin);
-        temp = Math.min(temp, TableConst.TempMax);
-        temp = temp - TableConst.TempMin;
-        temp = TableConst.Temp[temp];
+        if (temp != TableConst.TempNone){
+            temp = Math.max(temp, TableConst.TempMin);
+            temp = Math.min(temp, TableConst.TempMax);
+            temp = temp - TableConst.TempMin;
+            temp = TableConst.Temp[temp];
+        }
         this.table.Temp = temp;
     }
     getTemp(): number {
@@ -114,8 +116,8 @@ export class PntTable implements IPntTable {
           case TableConst.ModeAuto: this.setTemp(25); break;
           // DRY always sets the fan to 1.
           case TableConst.ModeDry: this.setFan(1); break;
+          case TableConst.ModeFan:  this.setTemp(TableConst.TempNone); break;
           case TableConst.ModeCool:
-          case TableConst.ModeFan:
           case TableConst.ModeHeat: break;
           // If we get an unexpected mode, default to AUTO.
           default: mode = TableConst.ModeAuto;

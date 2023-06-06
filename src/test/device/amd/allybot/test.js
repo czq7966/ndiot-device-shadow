@@ -1,7 +1,7 @@
 const Allybot = require("../../../../../dist/node-red/amd/allybot/index");
 
 // Allybot.Api.login();
-Allybot.User.login();
+// Allybot.User.login();
 
 
 // const WebSocket = require('ws');
@@ -15,3 +15,6 @@ Allybot.User.login();
 // ws.on('message', function incoming(data) {
 //   console.log(data);
 // });
+
+Allybot.Main.start();
+// console.log(Allybot)

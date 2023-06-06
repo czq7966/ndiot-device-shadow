@@ -67,14 +67,14 @@ export class TableBits {
 
 export class TableConst {
     static NBits = 6 * 8;
-    static HeadMark = 4390;
-    static HeadSpace = 4420;
-    static OneMark = 570;
+    static HeadMark = 4400;
+    static HeadSpace = 4400;
+    static OneMark = 540;
     static OneSpace = 1620;
-    static ZeroMark = 570;
-    static ZeroSpace = 520;
-    static FooterMark = 570;
-    static FooterSpace = 5300;
+    static ZeroMark = 540;
+    static ZeroSpace = 540;
+    static FooterMark = 540;
+    static FooterSpace = 5220;
 
     static  P_BT0         = 0b10110010;                    
 

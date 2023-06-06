@@ -1,0 +1,140 @@
+{
+    "code": 200,
+    "message": "成功",
+    "generalMessage": null,
+    "data": {
+        "count": 13,
+        "list": [
+            {
+                "deviceId": "035d02acabe467785967e01747caca90",
+                "deviceName": "亚太三层",
+                "deviceStatus": 9,
+                "useStatus": 0,
+                "deviceSN": "202237CNY002D0013",
+                "deviceOnlineStatus": 1,
+                "deviceType": 3,
+                "avatar": "http://116.205.178.152:28080/resource/img/app/robotqingjie.png"
+            },
+            {
+                "deviceId": "08d13f563d3b444c719827eabf5fef49",
+                "deviceName": "亚太4/5楼洗地机",
+                "deviceStatus": null,
+                "useStatus": 2,
+                "deviceSN": "202237CNY002D0008",
+                "deviceOnlineStatus": 0,
+                "deviceType": 3,
+                "avatar": "http://116.205.178.152:28080/resource/img/app/robotqingjie.png"
+            },
+            {
+                "deviceId": "118ceec0d4aea96b42c12b6c98500fc2",
+                "deviceName": "高管楼洗地机",
+                "deviceStatus": 9,
+                "useStatus": 0,
+                "deviceSN": "202237CNY002D0007",
+                "deviceOnlineStatus": 1,
+                "deviceType": 3,
+                "avatar": "http://116.205.178.152:28080/resource/img/app/robotqingjie.png"
+            },
+            {
+                "deviceId": "2154722c8f91f98fb81dbcc5dbde8337",
+                "deviceName": "企业号尾楼洗地机",
+                "deviceStatus": 9,
+                "useStatus": 0,
+                "deviceSN": "202233CNY002D0018",
+                "deviceOnlineStatus": 1,
+                "deviceType": 3,
+                "avatar": "http://116.205.178.152:28080/resource/img/app/robotqingjie.png"
+            },
+            {
+                "deviceId": "2385d511c51f920e0dd94c14955be855",
+                "deviceName": "人民医院门诊",
+                "deviceStatus": null,
+                "useStatus": 0,
+                "deviceSN": "202251CNY002D0031",
+                "deviceOnlineStatus": 0,
+                "deviceType": 3,
+                "avatar": "http://116.205.178.152:28080/resource/img/app/robotqingjie.png"
+            },
+            {
+                "deviceId": "3584f96905247c894bf0f24b8e2b83b8",
+                "deviceName": "大雄宝殿洗地机",
+                "deviceStatus": 9,
+                "useStatus": 0,
+                "deviceSN": "202237CNY002D0016",
+                "deviceOnlineStatus": 1,
+                "deviceType": 3,
+                "avatar": "http://116.205.178.152:28080/resource/img/app/robotqingjie.png"
+            },
+            {
+                "deviceId": "58ac8b359e2947d97361fd22accb25a9",
+                "deviceName": "缥缈庄",
+                "deviceStatus": 9,
+                "useStatus": 0,
+                "deviceSN": "202322CNS012D0008",
+                "deviceOnlineStatus": 1,
+                "deviceType": 3,
+                "avatar": "http://116.205.178.152:28080/resource/img/app/robotqingjie.png"
+            },
+            {
+                "deviceId": "77c2ae7a14fa12312c183fb73b8d8a06",
+                "deviceName": "书院洗地机",
+                "deviceStatus": 9,
+                "useStatus": 2,
+                "deviceSN": "202233CNY002D0010",
+                "deviceOnlineStatus": 1,
+                "deviceType": 3,
+                "avatar": "http://116.205.178.152:28080/resource/img/app/robotqingjie.png"
+            },
+            {
+                "deviceId": "92539213b84c8cba38b533001917fe2f",
+                "deviceName": "观音殿洗地机",
+                "deviceStatus": 3,
+                "useStatus": 0,
+                "deviceSN": "202233CNY002D0015",
+                "deviceOnlineStatus": 1,
+                "deviceType": 3,
+                "avatar": "http://116.205.178.152:28080/resource/img/app/robotqingjie.png"
+            },
+            {
+                "deviceId": "928ecac63623de55a3271aec8b27c4a5",
+                "deviceName": "企业号A区洗地机",
+                "deviceStatus": 9,
+                "useStatus": 0,
+                "deviceSN": "202237CNY002D0046",
+                "deviceOnlineStatus": 1,
+                "deviceType": 3,
+                "avatar": "http://116.205.178.152:28080/resource/img/app/robotqingjie.png"
+            },
+            {
+                "deviceId": "932e18abf593a38d92080a43d6690ebb",
+                "deviceName": "亚太2层",
+                "deviceStatus": 9,
+                "useStatus": 0,
+                "deviceSN": "202231CNY002D0003",
+                "deviceOnlineStatus": 1,
+                "deviceType": 3,
+                "avatar": "http://116.205.178.152:28080/resource/img/app/robotqingjie.png"
+            },
+            {
+                "deviceId": "9baf952f0509e074ae96bca4e1640b08",
+                "deviceName": "东门",
+                "deviceStatus": 9,
+                "useStatus": 2,
+                "deviceSN": "202231CNZ002D0004",
+                "deviceOnlineStatus": 1,
+                "deviceType": 3,
+                "avatar": "http://116.205.178.152:28080/resource/img/app/robotqingjie.png"
+            },
+            {
+                "deviceId": "bc525455edd97380bb8a1eb2c1aac7cf",
+                "deviceName": "会展中心洗地机",
+                "deviceStatus": 9,
+                "useStatus": 0,
+                "deviceSN": "202237CNY002D0049",
+                "deviceOnlineStatus": 1,
+                "deviceType": 3,
+                "avatar": "http://116.205.178.152:28080/resource/img/app/robotqingjie.png"
+            }
+        ]
+    }
+}

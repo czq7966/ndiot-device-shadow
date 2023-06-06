@@ -195,9 +195,9 @@ export class Api {
     }
 
     //机器基础信息
-    static async deviceInfo(robotId: string){
+    static async deviceInfo(sn: string){
         let path = "/fleetapi/device/info";
-        let body = `token=${User.model.token}&id=${robotId}&openid=${User.model.openid}`;
+        let body = `token=${User.model.token}&id=${sn}&openid=${User.model.openid}`;
 
         let options = this._getHttpOptions("POST", path, body.length);
         let promsie = this._httpRequest(options, body);

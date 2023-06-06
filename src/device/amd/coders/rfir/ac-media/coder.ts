@@ -20,7 +20,7 @@ export class Coder implements ICoder {
         this.plf_props = new PlfProps();
         this.rfir_coder = new RfirCoder();
         const param = new SegCoderParam();
-        param.tolerance = 20;
+        param.tolerance = 30;
         param.excess = 0;
         param.atleast = true;                              
         param.MSBfirst = true;

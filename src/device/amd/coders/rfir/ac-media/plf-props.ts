@@ -42,6 +42,9 @@ export class PlfProps implements IPlfProps {
         // Temp
         if (props.temperature)
             pnttable.setTemp(props.temperature);
+        // 送风时温度为：0b1110
+        if (props.mode == "fan")
+            pnttable.setTemp(TableConst.TempNone);
 
         //Mode
         if (props.fanSpeed == "auto")
@@ -61,26 +64,30 @@ export class PlfProps implements IPlfProps {
         if (!props) 
             props = this.props;
 
+        // Power
+        if (pnttable.table.Power == TableConst.PowerOn)
+            props.power = "on";
+        else if (pnttable.table.Power == TableConst.PowerOff) {
+            props.power = "off";
+            return props;
+        }
+
         //Mode
         if (pnttable.table.Mode == TableConst.ModeAuto)
             props.mode = "auto";
         else if (pnttable.table.Mode == TableConst.ModeCool)
             props.mode = "cool";
-        else if (pnttable.table.Mode == TableConst.ModeFan && pnttable.table.Temp >= TableConst.TempNone)
+        else if (pnttable.table.Mode == TableConst.ModeFan && pnttable.table.Temp == TableConst.TempNone)
             props.mode = "fan";
         else if (pnttable.table.Mode == TableConst.ModeDry)
             props.mode = "dry";
         else if (pnttable.table.Mode == TableConst.ModeHeat)
             props.mode = "heat";
 
-        // Power
-        if (pnttable.table.Power == TableConst.PowerOn)
-            props.power = "on";
-        else if (pnttable.table.Power == TableConst.PowerOff)
-            props.power = "off";
-
         // Temp
         props.temperature = pnttable.getTemp();
+        if (props.mode == "fan")
+            delete props.temperature;
 
         //Mode
         if (pnttable.table.Fan == TableConst.FanAuto)
@@ -91,7 +98,6 @@ export class PlfProps implements IPlfProps {
             props.fanSpeed = "medium";
         else 
             props.fanSpeed = "high";
- 
         return props; 
     }
 
