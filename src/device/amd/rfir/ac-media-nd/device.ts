@@ -201,6 +201,9 @@ export  class RFIRDeviceACMediaND extends RFIRDevice {
 
                         //保存状态寄存器
                         this.do_config_rfir_code();
+
+                        //上报
+                        this.do_north_report();
                     }
                 }
 

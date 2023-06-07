@@ -178,9 +178,9 @@ export class PntTable implements IPntTable {
     }
 
     fixup() {
-        if (this.getMode() == TableConst.ModeFan) {
-            this.table.Temp = TableConst.TempNone;
-        }
+        // if (this.getMode() == TableConst.ModeFan) {
+        //     this.table.Temp = TableConst.TempNone;
+        // }
         this.table.BT0 = TableConst.P_BT0;
         this.table.BT2_1 = TableConst.P_BT2_1;
         this.table.BT2_2 = TableConst.P_BT2_2;  
