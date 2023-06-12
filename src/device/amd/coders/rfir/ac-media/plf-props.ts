@@ -42,9 +42,6 @@ export class PlfProps implements IPlfProps {
         // Temp
         if (props.temperature)
             pnttable.setTemp(props.temperature);
-        // 送风时温度为：0b1110
-        if (props.mode == "fan")
-            pnttable.setTemp(TableConst.TempNone);
 
         //Mode
         if (props.fanSpeed == "auto")
@@ -56,6 +53,18 @@ export class PlfProps implements IPlfProps {
         else if (props.fanSpeed == "high")
             pnttable.table.Fan = TableConst.FanMax;
             
+        /// 不同模式的特殊处理
+
+        // 送风时温度为：0b1110
+        if (props.mode == "fan")
+            pnttable.setTemp(TableConst.TempNone);
+        else if (pnttable.getTemp() == TableConst.TempNone) {
+            pnttable.setTemp(TableConst.TempDef);
+        } 
+        // 除湿、自动模式下，风速为固定风
+        if (props.mode == "dry" || props.mode == "auto") {
+            pnttable.table.Fan = TableConst.FanFixed;                 
+        }      
 
         return pnttable;
     }
@@ -90,14 +99,14 @@ export class PlfProps implements IPlfProps {
             delete props.temperature;
 
         //Mode
-        if (pnttable.table.Fan == TableConst.FanAuto)
-            props.fanSpeed = "auto";
+        if (pnttable.table.Fan == TableConst.FanMax)
+            props.fanSpeed = "high";
         else if (pnttable.table.Fan == TableConst.FanMin)
             props.fanSpeed = "low";
         else if (pnttable.table.Fan == TableConst.FanMed)
             props.fanSpeed = "medium";
         else 
-            props.fanSpeed = "high";
+            props.fanSpeed = "auto";
         return props; 
     }
 

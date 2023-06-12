@@ -82,6 +82,7 @@ export class TableConst {
     static  P_BT2_2       = 0b11;
     static  P_BT4_1       = 0b00;
 
+    static  FanFixed   = 0b000;
     static  FanAuto    = 0b101;
     static  FanMin     = 0b100;
     static  FanMed     = 0b010;
@@ -94,6 +95,7 @@ export class TableConst {
     static  Temp        = [0b0000, 0b0001, 0b0011, 0b0010, 0b0110, 0b0111, 0b0101, 0b0100, 0b1100, 0b1101, 0b1001, 0b1000, 0b1010, 0b1011];
     static  TempMin    = 17;
     static  TempMax    = 30;
+    static  TempDef    = 25;
     static  TempNone   = 0b1110;
 
     static  ModeAuto   = 0b10;

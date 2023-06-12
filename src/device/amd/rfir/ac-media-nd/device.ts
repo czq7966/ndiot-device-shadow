@@ -197,7 +197,8 @@ export  class RFIRDeviceACMediaND extends RFIRDevice {
                     //更新数据位
                     if (this.ac_coder.pnt_table.decodeBytess(codes)) {
                         this.ac_coder.plf_props.decode(this.ac_coder.pnt_table);
-                        pld = this.ac_coder.plf_props.props;
+                        Object.assign(pld, this.ac_coder.plf_props.props);
+                        // pld = this.ac_coder.plf_props.props;
 
                         //保存状态寄存器
                         this.do_config_rfir_code();
@@ -279,6 +280,8 @@ export  class RFIRDeviceACMediaND extends RFIRDevice {
             //状态数据位设置
             const pnttable = this.ac_coder.plf_props.encode(pld, this.ac_coder.pnt_table);
             pnttable.checksum()
+
+
 
             //状态射频码编码
             const bytess = pnttable.encodeBytess();
