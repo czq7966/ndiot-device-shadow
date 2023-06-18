@@ -115,6 +115,7 @@ export interface IDeviceBase extends IBase {
 
 export interface IDeviceBusEventData {
     id?: string
+    cid?: string
     type?: string
     action?: string
     topic?: string
