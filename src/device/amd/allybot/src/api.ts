@@ -218,7 +218,7 @@ export class Api {
         return promsie; 
     }
 
-    //机器清洁日记
+    //机器清洁日记列表
     static async deviceCleanLogsList(robotId: string, page: number = 1){
         let path = "/fleetapi/clean/logslist";
         let body = `token=${User.model.token}&id=${robotId}&openid=${User.model.openid}&page=${page}&pageSize=1`;
@@ -230,6 +230,29 @@ export class Api {
         return promsie; 
     }
     
+    //机器清洁日记详情
+    static async deviceCleanLogsDetail(logId: string){
+        let path = "/fleetapi/clean/logsdetail";
+        let body = `token=${User.model.token}&id=${logId}&openid=${User.model.openid}`;
 
+        let options = this._getHttpOptions("POST", path, body.length);
+        let promsie = this._httpRequest(options, body);
+        promsie.then(data => console.log("deviceCleanLogsDetail", JSON.stringify(data)));
+        promsie.catch(err => console.log("deviceCleanLogsDetail", err));
+        return promsie; 
+    }
+
+    //机器清洁日记详情
+    static async deviceTaskReport(reportId: string){
+        http://116.205.178.152:28080 
+        let path = `/fleetapi/task/report?reportId=${reportId}`;
+        let body = '';
+
+        let options = this._getHttpOptions("GET", path, body.length);
+        let promsie = this._httpRequest(options, body);
+        promsie.then(data => console.log("deviceTaskReport", JSON.stringify(data)));
+        promsie.catch(err => console.log("deviceTaskReport", err));
+        return promsie; 
+    }
 
 }

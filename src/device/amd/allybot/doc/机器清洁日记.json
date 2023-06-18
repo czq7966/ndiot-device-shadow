@@ -1,6 +1,7 @@
 {
     "id": "3e45d94be6668032445f29dc24c5a987", //设备ID
     "data": [{
+        "id": "5a071b5a310b7ad3578cb1fc1765599e", //清洁ID
         "name": "东门4楼", //清洁名称
         "status": "完成",  //清洁状态
         "time": "2023-05-23 20:51-22:04",  //清洁时间
@@ -23,6 +24,8 @@
         "ele_consumer": "0.31793", //电量消耗（kwh）
         "ele_percent": "33.2", 
         "water_percent": "0",
-        "water_comsumer": "3940.00" //水量消耗（毫升）
+        "water_comsumer": "3940.00", //水量消耗（毫升）
+        "avatar": "http://116.205.178.152:28080/resource/map/20220930085553/map.png", //清洁所用地图
+        "reportImgUrl": "http://116.205.178.152:28080/resource/taskReport/5a071b5a310b7ad3578cb1fc1765599e/cfe18e8cbdfdff7cc258c9a36aefde70/jobReport.png", //清洁报告地图
     }]
 }
