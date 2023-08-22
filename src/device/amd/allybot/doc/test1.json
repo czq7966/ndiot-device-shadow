@@ -1,0 +1,35 @@
+{
+    "id": "bdf21b6649b61647848077a998025f0e",
+    "data": [
+        {
+            "id": "17eabbdf358692d2716acb9eeb8d614c",
+            "name": "人民医院15楼",
+            "value": null,
+            "timestamp": null,
+            "status": "取消",
+            "time": "2023-08-03 07:12-08:09",
+            "percent": "92.0",
+            "mode": "洗地",
+            "author": "airborne",
+            "plan_area": "235.83",
+            "cleanedArea": "186.47",
+            "coveredArea": "186.47",
+            "uncoveredArea": "49.36",
+            "startTime": 1691017923000,
+            "endTime": 1691021347000,
+            "totalCircle": 1,
+            "executedCircle": 0,
+            "over_area": "186.47",
+            "over_percent": "79.9",
+            "left_area": "46.92",
+            "left_percent": "21",
+            "effect": "287.24",
+            "ele_consumer": "0.10599",
+            "ele_percent": "10.0",
+            "water_percent": "0",
+            "water_comsumer": "1050.00",
+            "reportImgUrl": "http://116.205.178.152:28080/resource/taskReport/17eabbdf358692d2716acb9eeb8d614c/a0ad7f44a292225d28e80df5b30f6a04/jobReport.png",
+            "avatar": "http://116.205.178.152:28080/resource/map/20230422103754/map.png"
+        }
+    ]
+}

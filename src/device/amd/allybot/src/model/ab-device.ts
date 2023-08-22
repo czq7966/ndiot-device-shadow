@@ -22,7 +22,7 @@
 //     }
 // }
 
-export interface IDeviceModelHardware {
+export interface IABDeviceModelHardware {
     model?: string,
     size?: string,
     weight?: string,
@@ -33,7 +33,7 @@ export interface IDeviceModelHardware {
     charge?: string,    
 }
 
-export interface IDeviceModelSoftware {
+export interface IABDeviceModelSoftware {
     id?: string,
     sn?: string,
     name?: string,
@@ -44,9 +44,9 @@ export interface IDeviceModelSoftware {
     frontendversion?: string,    
 }
 
-export interface IDeviceModel {
+export interface IABDeviceModel {
     avatar?: string,
     type?: string,
-    hardware?: IDeviceModelHardware,
-    software?: IDeviceModelSoftware,
+    hardware?: IABDeviceModelHardware,
+    software?: IABDeviceModelSoftware,
 }

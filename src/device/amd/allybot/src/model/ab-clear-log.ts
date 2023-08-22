@@ -1,0 +1,95 @@
+// {
+//     "id": "3e45d94be6668032445f29dc24c5a987", 
+//     "data": [{
+//         "id": "5a071b5a310b7ad3578cb1fc1765599e", 
+//         "name": "东门4楼", 
+//         "status": "完成",  
+//         "time": "2023-05-23 20:51-22:04",  
+//         "percent": "100.0",
+//         "mode": "洗地", 
+//         "author": "airborne",
+//         "plan_area": "389.65",
+//         "cleanedArea": "235.95",
+//         "coveredArea": "235.95",
+//         "uncoveredArea": "153.70",
+//         "startTime": 1684846274000,
+//         "endTime": 1684850658000, 
+//         "totalCircle": 1, 
+//         "executedCircle": 1, 
+//         "over_area": "235.95", 
+//         "over_percent": "61.82", 
+//         "left_area": "145.69", 
+//         "left_percent": "39",
+//         "effect": "193.75", 
+//         "ele_consumer": "0.31793", 
+//         "ele_percent": "33.2", 
+//         "water_percent": "0",
+//         "water_comsumer": "3940.00", 
+//         "avatar": "http://116.205.178.152:28080/resource/map/20220930085553/map.png", 
+//         "reportImgUrl": "http://116.205.178.152:28080/resource/taskReport/5a071b5a310b7ad3578cb1fc1765599e/cfe18e8cbdfdff7cc258c9a36aefde70/jobReport.png"
+//     }]
+// }
+
+export interface IABClearLog {
+    id?: string,
+    status?: number,
+    date?: string,
+    time?: string,
+    name?: string,
+    percent?: string,
+    type?: string,
+    area?: string,
+    hour?: string,
+    icon?: string,
+    totalCircle?: number,
+    executedCircle?: number,
+    startTime?: number,
+    endTime?: number
+}
+
+export interface IABClearLogDetail {
+    robotId?: string,
+    id?: string,
+    name?: string, 
+    status?: string, 
+    time?: string,
+    percent?: string,
+    mode?: string,
+    author?: string,
+    plan_area?: string,
+    cleanedArea?: string,
+    coveredArea?: string,
+    uncoveredArea?: string,
+    startTime?: number,
+    endTime?: number,
+    totalCircle?: string,
+    executedCircle?: string, 
+    over_area?: string, 
+    over_percent?: string,
+    left_area?: string,
+    left_percent?: string,
+    effect?: string,
+    ele_consumer?: string,
+    ele_percent?: string,
+    water_percent?: string,
+    water_comsumer?: string,
+    avatar?: string,
+    reportImgUrl?: string,
+    
+}
+
+export interface IABClearLogReport {
+    id?: string,
+    name?: string,
+    status?: string,
+    type?: number,
+    remianarea?: string,
+    overarea?: string,
+    points?: string,
+    remain?: string,
+    origin?: {}
+    reportImgUrl?: string,
+    planCovered?: number,
+    planUncovered?: number,
+    mapInfo?: any
+  }

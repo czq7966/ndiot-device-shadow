@@ -1,11 +1,66 @@
 {
-    "form_id": "c683f16c236e44c1b436c2e595125888",
-    "filter": [
+    "id": "07e71d123c4ec348fe411425955d72f6",
+    "data": [
         {
-            "is_operator": false,
-            "key": "input_1689238656468_822",
-            "op": "eq",
-            "value": "robotid" 
+            "id": "2901ffe972784ac9ab480aaca3bcf399",
+            "name": "东门4楼", 
+            "status": "完成",  
+            "time": "2023-05-23 20:51-22:04",  
+            "percent": "100.0",
+            "mode": "洗地", 
+            "author": "airborne",
+            "plan_area": "389.65",
+            "cleanedArea": "235.95",
+            "coveredArea": "235.95",
+            "uncoveredArea": "153.70",
+            "startTime": 1689916865000,
+            "endTime": 1689918615000,
+            "totalCircle": 1,
+            "executedCircle": 0,
+            "over_area": "55.38",
+            "over_percent": "35.18",
+            "left_area": "102.02",
+            "left_percent": "65",
+            "effect": "174.88",
+            "ele_consumer": "0.05858",
+            "ele_percent": "5.6",
+            "water_percent": "0",
+            "water_comsumer": "610.00",
+            "reportImgUrl": "http://116.205.178.152:28080/resource/taskReport/2901ffe972784ac9ab480aaca3bcf399/e6e0890b86ab97f0d237c56cdbd8a4e2/jobReport.png",
+            "avatar": "http://116.205.178.152:28080/resource/map/20220927154444/map.png"
         }
     ]
+}
+
+
+{
+    "id": "08d13f563d3b444c719827eabf5fef49", 
+    "data": [{
+        "id": "5a071b5a310b7ad3578cb1fc17655922", 
+        "name": "东门4楼", 
+        "status": "完成",  
+        "time": "2023-05-23 20:51-22:04",  
+        "percent": "100.0",
+        "mode": "洗地", 
+        "author": "airborne",
+        "plan_area": "389.65",
+        "cleanedArea": "235.95",
+        "coveredArea": "235.95",
+        "uncoveredArea": "153.70",
+        "startTime": 1684846274000,
+        "endTime": 1684850058000, 
+        "totalCircle": 1, 
+        "executedCircle": 1, 
+        "over_area": "235.95", 
+        "over_percent": "61.82", 
+        "left_area": "145.69", 
+        "left_percent": "39",
+        "effect": "193.75", 
+        "ele_consumer": "0.31793", 
+        "ele_percent": "33.2", 
+        "water_percent": "0",
+        "water_comsumer": "3940.00", 
+        "avatar": "http://116.205.178.152:28080/resource/map/20220930085553/map.png", 
+        "reportImgUrl": "http://116.205.178.152:28080/resource/taskReport/5a071b5a310b7ad3578cb1fc1765599e/cfe18e8cbdfdff7cc258c9a36aefde70/jobReport.png"
+    }]
 }

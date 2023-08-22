@@ -23,11 +23,23 @@ export class NDUser {
         return promise;
     } 
 
+    static keepLogin(timeout: number = 1 * 1000 * 60 * 60 * 24){
+        setTimeout(() => {
+            this.login()
+            .then(()=>{
+                this.keepLogin();
+            })
+            .catch(()=>{
+                this.keepLogin(1 * 1000 * 60 );
+            });                
+        }, timeout);
+
+    }
+
     static model: INDUserModel = {} ;
 
     static getAuthorization(): string {
-        var auth = `Bearer \"${this.model.access_token}\"//token`;
-        console.log("222222222222", auth);
+        var auth = `Bearer \\"${this.model.access_token}\\"//token`;
         return auth;
 
     }

@@ -1,8 +1,8 @@
 import EventEmitter = require("events")
 import { ClientRequestArgs } from 'http';
 import * as WS from "ws";
-import { Api } from '../api';
-import { User } from './user';
+import { ABApi } from '../api/ab-api';
+import { ABUser } from './ab-user';
 
 export interface IChannelEvents {
 
@@ -18,7 +18,7 @@ export interface IChannelModel {
     connected?: boolean;
 }
 
-export class Channel {
+export class ABChannel {
     static Events = {
         onOpen: "onOpen",
         onClose: "onClose",
@@ -32,18 +32,18 @@ export class Channel {
         return new Promise((resolve, reject) => {  
             let options: ClientRequestArgs = {
                 headers:{
-                    "Token" : User.model.token + "",
-                    "Mobile-User-Id" : User.model.openid + ""
+                    "Token" : ABUser.model.token + "",
+                    "Mobile-User-Id" : ABUser.model.openid + ""
                 }
             };
 
 
-            if (Api.useProxy) {
-                options.host = Api.proxyHost;
-                options.port = Api.proxyPort;
+            if (ABApi.useProxy) {
+                options.host = ABApi.proxyHost;
+                options.port = ABApi.proxyPort;
             }
 
-            let path = `ws://${Api.host}:${Api.port}/fleetapi/websocketapp/${User.model.openid}/${User.model.token}`
+            let path = `ws://${ABApi.host}:${ABApi.port}/fleetapi/websocketapp/${ABUser.model.openid}/${ABUser.model.token}`
 
             options.path = path;
 
@@ -69,13 +69,13 @@ export class Channel {
             });
 
             ws.on('ping', () => {
-                console.log("1111111111111", "ping");
+                // console.log("1111111111111", "ping");
                 
             });
 
 
             ws.on('message', (data) => {
-                console.log("111111111111", data);
+                // console.log("111111111111", data);
                 let msg: IChannelMessage = JSON.parse(data.toString());
 
                 if (msg.type != "ping") {

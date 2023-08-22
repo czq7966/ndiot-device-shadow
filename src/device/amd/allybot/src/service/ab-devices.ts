@@ -1,20 +1,23 @@
-import { Api } from "../api";
-import { IDeviceModel } from "../model/device";
-import { Device, IDevice } from "./device";
+import { ABApi } from "../api/ab-api";
+import { IABDeviceModel } from "../model/ab-device";
+import { ABDevice, IABDevice } from "./ab-device";
 
-export class Devices {
-    static items: {[id: string] : IDevice} = {}
+export class ABDevices {
+    static items: {[id: string] : IABDevice} = {}
+    static ids(): string[] {
+        return Object.keys(this.items);
+    }
     static async updateBase(){
         return new Promise((resolve, reject)=>{
-            Api.deviceList()
+            ABApi.deviceList()
             .then((data: any)=>{
                 let list = data.data.list as [];
                 let promises = [];
                 for (let i = 0; i < list.length; i++) {
                     let dev = list[i] as any;
-                    let promise = Api.deviceInfo(dev.deviceSN)
+                    let promise = ABApi.deviceInfo(dev.deviceSN)
                     .then((info: any) => {
-                        let device = new Device(info.data as IDeviceModel);
+                        let device = new ABDevice(info.data as IABDeviceModel);
                         this.items[device.model.software.id] = device; 
                     })
 

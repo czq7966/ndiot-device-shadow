@@ -80,9 +80,11 @@ export class ACPGDTM7000F extends Modbus implements IACPGDTM7000F {
          if (Object.prototype.hasOwnProperty.call(pld, "power")) pld["power"] = (pld["power"] == "on" ? 1 : 0);
          if (Object.prototype.hasOwnProperty.call(pld, "mode")) pld["mode"] = (pld["mode"] == "cool" ? 0 : pld["mode"] == "heat" ? 1 : 2);
          if (Object.prototype.hasOwnProperty.call(pld, "temperature")) {
-             if (pld["mode"] == "cool") pld["cooltemperature"] = pld["temperature"] * 10;
-             if (pld["mode"] == "heat") pld["heattemperature"] = pld["temperature"] * 10;
+             if (pld["mode"] == "heat" || pld["mode"] == 1) pld["heattemperature"] = pld["temperature"] * 10;
+             else pld["cooltemperature"] = pld["temperature"] * 10;
          }
+
+         console.log("设置点表：do_svc_set_tables",pld);
 
          
         return super.do_svc_set_tables(pld);
@@ -96,6 +98,7 @@ export class ACPGDTM7000F extends Modbus implements IACPGDTM7000F {
                 if (this.tables.isSetError(v)){
                     reject("设置出错：" + msg.id + " , " + JSON.stringify(v));
                 } else {
+                    console.log("设置成功：", v);
                     if (msg) {
                         resolve(msg.payload.pld);
                     } else {

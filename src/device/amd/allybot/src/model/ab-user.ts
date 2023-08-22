@@ -1,5 +1,4 @@
-import { Api } from "../api";
-import { Channel } from "./channel";
+import { ABApi } from "../api/ab-api";
 
 export interface IUserModel {
     username?: string,
@@ -17,22 +16,22 @@ export interface IUserModel {
 }
 
 
-export class User  {
+export class ABUser  {
     static login(): Promise<any> {
-        let promise =  Api.login().then((data: any) => {
+        let promise =  ABApi.login().then((data: any) => {
             if (data.code == 200) {
-                User.model = data.data;
+                ABUser.model = data.data;
                 // Channel.connect();
-                // Api.version();
-                // Api.deviceUsestatus("035d02acabe467785967e01747caca90");
-                // Api.msgCnf("1", true);    
-                // Api.newlist();       
-                // Api.projects();  
-                // Api.deviceList();
-                // Api.deviceCleanList("035d02acabe467785967e01747caca90");
-                // Api.deviceCleanLogsList("035d02acabe467785967e01747caca90");
+                // ABApi.version();
+                // ABApi.deviceUsestatus("035d02acabe467785967e01747caca90");
+                // ABApi.msgCnf("1", true);    
+                // ABApi.newlist();       
+                // ABApi.projects();  
+                // ABApi.deviceList();
+                // ABApi.deviceCleanList("035d02acabe467785967e01747caca90");
+                // ABApi.deviceCleanLogsList("035d02acabe467785967e01747caca90");
 
-                // console.log(User.model);
+                // console.log(ABUser.model);
             } 
             
         })
