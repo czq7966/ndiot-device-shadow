@@ -1,6 +1,6 @@
 import { ABApi } from "../api/ab-api";
 import { NDApi } from "../api/nd-api";
-import { ABChannel } from "../model/ab-channel";
+import { ABChannel, IChannelMessage } from "../model/ab-channel";
 import { NDUser } from "../model/nd-user";
 import { ABUser } from "../model/ab-user";
 import { IABDevice } from "./ab-device";
@@ -9,6 +9,7 @@ import { NDDevices } from "./nd-devices";
 import { NDDevice } from "../../../nd-device";
 import { NDClearLogs } from "./nd-clear-logs";
 import { NDWarnLogs } from "./nd-warn-logs";
+import { NDOperationLogs } from "./nd-operation-logs";
 
 export class Main{
     // 开始
@@ -23,58 +24,52 @@ export class Main{
 
         //消息通道连接
         ABChannel.connect();
-        ABChannel.events.on(ABChannel.Events.onMessge,()=>{
+        ABChannel.events.on(ABChannel.Events.onMessge,(msg: IChannelMessage)=>{
             //todo 有消息通知
+            console.log("有消息通知:", msg);
         })
+
 
         // 更新设备基础信息
         await NDDevices.updateDevicesBase();
-        // await NDClearLogs.startPushClearLogs();
-        await NDWarnLogs.startPushWarnLogs();
-
-        // await NDDevices.pushDevicesCleanLogs();
-
-
+        this.startPush();
 
         return;
+    }
 
+    static warnLogPushCount: number = 0;
+    static clearLogPushCount: number = 0;
+    static operationLogPushCount: number = 0;
+    static async startPush(nextTimeout: number = 1 * 1000 * 60 * 1){        
+        try {
+        await NDWarnLogs.startPushWarnLogs();
+        console.log("************ 推送完毕: 异常报警信息 *************, 次数：", this.warnLogPushCount++);
+        await NDClearLogs.startPushClearLogs();        
+        console.log("************ 推送完毕: 清洁日记信息 *************, 次数：", this.clearLogPushCount++);
+        await NDOperationLogs.startPushOperationLogs();
+        console.log("************ 推送完毕: 操作日记信息 *************, 次数：", this.operationLogPushCount++);
 
-        // await Devices.updateBase();
-
-
-        return NDUser.login().then(()=>{
-            NDUser.keepLogin();
-            // NDApi.getFirstClearLog();
-        });
-
-        return ABUser.login()
-        .then(async ()=>{
-            //消息通道连接
-            ABChannel.connect();
-            ABChannel.events.on(ABChannel.Events.onMessge,()=>{
-                //todo 有消息通知
-            })
-
-            // 更新设备基础数据
-            await ABDevices.updateBase()
-            .then(data => {
-                console.log("11111122222222", data);
-                Object.values(data as {}).forEach((device: IABDevice) => {
-                    console.log("333333333333", JSON.stringify(device.model));
-                })
-                // (data as Object)
-
-            });
-
-        })
-        .catch(()=>{
-            let msg = "登录失败，10秒后重新开始";
-            console.log(msg);
-            setTimeout(() => {
-                this.start();                
-            }, 1000 * 10);
-        })
+        this.restartPush(nextTimeout);         
+            
+        } catch (error) {
+            console.log(error);
+           this.restartPush(nextTimeout);            
+        }
 
     }
+
+    static restartPushHander: any = 0;
+    static async restartPush(nextTimeout: number = 1 * 1000 * 60 * 1){ 
+        if (this.restartPushHander) { 
+            clearTimeout(this.restartPushHander);
+        }
+
+        console.log("************ 从", new Date(), '开始, ', nextTimeout / 1000, "秒后，将再次推送 ************");
+        this.restartPushHander = setTimeout(()=>{
+            this.restartPushHander = 0;
+            this.startPush(nextTimeout);
+        }, nextTimeout);   
+    }
+
 
 }

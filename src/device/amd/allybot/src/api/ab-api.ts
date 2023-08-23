@@ -171,26 +171,26 @@ export class ABApi {
     }
 
     //机器操作日记
-    static async deviceOperationlog(robotId: string, page: number = 1, pageSize: number = 100){
+    static async deviceOperationlog(robotId: string, page: number = 1, pageSize: number = 20){
         let path = "/fleetapi/message/operationlog";
         let body = `token=${ABUser.model.token}&type=0&id=${robotId}&openid=${ABUser.model.openid}&page=${page}&pageSize=${pageSize}`;
 
         let options = this._getHttpOptions("POST", path, body.length);
         let promsie = this._httpRequest(options, body);
-        promsie.then(data => console.log("deviceOperationlog", data));
-        promsie.catch(err => console.log("deviceOperationlog", err));
+        promsie.then(data => console.log("AB获取机器操作日记 成功 "));
+        promsie.catch(err => console.log("AB获取机器操作日记 失败", err));
         return promsie; 
     }
 
     //机器异常报警
-    static async deviceWarnlog(robotId: string, page: number = 1, pageSize: number = 100){
+    static async deviceWarnlog(robotId: string, page: number = 1, pageSize: number = 20){
         let path = "/fleetapi/message/warnlog";
         let body = `token=${ABUser.model.token}&type=0&id=${robotId}&openid=${ABUser.model.openid}&page=${page}&pageSize=${pageSize}`;
 
         let options = this._getHttpOptions("POST", path, body.length);
         let promsie = this._httpRequest(options, body);
-        promsie.then(data => console.log("获取机器异常报警信息 成功 "));
-        promsie.catch(err => console.log("获取机器异常报警信息 失败", err));
+        promsie.then(data => console.log("AB获取机器异常报警 成功 "));
+        promsie.catch(err => console.log("AB获取机器异常报警 失败", err));
         return promsie; 
     }
 

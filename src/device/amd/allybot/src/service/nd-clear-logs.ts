@@ -4,6 +4,7 @@ import { IABClearLog, IABClearLogDetail, IABClearLogReport } from "../model/ab-c
 import { ABDevices } from "./ab-devices";
 
 export class NDClearLogs {
+    static RecheckAllLogs: boolean = false;
     static devices : {[name: string] : {
         start?: IABClearLogDetail;
         end?: IABClearLogDetail 
@@ -43,12 +44,14 @@ export class NDClearLogs {
 
     static async startPushClearLogs() {
         let ids = ABDevices.ids();
+        let promises = [];
         for (let i = 0; i < ids.length; i++) {
             // var robotId = '07e71d123c4ec348fe411425955d72f6';
             var robotId = ids[i];
-            this.startPushClearLogsByRobotId(robotId);
+            promises.push(this.startPushClearLogsByRobotId(robotId));
             // break;
         }        
+        await Promise.all(promises);
     }
 
     static async startPushClearLogsByRobotId(robotId: string, page: number = 1){
@@ -120,7 +123,7 @@ export class NDClearLogs {
                 device.end.endTime = endTime;
                 console.log(`pushClearLogsByPage: robotId=${robotId} , logId=${log.id} , page=${page} , index=${i}`);
             } else {
-                console.log(`已推送：robotId=${robotId} , logId=${log.id} , page=${page} , index=${i} , logTime=${log.endTime}, startTime=${startTime}, endTime=${endTime}`);
+                // console.log(`已推送：robotId=${robotId} , logId=${log.id} , page=${page} , index=${i} , logTime=${log.endTime}, startTime=${startTime}, endTime=${endTime}`);
             }
         }
         return logs.length;

@@ -4,6 +4,7 @@ import { IABOperationLog } from "../model/ab-operation-log";
 import { ABDevices } from "./ab-devices";
 
 export class NDOperationLogs {
+    static RecheckAllLogs: boolean = false;
     static devices : {[name: string] : {
         start?: IABOperationLog;
         end?: IABOperationLog 
@@ -17,8 +18,8 @@ export class NDOperationLogs {
     }
 
     static async refreshTimeStampByRobotId(robotId: string) {
-            let start = await NDApi.getFirstOperationLog(robotId, false) as any;
-            let end = await NDApi.getFirstOperationLog(robotId, true) as any;
+            let start = await NDApi.getFirstOperationLog(robotId, false) as any || {};
+            let end = await NDApi.getFirstOperationLog(robotId, true) as any || {};
             let timestampName = 'datetime_1684113178508_572';
             let minTimestamp = 169157075500;
             
@@ -40,6 +41,16 @@ export class NDOperationLogs {
                     endTimestamp = 0;
                 }
             }
+
+            if (!startTimestamp) {
+                startTimestamp = endTimestamp || 0;
+            }
+    
+            if (!endTimestamp) {
+                endTimestamp = startTimestamp || 0;
+            }
+
+            
             this.devices[robotId] = {
                 start: {timestamp: startTimestamp},
                 end: {timestamp: endTimestamp}
@@ -53,19 +64,21 @@ export class NDOperationLogs {
 
     static async startPushOperationLogs() {
         let ids = ABDevices.ids();
+        let promises = [];
         for (let i = 0; i < ids.length; i++) {
             var robotId = ids[i];
-            var robotId = "bc525455edd97380bb8a1eb2c1aac7cf";
+            // var robotId = "bc525455edd97380bb8a1eb2c1aac7cf";
             // var robotId = "08d13f563d3b444c719827eabf5fef49";
             
-            this.startPushOperationLogsByRobotId(robotId);
-            break;
+            promises.push(this.startPushOperationLogsByRobotId(robotId));
+            // break;
         }        
+        await Promise.all(promises);
     }
 
     static async startPushOperationLogsByRobotId(robotId: string, page: number = 1){
         try {
-            if (page == 1) {
+            if (page == 1 || !this.devices[robotId]) {
                 await this.refreshTimeStampByRobotId(robotId);
             }
             let count = await this.pushOperationLogsByPage(robotId, page);
@@ -79,7 +92,7 @@ export class NDOperationLogs {
 
     }
 
-    static async pushOperationLogsByPage(robotId: string, page: number, pageSize = 100){
+    static async pushOperationLogsByPage(robotId: string, page: number, pageSize = 20){
         let startTime = 0;
         let endTime = 0;
         let device = this.devices[robotId];
@@ -109,6 +122,7 @@ export class NDOperationLogs {
         }
 
         console.log("pushOperationLogsByPage", "logs.lenght=", logs.length, "startTime=", startTime, "endTime=", endTime);
+        var pushLogs = [];
         // for (let i = logs.length - 1; i >= 0; i--) {
         for (let i = 0; i < logs.length; i++) {    
             const log = logs[i];
@@ -118,29 +132,24 @@ export class NDOperationLogs {
             }
 
             if (log.timestamp > endTime || log.timestamp < startTime){
-                await NDApi.pushDeviceOperationLogs(robotId, [log]);
-                if (log.timestamp >= endTime) {
-                    endTime = log.timestamp;
-                } else if (log.timestamp <= startTime) {
-                    startTime = log.timestamp;
-                }
-
-                if (!startTime) {
-                    startTime = endTime;
-                }
-
-                if (!endTime) {
-                    endTime = startTime;
-                }
-
-                device.start.timestamp = startTime;
-                device.end.timestamp = endTime;
-                console.log(`pushOperationLogsByPage: robotId=${robotId} , logId=${log.id} , page=${page} , index=${i}`);
+                pushLogs.push(log);
             } else {
-                console.log(`已推送：robotId=${robotId} , logId=${log.id} , page=${page} , index=${i} , logTime=${log.timestamp}, startTime=${startTime}, endTime=${endTime}`);
+                // console.log(`已推送：robotId=${robotId} , logId=${log.id} , page=${page} , index=${i} , logTime=${log.timestamp}, startTime=${startTime}, endTime=${endTime}`);
             }
         }
-        return logs.length;
+
+        if (pushLogs.length > 0) {
+            await NDApi.pushDeviceOperationLogs(robotId, pushLogs);
+            console.log(`ND推送机器操作日记: robotId=${robotId} , pushLogs.length=${pushLogs.length} , page=${page} `);
+        } else {
+            console.log(`ND推送机器操作日记 完成: `, ABDevices.items[robotId].model.software.name);
+        }
+        // return 0;
+        if (this.RecheckAllLogs) {
+            return logs.length;
+        } else {
+            return pushLogs.length;
+        }
     }
 
 

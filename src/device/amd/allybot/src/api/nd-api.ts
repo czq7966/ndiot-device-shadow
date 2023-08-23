@@ -155,7 +155,7 @@ export class NDApi {
     // 获取1条清洁日记
     static async getFirstClearLog(robotId: string, desc: boolean = true){
         return new Promise((resolve, reject) => {
-            let path = `/v0.1/events/loading/system_loading_es_data_list?suid=10003342`;
+            let path = `/v0.1/events/loading/system_loading_es_data_list?suid=860410`;
             let body =`{
                 "form_id": "c683f16c236e44c1b436c2e595125888",
                 "orderby":"endTime ${desc? 'desc' : 'asc'}",
@@ -196,7 +196,7 @@ export class NDApi {
     // 获取1条异常报警/操作日记
     static async getFirstWarnOrOperatonLog(robotId: string, type: string, desc: boolean = true){
         return new Promise((resolve, reject) => {
-            let path = `/v0.1/events/loading/system_loading_es_data_list?suid=10003342`;
+            let path = `/v0.1/events/loading/system_loading_es_data_list?suid=860410`;
             let body =`{
                 "form_id":"c683f16c236e44c19cdd17c524eb2b55",
                 "orderby":"datetime_1684113178508_572 ${desc? 'desc' : 'asc'}",
@@ -255,7 +255,7 @@ export class NDApi {
     static async getFirstWarnLog(robotId: string, desc: boolean = true){
         return this.getFirstWarnOrOperatonLog(robotId, "机器异常报警", desc);
         return new Promise((resolve, reject) => {
-            let path = `/v0.1/events/loading/system_loading_es_data_list?suid=10003342`;
+            let path = `/v0.1/events/loading/system_loading_es_data_list?suid=860410`;
             let body =`{
                 "form_id":"c683f16c236e44c19cdd17c524eb2b55",
                 "orderby":"datetime_1684113178508_572 ${desc? 'desc' : 'asc'}",
@@ -318,7 +318,7 @@ export class NDApi {
 
     //推送设备基础信息
     static pushDeviceBase(data){
-        let path = `/v0.1/external_events/operation/c683f16c236e44c183c57335ad1ba894?suid=10003342`;
+        let path = `/v0.1/external_events/operation/c683f16c236e44c183c57335ad1ba894?suid=860410`;
         let body = JSON.stringify(data);
         let options = this.authHttpsOptions('POST', path);
         let promsie = this.httpsRequest(options, body);
@@ -330,36 +330,36 @@ export class NDApi {
 
     //推送清洁日记信息
     static pushDeviceClearLogs(robotId: String, data: any[]){
-        let path = `/v0.1/external_events/operation/c683f16c236e44c198c4980c643825bf?suid=10003342`;
+        let path = `/v0.1/external_events/operation/c683f16c236e44c198c4980c643825bf?suid=860410`;
         let body = JSON.stringify({id: robotId, data: data});
         let options = this.authHttpOptions('POST', path);
         let promsie = this.httpRequest(options, body);
 
-        promsie.then(d => console.log("推送清洁日记信息 成功: ", robotId));
-        promsie.catch(err => console.log("推送清洁日记信息 失败：", err));
+        promsie.then(d => console.log("ND推送清洁日记信息 成功: ", robotId));
+        promsie.catch(err => console.log("ND推送清洁日记信息 失败：", err));
         return promsie; 
     }
 
     //推送异常报警信息
     static pushDeviceWarnLogs(robotId: String, data: any[]){
-        let path = `/v0.1/external_events/operation/c683f16c236e44c1845a011cfbaae5d5?suid=10003342`;
+        let path = `/v0.1/external_events/operation/c683f16c236e44c1845a011cfbaae5d5?suid=860410`;
         let body = JSON.stringify({id: robotId, data: data});
         let options = this.authHttpOptions('POST', path);
         let promsie = this.httpRequest(options, body);
 
-        promsie.then(d => console.log("推送异常报警信息 成功: ", robotId));
-        promsie.catch(err => console.log("推送异常报警信息 失败：", err));
+        promsie.then(d => console.log("ND推送异常报警信息 成功: ", robotId, `length=${data.length}`));
+        promsie.catch(err => console.log("ND推送异常报警信息 失败：", err));
         return promsie; 
     }
     //推送操作日记信息
     static pushDeviceOperationLogs(robotId: String, data: any[]){
-        let path = `/v0.1/external_events/operation/c683f16c236e44c1ba872a49255b9b5a?suid=10003342`;
+        let path = `/v0.1/external_events/operation/c683f16c236e44c1ba872a49255b9b5a?suid=860410`;
         let body = JSON.stringify({id: robotId, data: data});
         let options = this.authHttpOptions('POST', path);
         let promsie = this.httpRequest(options, body);
 
-        promsie.then(d => console.log("推送操作日记信息 成功: ", robotId));
-        promsie.catch(err => console.log("推送操作日记信息 失败：", err));
+        promsie.then(d => console.log("ND推送操作日记信息 成功: ", robotId));
+        promsie.catch(err => console.log("ND推送操作日记信息 失败：", err));
         return promsie; 
     }
 }

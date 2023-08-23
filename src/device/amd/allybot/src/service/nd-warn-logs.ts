@@ -4,6 +4,7 @@ import { IABWarnLog } from "../model/ab-warn-log";
 import { ABDevices } from "./ab-devices";
 
 export class NDWarnLogs {
+    static RecheckAllLogs: boolean = false;
     static devices : {[name: string] : {
         start?: IABWarnLog;
         end?: IABWarnLog 
@@ -17,8 +18,8 @@ export class NDWarnLogs {
     }
 
     static async refreshTimeStampByRobotId(robotId: string) {
-            let start = await NDApi.getFirstWarnLog(robotId, false) as any;
-            let end = await NDApi.getFirstWarnLog(robotId, true) as any;
+            let start = await NDApi.getFirstWarnLog(robotId, false) as any || {};
+            let end = await NDApi.getFirstWarnLog(robotId, true) as any || {};
             let timestampName = 'datetime_1684113178508_572';
             let minTimestamp = 169157075500;
             
@@ -40,6 +41,16 @@ export class NDWarnLogs {
                     endTimestamp = 0;
                 }
             }
+
+            if (!startTimestamp) {
+                startTimestamp = endTimestamp || 0;
+            }
+    
+            if (!endTimestamp) {
+                endTimestamp = startTimestamp || 0;
+            }
+
+
             this.devices[robotId] = {
                 start: {timestamp: startTimestamp},
                 end: {timestamp: endTimestamp}
@@ -52,20 +63,23 @@ export class NDWarnLogs {
     }
 
     static async startPushWarnLogs() {
+        let promises = [];
         let ids = ABDevices.ids();
         for (let i = 0; i < ids.length; i++) {
             var robotId = ids[i];
             // var robotId = "bc525455edd97380bb8a1eb2c1aac7cf";
             // var robotId = "08d13f563d3b444c719827eabf5fef49";
             
-            this.startPushWarnLogsByRobotId(robotId);
+            promises.push(this.startPushWarnLogsByRobotId(robotId));
             // break;
         }        
+
+        await Promise.all(promises);
     }
 
     static async startPushWarnLogsByRobotId(robotId: string, page: number = 1){
         try {
-            if (page == 1) {
+            if (page == 1 || !this.devices[robotId]) {
                 await this.refreshTimeStampByRobotId(robotId);
             }
             let count = await this.pushWarnLogsByPage(robotId, page);
@@ -79,7 +93,7 @@ export class NDWarnLogs {
 
     }
 
-    static async pushWarnLogsByPage(robotId: string, page: number, pageSize = 100){
+    static async pushWarnLogsByPage(robotId: string, page: number, pageSize = 20){
         let startTime = 0;
         let endTime = 0;
         let device = this.devices[robotId];
@@ -108,7 +122,8 @@ export class NDWarnLogs {
             logs = data.data as any;
         }
 
-        console.log("pushWarnLogsByPage", "logs.lenght=", logs.length, "startTime=", startTime, "endTime=", endTime);
+        console.log("pushWarnLogsByPage", "logs.length=", logs.length, "startTime=", startTime, "endTime=", endTime);
+        var pushLogs = [];
         // for (let i = logs.length - 1; i >= 0; i--) {
         for (let i = 0; i < logs.length; i++) {    
             const log = logs[i];
@@ -118,29 +133,41 @@ export class NDWarnLogs {
             }
 
             if (log.timestamp > endTime || log.timestamp < startTime){
-                await NDApi.pushDeviceWarnLogs(robotId, [log]);
-                if (log.timestamp >= endTime) {
-                    endTime = log.timestamp;
-                } else if (log.timestamp <= startTime) {
-                    startTime = log.timestamp;
-                }
+                // await NDApi.pushDeviceWarnLogs(robotId, [log]);
+                // if (log.timestamp >= endTime) {
+                //     endTime = log.timestamp;
+                // } else if (log.timestamp <= startTime) {
+                //     startTime = log.timestamp;
+                // }
 
-                if (!startTime) {
-                    startTime = endTime;
-                }
+                // if (!startTime) {
+                //     startTime = endTime;
+                // }
 
-                if (!endTime) {
-                    endTime = startTime;
-                }
+                // if (!endTime) {
+                //     endTime = startTime;
+                // }
 
-                device.start.timestamp = startTime;
-                device.end.timestamp = endTime;
-                console.log(`pushWarnLogsByPage: robotId=${robotId} , logId=${log.id} , page=${page} , index=${i}`);
+                // device.start.timestamp = startTime;
+                // device.end.timestamp = endTime;
+                // console.log(`pushWarnLogsByPage: robotId=${robotId} , logId=${log.id} , page=${page} , index=${i}`);
+                pushLogs.push(log);
             } else {
-                console.log(`已推送：robotId=${robotId} , logId=${log.id} , page=${page} , index=${i} , logTime=${log.timestamp}, startTime=${startTime}, endTime=${endTime}`);
+                // console.log(`已推送：robotId=${robotId} , logId=${log.id} , page=${page} , index=${i} , logTime=${log.timestamp}, startTime=${startTime}, endTime=${endTime}`);
             }
         }
-        return logs.length;
+        if (pushLogs.length > 0) {
+            await NDApi.pushDeviceWarnLogs(robotId, pushLogs);
+            console.log(`ND推送机器异常报警: robotId=${robotId} , pushLogs.length=${pushLogs.length} , page=${page} `);
+        } else {
+            console.log(`ND推送机器异常报警 完成: `, ABDevices.items[robotId].model.software.name);
+         
+        }
+        if (this.RecheckAllLogs) {
+            return logs.length;
+        } else {
+            return pushLogs.length;
+        }
     }
 
     static async pushWarnLogByLogId(robotId: string, logId: string){
