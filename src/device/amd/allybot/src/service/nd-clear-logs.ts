@@ -99,12 +99,13 @@ export class NDClearLogs {
 
         console.log("pushClearLogsByPage", "logs.lenght=", logs.length, "startTime=", startTime, "endTime=", endTime);
 
-
+        var pushLogs: IABClearLog[] = [];
         // for (let i = logs.length - 1; i >= 0; i--) {
         for (let i = 0; i < logs.length; i++) {    
             const log = logs[i];
             if (log.endTime > endTime || log.endTime < startTime){
                 await this.pushClearLogByLogId(robotId, log.id);
+                pushLogs.push(log);
                 if (log.endTime >= endTime) {
                     endTime = log.endTime;
                 } else if (log.endTime <= startTime) {
@@ -126,7 +127,11 @@ export class NDClearLogs {
                 // console.log(`已推送：robotId=${robotId} , logId=${log.id} , page=${page} , index=${i} , logTime=${log.endTime}, startTime=${startTime}, endTime=${endTime}`);
             }
         }
-        return logs.length;
+        if (this.RecheckAllLogs) {
+            return logs.length;
+        } else {
+            return pushLogs.length;
+        }
     }
 
     static async pushClearLogByLogId(robotId: string, logId: string){
@@ -140,7 +145,9 @@ export class NDClearLogs {
             }
             console.log("pushClearLogByLogId", robotId, logId);
             await NDApi.pushDeviceClearLogs(robotId, [detail]);
+            return true;
         }
+        return false;
     }
 
 }
