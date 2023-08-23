@@ -57,8 +57,8 @@ export class ABApi {
         let path = "/fleetapi/account/login";
         let body = `username=${ABApi.username}&password=${ABApi.passward}`;
         let promsie = this._httpRequest(this._getHttpOptions("POST", path, body.length), body);
-        promsie.then(data => console.log("智绘扫地机器人登录成功"));
-        promsie.catch(err => console.log("智绘扫地机器人登录失败：", err));
+        promsie.then(data => console.log("AB智绘扫地机器人登录成功"));
+        promsie.catch(err => console.log("AB智绘扫地机器人登录失败：", err));
         return promsie; 
     }
 
@@ -67,8 +67,8 @@ export class ABApi {
         let path = "/fleetapi/about/version";
         let body = `token=${ABUser.model.token}&openid=${ABUser.model.openid}`;
         let promsie = this._httpRequest(this._getHttpOptions("POST", path, body.length), body);
-        promsie.then(data => console.log("version", data));
-        promsie.catch(err => console.log("version：", err));
+        promsie.then(data => console.log("AB version", data));
+        promsie.catch(err => console.log("AB version：", err));
         return promsie; 
     }
 
@@ -84,8 +84,8 @@ export class ABApi {
         let options = this._getHttpOptions("PUT", path, body.length);
         options.headers["Content-Type"] = "application/json; charset=utf-8";
         let promsie = this._httpRequest(options, body);
-        promsie.then(data => console.log("msgCnf", data));
-        promsie.catch(err => console.log("msgCnf", err));
+        promsie.then(data => console.log("AB msgCnf", data));
+        promsie.catch(err => console.log("AB msgCnf", err));
         return promsie;        
 
     }
@@ -96,8 +96,8 @@ export class ABApi {
         let body = `token=${ABUser.model.token}&openid=${ABUser.model.openid}`;
         let options = this._getHttpOptions("POST", path, body.length);
         let promsie = this._httpRequest(options, body);
-        promsie.then(data => console.log("newlist", data));
-        promsie.catch(err => console.log("newlist", err));
+        promsie.then(data => console.log("AB newlist", data));
+        promsie.catch(err => console.log("AB newlist", err));
         return promsie;        
 
     }
@@ -109,8 +109,8 @@ export class ABApi {
         let body = `token=${ABUser.model.token}&openid=${ABUser.model.openid}`;
         let options = this._getHttpOptions("POST", path, body.length);
         let promsie = this._httpRequest(options, body);
-        promsie.then(data => console.log("projects", data));
-        promsie.catch(err => console.log("projects", err));
+        promsie.then(data => console.log("AB projects", data));
+        promsie.catch(err => console.log("AB projects", err));
         return promsie;        
 
     }
@@ -130,8 +130,8 @@ export class ABApi {
         let options = this._getHttpOptions("POST", path, body.length);
         options.headers["Content-Type"] = "application/json; charset=utf-8";
         let promsie = this._httpRequest(options, body);
-        promsie.then(data => console.log("deviceList", data));
-        promsie.catch(err => console.log("deviceList", err));
+        promsie.then(data => console.log("AB deviceList", data));
+        promsie.catch(err => console.log("AB deviceList", err));
         return promsie;        
 
     }
@@ -142,8 +142,8 @@ export class ABApi {
         let body = `token=${ABUser.model.token}&type=${type}&openid=${ABUser.model.openid}`;
         let options = this._getHttpOptions("POST", path, body.length);
         let promsie = this._httpRequest(options, body);
-        promsie.then(data => console.log("newdevicelist", data));
-        promsie.catch(err => console.log("newdevicelist", err));
+        promsie.then(data => console.log("AB newdevicelist", data));
+        promsie.catch(err => console.log("AB newdevicelist", err));
         return promsie;        
 
     }
@@ -153,8 +153,8 @@ export class ABApi {
         let path = "/fleetapi/device/usestatus";
         let body = `token=${ABUser.model.token}&robotId=${robotId}&openid=${ABUser.model.openid}`;
         let promsie = this._httpRequest(this._getHttpOptions("POST", path, body.length), body);
-        promsie.then(data => console.log("deviceUsestatus", data));
-        promsie.catch(err => console.log("deviceUsestatus", err));
+        promsie.then(data => console.log("AB deviceUsestatus", data));
+        promsie.catch(err => console.log("AB deviceUsestatus", err));
         return promsie; 
     }
 
@@ -164,8 +164,8 @@ export class ABApi {
         let body = `token=${ABUser.model.token}&id=${robotId}&openid=${ABUser.model.openid}`;
         let options = this._getHttpOptions("POST", path, body.length);
         let promsie = this._httpRequest(options, body);
-        promsie.then(data => console.log("deviceUsemap", data));
-        promsie.catch(err => console.log("deviceUsemap", err));
+        promsie.then(data => console.log("AB deviceUsemap", data));
+        promsie.catch(err => console.log("AB deviceUsemap", err));
         return promsie;        
 
     }
@@ -201,8 +201,8 @@ export class ABApi {
 
         let options = this._getHttpOptions("POST", path, body.length);
         let promsie = this._httpRequest(options, body);
-        promsie.then(data => console.log("deviceInfo", (data as any).data.software.name));
-        promsie.catch(err => console.log("deviceInfo", err));
+        promsie.then(data => console.log("AB deviceInfo", (data as any).data.software.name));
+        promsie.catch(err => console.log("AB deviceInfo", err));
         return promsie; 
     }
 
@@ -213,8 +213,8 @@ export class ABApi {
 
         let options = this._getHttpOptions("POST", path, body.length);
         let promsie = this._httpRequest(options, body);
-        promsie.then(data => console.log("deviceCleanList", data));
-        promsie.catch(err => console.log("deviceCleanList", err));
+        promsie.then(data => console.log("AB deviceCleanList", data));
+        promsie.catch(err => console.log("AB deviceCleanList", err));
         return promsie; 
     }
 
@@ -226,8 +226,8 @@ export class ABApi {
 
         let options = this._getHttpOptions("POST", path, body.length);
         let promsie = this._httpRequest(options, body);
-        promsie.then(data => console.log("机器清洁日记列表 成功"));
-        promsie.catch(err => console.log("deviceCleanLogsList", err));
+        promsie.then(data => console.log("AB机器清洁日记列表 成功"));
+        promsie.catch(err => console.log("AB deviceCleanLogsList", err));
         return promsie; 
     }
     
@@ -238,8 +238,8 @@ export class ABApi {
 
         let options = this._getHttpOptions("POST", path, body.length);
         let promsie = this._httpRequest(options, body);
-        promsie.then(data => console.log("获取机器清洁日记详情 成功"));
-        promsie.catch(err => console.log("获取机器清洁日记详情 失败", err));
+        promsie.then(data => console.log("AB获取机器清洁日记详情 成功"));
+        promsie.catch(err => console.log("AB获取机器清洁日记详情 失败", err));
         return promsie; 
     }
 
@@ -251,8 +251,8 @@ export class ABApi {
 
         let options = this._getHttpOptions("GET", path, body.length);
         let promsie = this._httpRequest(options, body);
-        promsie.then(data => console.log("获取机器清洁日记报告 成功"));
-        promsie.catch(err => console.log("获取机器清洁日记报告 失败", err));
+        promsie.then(data => console.log("AB获取机器清洁日记报告 成功"));
+        promsie.catch(err => console.log("AB获取机器清洁日记报告 失败", err));
         return promsie; 
     }
 

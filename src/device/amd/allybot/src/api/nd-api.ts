@@ -74,7 +74,7 @@ export class NDApi {
             if (body) {
                 req.write(body,(e)=>{
                     if (e){
-                        console.log("httpRequest error:", e);
+                        console.log("ND httpRequest error:", e);
                     } else {
                         req.end(); 
                     }
@@ -126,7 +126,7 @@ export class NDApi {
             if (body) {
                 req.write(body,(e)=>{
                     if (e){
-                        console.log("httpRequest error:", e);
+                        console.log("ND httpRequest error:", e);
                     } else {
                         req.end(); 
                     }
@@ -175,7 +175,7 @@ export class NDApi {
     
             promsie.then((data: any) => { 
                  data = JSON.parse(data);
-                 console.log("获取清洁日记 成功", robotId);
+                 console.log("ND获取清洁日记 成功", robotId);
                  let items = data.items as any[];
                  if (items && items.length > 0){
                     resolve(items[0]);
@@ -185,7 +185,7 @@ export class NDApi {
     
                 });
             promsie.catch((err) => { 
-                console.log("获取清洁日记 失败：", err);
+                console.log("ND获取清洁日记 失败：", err);
                 reject(err);
             });
 
@@ -222,7 +222,7 @@ export class NDApi {
     
             promsie.then((data: any) => { 
                     data = JSON.parse(data);
-                    console.log(`获取1条${type} 成功`, robotId);
+                    console.log(`ND获取1条${type} 成功`, robotId);
                     let items = data.items as any[];
                     if (items && items.length > 0){
                         let timestampName = 'datetime_1684113178508_572';
@@ -243,7 +243,7 @@ export class NDApi {
     
                 });
             promsie.catch((err) => { 
-                console.log(`获取1条${type} 失败：`, err);
+                console.log(`ND获取1条${type} 失败：`, err);
                 reject(err);
             });
 
@@ -254,60 +254,6 @@ export class NDApi {
     // 获取1条异常报警
     static async getFirstWarnLog(robotId: string, desc: boolean = true){
         return this.getFirstWarnOrOperatonLog(robotId, "机器异常报警", desc);
-        return new Promise((resolve, reject) => {
-            let path = `/v0.1/events/loading/system_loading_es_data_list?suid=860410`;
-            let body =`{
-                "form_id":"c683f16c236e44c19cdd17c524eb2b55",
-                "orderby":"datetime_1684113178508_572 ${desc? 'desc' : 'asc'}",
-                "limit":"3",
-                    "filter":[
-                        {
-                              "is_operator": false,
-                              "key": "select_1689231840204_448",
-                              "op": "eq",
-                              "value": "机器异常报警" 
-                        },
-                        {
-                              "is_operator": false,
-                              "key": "input_1689231771369_423",
-                              "op": "eq",
-                              "value": "${robotId}" 
-                        }
-                    ]
-                }`;
-            let options = this.authHttpOptions('POST', path);
-            
-            let promsie = this.httpRequest(options, body);
-    
-            promsie.then((data: any) => { 
-                    data = JSON.parse(data);
-                    console.log("获取1条异常报警 成功", robotId);
-                    let items = data.items as any[];
-                    if (items && items.length > 0){
-                        let timestampName = 'datetime_1684113178508_572';
-                        let result;
-                        for (let i = 0; i < items.length; i++) {
-                            const item = items[i];
-                            result = item;
-                            let timestamp = (new Date(result[timestampName])).getTime();
-                             if (timestamp >  this.minTimestamp){
-                                break;       
-                            }                     
-                        }
-                        resolve(result);
-                    
-                    } else {
-                    resolve(null);
-                    }
-    
-                });
-            promsie.catch((err) => { 
-                console.log("获取1条异常报警 失败：", err);
-                reject(err);
-            });
-
-        });
-        
     }
 
     // 获取1条操作日记
@@ -323,8 +269,8 @@ export class NDApi {
         let options = this.authHttpsOptions('POST', path);
         let promsie = this.httpsRequest(options, body);
 
-        promsie.then(d => console.log("推送设备基础信息 成功: ", data.software.name));
-        promsie.catch(err => console.log("推送设备基础信息 失败：", body));
+        promsie.then(d => console.log("ND推送设备基础信息 成功: ", data.software.name));
+        promsie.catch(err => console.log("ND推送设备基础信息 失败：", body));
         return promsie; 
     }
 

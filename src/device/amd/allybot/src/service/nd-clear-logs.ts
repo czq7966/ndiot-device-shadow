@@ -97,7 +97,7 @@ export class NDClearLogs {
             logs = data.data as any;
         }
 
-        console.log("pushClearLogsByPage", "logs.lenght=", logs.length, "startTime=", startTime, "endTime=", endTime);
+        console.log("pushClearLogsByPage", "logs.length=", logs.length, "startTime=", startTime, "endTime=", endTime);
 
         var pushLogs: IABClearLog[] = [];
         // for (let i = logs.length - 1; i >= 0; i--) {
@@ -122,10 +122,16 @@ export class NDClearLogs {
 
                 device.start.endTime = startTime;
                 device.end.endTime = endTime;
-                console.log(`pushClearLogsByPage: robotId=${robotId} , logId=${log.id} , page=${page} , index=${i}`);
+                // console.log(`pushClearLogsByPage: robotId=${robotId} , logId=${log.id} , page=${page} , index=${i}`);
             } else {
                 // console.log(`已推送：robotId=${robotId} , logId=${log.id} , page=${page} , index=${i} , logTime=${log.endTime}, startTime=${startTime}, endTime=${endTime}`);
             }
+        }
+
+        if (pushLogs.length > 0) {
+            console.log(`ND推送机器清洁日记: robotId=${robotId} , name=${ABDevices.items[robotId].model.software.name} , pushLogs.length=${pushLogs.length} , page=${page} `);
+        } else {
+            console.log(`ND推送机器清洁日记 完成: `, robotId, ABDevices.items[robotId].model.software.name);
         }
         if (this.RecheckAllLogs) {
             return logs.length;

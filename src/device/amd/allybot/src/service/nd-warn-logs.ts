@@ -158,9 +158,9 @@ export class NDWarnLogs {
         }
         if (pushLogs.length > 0) {
             await NDApi.pushDeviceWarnLogs(robotId, pushLogs);
-            console.log(`ND推送机器异常报警: robotId=${robotId} , pushLogs.length=${pushLogs.length} , page=${page} `);
+            console.log(`ND推送机器异常报警: robotId=${robotId} , name=${ABDevices.items[robotId].model.software.name}, pushLogs.length=${pushLogs.length} , page=${page} `);
         } else {
-            console.log(`ND推送机器异常报警 完成: `, ABDevices.items[robotId].model.software.name);
+            console.log(`ND推送机器异常报警 完成: `, robotId, ABDevices.items[robotId].model.software.name);
          
         }
         if (this.RecheckAllLogs) {
