@@ -70,7 +70,7 @@ export class NDClearLogs {
 
     }
 
-    static async pushClearLogsByPage(robotId: string, page: number, pageSize = 100){
+    static async pushClearLogsByPage(robotId: string, page: number, pageSize = 20){
         let startTime = 0;
         let endTime = 0;
         let device = this.devices[robotId];
