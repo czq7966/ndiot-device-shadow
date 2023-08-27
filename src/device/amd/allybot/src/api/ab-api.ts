@@ -7,8 +7,11 @@ export class ABApi {
     static host = "116.205.178.152";
     static port = "28080";
 
-    static username = "13805014893";
-    static passward = "Y3pxMTIzNDU2";
+    // static username = "13805014893";
+    // static passward = "Y3pxMTIzNDU2";
+    static username = "zhkj-ceshi";
+    static passward = "emhrajEyMzQ1Ng==";
+    
 
     static _getHttpOptions(mothed: string, path: string, dataLen: number): http.RequestOptions{
         let options: http.RequestOptions = {
@@ -245,7 +248,7 @@ export class ABApi {
 
     //机器清洁日记报告
     static async deviceTaskReport(reportId: string){
-        http://116.205.178.152:28080 
+        // http://116.205.178.152:28080 
         let path = `/fleetapi/task/report?reportId=${reportId}`;
         let body = '';
 

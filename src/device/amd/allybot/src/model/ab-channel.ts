@@ -51,6 +51,7 @@ export class ABChannel {
             this.model.websocket = ws;
 
             ws.on('open', () => {
+                console.log("AB ABChannel WS通道开启", new Date().toLocaleString());
                 this.model.connected = true;
                 this.events.emit(this.Events.onOpen);
                 this.ping();     
@@ -58,14 +59,22 @@ export class ABChannel {
             });
 
             ws.on('close', (code) => {
+                console.log("AB ABChannel WS通道关闭", new Date().toLocaleString());
+                let connected = this.model.connected;
                 this.model.connected = false;
                 this.events.emit(this.Events.onClose, code);
-                reject(code);                  
+                ws.removeAllListeners();
+                if (!connected){
+                    resolve("");    
+                }              
             });
             
             ws.on('error', (err) => {
+                console.log("AB ABChannel WS通道出错", new Date().toLocaleString());
                 this.events.emit(this.Events.onError, err);
-                reject(err);                
+                if (!this.model.connected){
+                    resolve("");    
+                } 
             });
 
             ws.on('ping', () => {
