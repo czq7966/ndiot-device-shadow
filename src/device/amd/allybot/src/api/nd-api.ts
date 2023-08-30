@@ -1,6 +1,5 @@
 import * as http from 'http';
 import * as https from 'https';
-import { resolve } from 'path';
 import { NDUser } from '../model/nd-user';
 
 export class NDApi {
@@ -88,7 +87,7 @@ export class NDApi {
 
     static authHttpOptions(mothed: string, path: string, dataLen?: number, host?: string): https.RequestOptions{
         host = host == null ? NDApi.host : host;
-        NDApi.useProxy = true;
+        // NDApi.useProxy = true;
         let options: https.RequestOptions = {
             host: NDApi.useProxy ? NDApi.proxyHost : host,
             port: NDApi.useProxy ? NDApi.proxyPort : NDApi.port,
@@ -169,9 +168,9 @@ export class NDApi {
                     }
                 ]
             }`;
-            let options = this.authHttpOptions('POST', path);
+            let options = this.authHttpsOptions('POST', path);
             
-            let promsie = this.httpRequest(options, body);
+            let promsie = this.httpsRequest(options, body);
     
             promsie.then((data: any) => { 
                  data = JSON.parse(data);
@@ -216,9 +215,9 @@ export class NDApi {
                         }
                     ]
                 }`;
-            let options = this.authHttpOptions('POST', path);
+            let options = this.authHttpsOptions('POST', path);
             
-            let promsie = this.httpRequest(options, body);
+            let promsie = this.httpsRequest(options, body);
     
             promsie.then((data: any) => { 
                     data = JSON.parse(data);
@@ -278,8 +277,8 @@ export class NDApi {
     static pushDeviceClearLogs(robotId: String, data: any[]){
         let path = `/v0.1/external_events/operation/c683f16c236e44c198c4980c643825bf?suid=860410`;
         let body = JSON.stringify({id: robotId, data: data});
-        let options = this.authHttpOptions('POST', path);
-        let promsie = this.httpRequest(options, body);
+        let options = this.authHttpsOptions('POST', path);
+        let promsie = this.httpsRequest(options, body);
 
         promsie.then(d => console.log("ND推送清洁日记信息 成功: ", robotId));
         promsie.catch(err => console.log("ND推送清洁日记信息 失败：", err));
@@ -290,8 +289,8 @@ export class NDApi {
     static pushDeviceWarnLogs(robotId: String, data: any[]){
         let path = `/v0.1/external_events/operation/c683f16c236e44c1845a011cfbaae5d5?suid=860410`;
         let body = JSON.stringify({id: robotId, data: data});
-        let options = this.authHttpOptions('POST', path);
-        let promsie = this.httpRequest(options, body);
+        let options = this.authHttpsOptions('POST', path);
+        let promsie = this.httpsRequest(options, body);
 
         promsie.then(d => console.log("ND推送异常报警信息 成功: ", robotId, `length=${data.length}`));
         promsie.catch(err => console.log("ND推送异常报警信息 失败：", err));
@@ -301,8 +300,8 @@ export class NDApi {
     static pushDeviceOperationLogs(robotId: String, data: any[]){
         let path = `/v0.1/external_events/operation/c683f16c236e44c1ba872a49255b9b5a?suid=860410`;
         let body = JSON.stringify({id: robotId, data: data});
-        let options = this.authHttpOptions('POST', path);
-        let promsie = this.httpRequest(options, body);
+        let options = this.authHttpsOptions('POST', path);
+        let promsie = this.httpsRequest(options, body);
 
         promsie.then(d => console.log("ND推送操作日记信息 成功: ", robotId));
         promsie.catch(err => console.log("ND推送操作日记信息 失败：", err));
