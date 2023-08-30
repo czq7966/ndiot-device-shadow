@@ -1,7 +1,7 @@
 import * as http from 'http';
 import { ABUser } from '../model/ab-user';
 export class ABApi {
-    static useProxy = true;
+    static useProxy = false;
     static proxyHost = "127.0.0.1";
     static proxyPort = "8888";
     static host = "116.205.178.152";

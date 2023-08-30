@@ -1,12 +1,7 @@
-import { ABApi } from "../api/ab-api";
-import { NDApi } from "../api/nd-api";
 import { ABChannel, IChannelMessage } from "../model/ab-channel";
 import { NDUser } from "../model/nd-user";
 import { ABUser } from "../model/ab-user";
-import { IABDevice } from "./ab-device";
-import { ABDevices } from "./ab-devices";
 import { NDDevices } from "./nd-devices";
-import { NDDevice } from "../../../nd-device";
 import { NDClearLogs } from "./nd-clear-logs";
 import { NDWarnLogs } from "./nd-warn-logs";
 import { NDOperationLogs } from "./nd-operation-logs";
@@ -92,10 +87,13 @@ export class Main{
 
     static pushTaskCount = 0;
     static async addPushTask(){
+        console.log(`*********当前任务列表数量：${this.pushTaskCount} + 1 **********`);
         if (this.pushTaskCount == 0){
             this.pushTaskCount++;
-            //定时推送
-            this.startPushTaskTimeout();
+            // 定时推送
+            // this.startPushTaskTimeout();
+            //实时推送
+            this.startPushTask();
         } else {
             this.pushTaskCount++;
         }
@@ -131,12 +129,12 @@ export class Main{
         if (this.pushTaskCount > 0){
             this.startPush(0)
             .then(d=>{
-                this.pushTaskCount--;
+                this.pushTaskCount = this.pushTaskCount > 1 ? 1: 0;
                 this.startPushTask();
             })
             .catch(e=>{
                 console.error("推送失败：", new Date().toLocaleString(), e);
-                this.pushTaskCount--;
+                this.pushTaskCount = this.pushTaskCount > 1 ? 1: 0;
                 this.startPushTask();     
             })
         }

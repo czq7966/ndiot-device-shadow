@@ -16,5 +16,6 @@ const Allybot = require("../../../../../dist/node-red/amd/allybot/index");
 //   console.log(data);
 // });
 
-Allybot.Main.start();
-// console.log(Allybot)
+// Allybot.Main.start();
+// let allyBot = new AllyBot.AllyBot({id: "AllyBotID"});
+console.log(new Allybot.AllyBot({id: "AllyBotID"}))
